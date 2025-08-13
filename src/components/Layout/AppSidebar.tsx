@@ -1,4 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
+import { useState } from "react";
 import {
   BarChart3,
   TrendingUp,
@@ -6,7 +7,9 @@ import {
   MessageSquare,
   AlertTriangle,
   Bot,
-  FileText
+  FileText,
+  ChevronDown,
+  ChevronRight
 } from "lucide-react";
 
 import {
@@ -20,6 +23,8 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Button } from "@/components/ui/button";
 
 const navigationItems = [
   {
@@ -64,6 +69,7 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const location = useLocation();
   const currentPath = location.pathname;
+  const [isGroupOpen, setIsGroupOpen] = useState(true);
 
   const isActive = (path: string) => {
     if (path === "/" && currentPath === "/") return true;
@@ -85,31 +91,49 @@ export function AppSidebar() {
       collapsible="icon"
     >
       <SidebarContent className="p-2">
-        <SidebarGroup>
-          <SidebarGroupLabel className={`${collapsed ? "hidden" : "block"} text-sidebar-foreground font-medium px-2 py-2`}>
-            เมนูหลัก
-          </SidebarGroupLabel>
-          
-          <SidebarGroupContent>
-            <SidebarMenu className="space-y-1">
-              {navigationItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink
-                      to={item.url}
-                      className={getNavClassName(item.url)}
-                    >
-                      <item.icon className={`${collapsed ? "mr-0" : "mr-3"} h-5 w-5 flex-shrink-0`} />
-                      {!collapsed && (
-                        <span className="truncate text-sm">{item.title}</span>
-                      )}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <Collapsible open={isGroupOpen} onOpenChange={setIsGroupOpen}>
+          <SidebarGroup>
+            <CollapsibleTrigger asChild>
+              <Button
+                variant="ghost"
+                className={`w-full justify-between p-2 h-auto text-sidebar-foreground hover:bg-sidebar-accent/50 ${collapsed ? "px-2" : "px-2"}`}
+              >
+                <SidebarGroupLabel className={`${collapsed ? "hidden" : "block"} text-sidebar-foreground font-medium`}>
+                  เมนูหลัก
+                </SidebarGroupLabel>
+                {!collapsed && (
+                  isGroupOpen ? (
+                    <ChevronDown className="h-4 w-4 text-sidebar-foreground" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4 text-sidebar-foreground" />
+                  )
+                )}
+              </Button>
+            </CollapsibleTrigger>
+            
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu className="space-y-1">
+                  {navigationItems.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton asChild>
+                        <NavLink
+                          to={item.url}
+                          className={getNavClassName(item.url)}
+                        >
+                          <item.icon className={`${collapsed ? "mr-0" : "mr-3"} h-5 w-5 flex-shrink-0`} />
+                          {!collapsed && (
+                            <span className="truncate text-sm">{item.title}</span>
+                          )}
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </SidebarGroup>
+        </Collapsible>
       </SidebarContent>
     </Sidebar>
   );
