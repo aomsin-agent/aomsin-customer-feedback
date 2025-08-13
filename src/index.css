@@ -21,11 +21,12 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 220 15% 25%;
 
-    /* Primary Pink Theme */
-    --primary: 340 60% 55%;
+    /* Primary Pink Theme - Government Savings Bank */
+    --primary: 320 65% 52%;
     --primary-foreground: 0 0% 100%;
-    --primary-light: 340 40% 75%;
-    --primary-dark: 340 70% 45%;
+    --primary-light: 330 70% 70%;
+    --primary-dark: 315 60% 40%;
+    --primary-glow: 325 65% 65%;
 
     /* Secondary Gray Theme */
     --secondary: 220 10% 85%;
@@ -52,9 +53,9 @@ All colors MUST be HSL.
     --input: 220 15% 90%;
     --ring: 340 60% 55%;
 
-    /* Gradients */
-    --gradient-header: linear-gradient(135deg, hsl(340 60% 75%), hsl(0 0% 98%), hsl(210 15% 85%), hsl(220 10% 70%));
-    --gradient-primary: linear-gradient(135deg, hsl(340 60% 55%), hsl(340 40% 75%));
+    /* Gradients - Government Savings Bank Theme */
+    --gradient-header: linear-gradient(135deg, hsl(320 65% 52%), hsl(330 70% 70%));
+    --gradient-primary: linear-gradient(135deg, hsl(320 65% 52%), hsl(325 65% 65%));
     --gradient-subtle: linear-gradient(180deg, hsl(350 20% 98%), hsl(220 8% 96%));
 
     /* Shadows */
@@ -68,21 +69,15 @@ All colors MUST be HSL.
 
     --radius: 0.75rem;
 
+    /* Sidebar - Light theme with dark text */
     --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-foreground: 230 13% 9%;
+    --sidebar-primary: 320 65% 52%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 320 20% 92%;
+    --sidebar-accent-foreground: 230 13% 9%;
+    --sidebar-border: 270 6% 91%;
+    --sidebar-ring: 320 65% 52%;
   }
 
   .dark {
@@ -181,5 +176,15 @@ All colors MUST be HSL.
 
   .shadow-strong {
     box-shadow: var(--shadow-strong);
+  }
+
+  /* Hide scrollbar utility */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
 }

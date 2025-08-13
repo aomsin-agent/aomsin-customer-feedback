@@ -65,24 +65,24 @@ export function MobileNavigation() {
   };
 
   const getNavClassName = (path: string) => {
-    const baseClasses = "flex flex-col items-center justify-center p-2 text-xs rounded-lg transition-colors";
+    const baseClasses = "flex items-center justify-center p-2 text-xs rounded-lg transition-all duration-200 min-w-0 flex-1";
     if (isActive(path)) {
-      return `${baseClasses} bg-primary/10 text-primary font-medium`;
+      return `${baseClasses} bg-sidebar-accent text-sidebar-primary font-medium border-b-2 border-sidebar-primary`;
     }
-    return `${baseClasses} text-muted-foreground hover:text-foreground hover:bg-accent/50`;
+    return `${baseClasses} text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent/50`;
   };
 
   return (
-    <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border shadow-strong z-40">
-      <div className="grid grid-cols-7 gap-1 p-2">
+    <nav className="lg:hidden fixed top-16 left-0 right-0 bg-sidebar-background border-b border-sidebar-border shadow-soft z-30">
+      <div className="flex overflow-x-auto scrollbar-hide">
         {navigationItems.map((item) => (
           <NavLink
             key={item.title}
             to={item.url}
             className={getNavClassName(item.url)}
           >
-            <item.icon className="h-5 w-5 mb-1" />
-            <span className="truncate">{item.shortTitle}</span>
+            <item.icon className="h-4 w-4 mr-1 flex-shrink-0" />
+            <span className="truncate text-xs">{item.shortTitle}</span>
           </NavLink>
         ))}
       </div>

@@ -72,21 +72,21 @@ export function AppSidebar() {
   };
 
   const getNavClassName = (path: string) => {
-    const baseClasses = "w-full justify-start text-left";
+    const baseClasses = "w-full justify-start text-left transition-all duration-200";
     if (isActive(path)) {
-      return `${baseClasses} bg-primary/10 text-primary border-r-2 border-primary font-medium`;
+      return `${baseClasses} bg-sidebar-accent text-sidebar-primary border-r-2 border-sidebar-primary font-medium`;
     }
-    return `${baseClasses} text-muted-foreground hover:text-foreground hover:bg-accent/50`;
+    return `${baseClasses} text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent/50`;
   };
 
   return (
     <Sidebar
-      className={`${collapsed ? "w-16" : "w-64"} border-r border-border bg-card shadow-soft`}
+      className={`${collapsed ? "w-16" : "w-64"} border-r border-sidebar-border bg-sidebar-background shadow-soft`}
       collapsible="icon"
     >
       <SidebarContent className="p-2">
         <SidebarGroup>
-          <SidebarGroupLabel className={`${collapsed ? "hidden" : "block"} text-muted-foreground font-medium px-2 py-2`}>
+          <SidebarGroupLabel className={`${collapsed ? "hidden" : "block"} text-sidebar-foreground font-medium px-2 py-2`}>
             เมนูหลัก
           </SidebarGroupLabel>
           
