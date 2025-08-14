@@ -40,7 +40,7 @@ const App = () => (
             </div>
             
             {/* Main Content */}
-            <main className="flex-1 overflow-auto pt-12 lg:pt-0 lg:pl-16">
+            <main className="flex-1 overflow-auto lg:pl-16">
               <Routes>
                 <Route path="/" element={<MonthlyOverview />} />
                 <Route path="/trends" element={<TrendTracking />} />
