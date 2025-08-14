@@ -2,10 +2,10 @@ import { Button } from "@/components/ui/button";
 import { 
   Info, 
   RefreshCw, 
-  Settings, 
   LogOut 
 } from "lucide-react";
 import { HistoryLog } from "@/components/HistoryLog";
+import { SettingsDialog } from "@/components/SettingsDialog";
 
 export function AppHeader() {
   const handleRefresh = () => {
@@ -61,13 +61,7 @@ export function AppHeader() {
               <RefreshCw className="h-4 w-4" strokeWidth={1.5} />
             </Button>
             
-            <Button 
-              variant="ghost" 
-              size="icon"
-              className="h-8 w-8 sm:h-9 sm:w-9 text-white hover:text-white hover:bg-white/20 border border-white/30 rounded-lg"
-            >
-              <Settings className="h-4 w-4" strokeWidth={1.5} />
-            </Button>
+            <SettingsDialog />
             
             <HistoryLog />
             
