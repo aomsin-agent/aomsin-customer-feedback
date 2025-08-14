@@ -82,7 +82,9 @@ export function MobileNavigation() {
             className={getNavClassName(item.url)}
           >
             <item.icon className="h-4 w-4 flex-shrink-0 mb-1" />
-            <span className="truncate text-xs leading-tight">{item.shortTitle}</span>
+            <span className="truncate text-xs leading-tight max-w-12 overflow-hidden text-ellipsis whitespace-nowrap" title={item.shortTitle}>
+              {item.shortTitle}
+            </span>
           </NavLink>
         ))}
       </div>

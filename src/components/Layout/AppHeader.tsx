@@ -5,6 +5,7 @@ import {
   Settings, 
   LogOut 
 } from "lucide-react";
+import { HistoryLog } from "@/components/HistoryLog";
 
 export function AppHeader() {
   const handleRefresh = () => {
@@ -42,49 +43,53 @@ export function AppHeader() {
         </div>
 
         {/* Right side - Last updated and Action buttons */}
-        <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+        <div className="flex items-start gap-2 sm:gap-3 flex-shrink-0">
           {/* Last updated info */}
           <div className="hidden md:block text-xs text-white/80 mr-2">
             <div>อัพเดทล่าสุด:</div>
             <div className="font-mono">{getCurrentDateTime()}</div>
           </div>
           
-          {/* Icon buttons */}
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={handleRefresh}
-            className="h-8 w-8 sm:h-9 sm:w-9 text-white hover:text-white hover:bg-white/20 border border-white/30 rounded-lg"
-          >
-            <RefreshCw className="h-4 w-4" strokeWidth={1.5} />
-          </Button>
-          
-          <Button 
-            variant="ghost" 
-            size="icon"
-            className="h-8 w-8 sm:h-9 sm:w-9 text-white hover:text-white hover:bg-white/20 border border-white/30 rounded-lg"
-          >
-            <Settings className="h-4 w-4" strokeWidth={1.5} />
-          </Button>
-          
-          <Button 
-            variant="ghost" 
-            size="icon"
-            className="h-8 w-8 sm:h-9 sm:w-9 text-white hover:text-white hover:bg-white/20 border border-white/30 rounded-lg"
-          >
-            <Info className="h-4 w-4" strokeWidth={1.5} />
-          </Button>
-          
-          <Button 
-            variant="ghost" 
-            size="sm"
-            onClick={handleLogout}
-            className="text-white hover:text-white hover:bg-white/20 border border-white/30 rounded-lg px-2 sm:px-3 h-8 sm:h-9 text-xs sm:text-sm"
-          >
-            <LogOut className="h-4 w-4 mr-1 sm:mr-2" strokeWidth={1.5} />
-            <span className="hidden sm:inline">ออกจากระบบ</span>
-            <span className="sm:hidden">ออก</span>
-          </Button>
+          {/* Action buttons - Grid layout on mobile */}
+          <div className="grid grid-cols-2 sm:flex gap-1 sm:gap-2">
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={handleRefresh}
+              className="h-8 w-8 sm:h-9 sm:w-9 text-white hover:text-white hover:bg-white/20 border border-white/30 rounded-lg"
+            >
+              <RefreshCw className="h-4 w-4" strokeWidth={1.5} />
+            </Button>
+            
+            <Button 
+              variant="ghost" 
+              size="icon"
+              className="h-8 w-8 sm:h-9 sm:w-9 text-white hover:text-white hover:bg-white/20 border border-white/30 rounded-lg"
+            >
+              <Settings className="h-4 w-4" strokeWidth={1.5} />
+            </Button>
+            
+            <HistoryLog />
+            
+            <Button 
+              variant="ghost" 
+              size="icon"
+              className="h-8 w-8 sm:h-9 sm:w-9 text-white hover:text-white hover:bg-white/20 border border-white/30 rounded-lg"
+            >
+              <Info className="h-4 w-4" strokeWidth={1.5} />
+            </Button>
+            
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={handleLogout}
+              className="col-span-2 sm:col-span-1 text-white hover:text-white hover:bg-white/20 border border-white/30 rounded-lg px-2 sm:px-3 h-8 sm:h-9 text-xs sm:text-sm"
+            >
+              <LogOut className="h-4 w-4 mr-1 sm:mr-2" strokeWidth={1.5} />
+              <span className="hidden sm:inline">ออกจากระบบ</span>
+              <span className="sm:hidden">ออก</span>
+            </Button>
+          </div>
         </div>
       </div>
     </header>
