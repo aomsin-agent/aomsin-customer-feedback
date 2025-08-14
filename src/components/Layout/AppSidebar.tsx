@@ -82,16 +82,16 @@ export function AppSidebar() {
   return (
     <>
       {/* Mini Sidebar - Always visible on desktop when closed */}
-      <div className="hidden lg:flex fixed left-0 w-16 bg-gray-50/95 backdrop-blur-sm border-r border-gray-200 flex-col items-center py-4 z-20" style={{ top: 'calc(var(--header-height, 5rem) + 0px)', bottom: 'calc(var(--footer-height, 4rem) + 0px)' }}>
+      <div className="hidden lg:flex fixed left-2 top-1/2 transform -translate-y-1/2 w-12 bg-gray-50/95 backdrop-blur-sm border border-gray-200 rounded-xl flex-col items-center py-3 z-20 shadow-medium">
         {/* Drawer Toggle Button */}
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
           <SheetTrigger asChild>
             <Button
               variant="outline"
               size="icon"
-              className="h-10 w-10 mb-3 bg-white hover:bg-gray-100 border-gray-300 shadow-sm transition-all duration-200 hover:shadow-md flex-shrink-0"
+              className="h-8 w-8 mb-2 bg-white hover:bg-gray-100 border-gray-300 shadow-sm transition-all duration-200 hover:shadow-md flex-shrink-0"
             >
-              <Menu className="h-4 w-4 text-gray-600" />
+              <Menu className="h-3 w-3 text-gray-600" />
             </Button>
           </SheetTrigger>
           <SheetContent 
@@ -143,14 +143,14 @@ export function AppSidebar() {
             <NavLink
               key={item.title}
               to={item.url}
-              className={`flex items-center justify-center w-10 h-10 mx-auto rounded-lg transition-all duration-200 group relative flex-shrink-0 ${
+              className={`flex items-center justify-center w-8 h-8 mx-auto rounded-lg transition-all duration-200 group relative flex-shrink-0 ${
                 isActive(item.url)
-                  ? "bg-pink-100 text-pink-700 shadow-sm border-2 border-pink-300"
+                  ? "bg-pink-100 text-pink-700 shadow-sm border border-pink-300"
                   : "text-gray-600 hover:text-pink-700 hover:bg-pink-50 hover:shadow-sm"
               }`}
               title={item.title}
             >
-              <item.icon className="h-4 w-4 transition-transform group-hover:scale-110 flex-shrink-0" />
+              <item.icon className="h-3 w-3 transition-transform group-hover:scale-110 flex-shrink-0" />
               {/* Tooltip on hover */}
               <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
                 {item.title}
