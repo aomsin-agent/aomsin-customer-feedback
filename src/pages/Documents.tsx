@@ -49,8 +49,7 @@ export default function Documents() {
         // Fetch branch_ref data
         const { data: branches, error: branchError } = await supabase
           .from('branch_ref')
-          .select('*')
-          .order('ลำดับที่', { ascending: true });
+          .select('*');
 
         if (branchError) throw branchError;
 
