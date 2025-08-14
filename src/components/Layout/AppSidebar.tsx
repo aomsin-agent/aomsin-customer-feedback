@@ -82,16 +82,16 @@ export function AppSidebar() {
   return (
     <>
       {/* Mini Sidebar - Always visible on desktop when closed */}
-      <div className="hidden lg:flex fixed left-0 top-24 bottom-20 w-16 bg-gray-50/95 backdrop-blur-sm border-r border-gray-200 flex-col items-center py-4 z-0">
+      <div className="hidden lg:flex fixed left-0 w-16 bg-gray-50/95 backdrop-blur-sm border-r border-gray-200 flex-col items-center py-4 z-0" style={{ top: 'calc(5rem + 1vh)', bottom: 'calc(4rem + 1vh)' }}>
         {/* Drawer Toggle Button */}
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
           <SheetTrigger asChild>
             <Button
               variant="outline"
               size="icon"
-              className="h-12 w-12 mb-4 bg-white hover:bg-gray-100 border-gray-300 shadow-sm transition-all duration-200 hover:shadow-md"
+              className="h-10 w-10 mb-3 bg-white hover:bg-gray-100 border-gray-300 shadow-sm transition-all duration-200 hover:shadow-md flex-shrink-0"
             >
-              <Menu className="h-5 w-5 text-gray-600" />
+              <Menu className="h-4 w-4 text-gray-600" />
             </Button>
           </SheetTrigger>
           <SheetContent 
@@ -138,19 +138,19 @@ export function AppSidebar() {
         </Sheet>
 
         {/* Mini Navigation Icons */}
-        <nav className="flex flex-col space-y-2 w-full">
+        <nav className="flex flex-col space-y-1 w-full overflow-y-auto flex-1">
           {navigationItems.map((item) => (
             <NavLink
               key={item.title}
               to={item.url}
-              className={`flex items-center justify-center w-12 h-12 mx-auto rounded-lg transition-all duration-200 group relative ${
+              className={`flex items-center justify-center w-10 h-10 mx-auto rounded-lg transition-all duration-200 group relative flex-shrink-0 ${
                 isActive(item.url)
                   ? "bg-pink-100 text-pink-700 shadow-sm border-2 border-pink-300"
                   : "text-gray-600 hover:text-pink-700 hover:bg-pink-50 hover:shadow-sm"
               }`}
               title={item.title}
             >
-              <item.icon className="h-5 w-5 transition-transform group-hover:scale-110" />
+              <item.icon className="h-4 w-4 transition-transform group-hover:scale-110 flex-shrink-0" />
               {/* Tooltip on hover */}
               <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
                 {item.title}

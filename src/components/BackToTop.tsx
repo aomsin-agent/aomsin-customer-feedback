@@ -32,11 +32,11 @@ export function BackToTop() {
   return (
     <Button
       onClick={scrollToTop}
-      className="fixed bottom-6 right-6 z-50 h-12 w-12 rounded-full bg-primary hover:bg-primary-dark shadow-medium"
+      className="fixed bottom-6 right-6 z-50 h-12 w-12 rounded-full bg-gradient-primary hover:bg-primary-dark shadow-strong text-white border-2 border-white/30 transition-all duration-300 hover:scale-110 animate-fade-in"
       size="icon"
       aria-label="กลับสู่ด้านบน"
     >
-      <ChevronUp className="h-6 w-6" />
+      <ChevronUp className="h-6 w-6 stroke-2" />
     </Button>
   );
 }

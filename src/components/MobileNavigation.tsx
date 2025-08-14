@@ -73,7 +73,7 @@ export function MobileNavigation() {
   };
 
   return (
-    <nav className="lg:hidden fixed top-16 left-0 right-0 bg-white border-b border-gray-200 shadow-sm z-30">
+    <nav className="lg:hidden fixed left-0 right-0 bg-white border-b border-gray-200 shadow-sm z-30" style={{ top: 'calc(5rem)' }}>
       <div className="flex overflow-x-auto scrollbar-hide">
         {navigationItems.map((item) => (
           <NavLink
