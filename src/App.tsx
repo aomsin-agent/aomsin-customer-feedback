@@ -3,7 +3,6 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { SidebarProvider } from "@/components/ui/sidebar";
 
 // Layout Components
 import { AppHeader } from "@/components/Layout/AppHeader";
@@ -30,40 +29,39 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <SidebarProvider>
-          <div className="min-h-screen flex flex-col w-full bg-gradient-subtle">
-            <AppHeader />
-            
-            <div className="flex flex-1 w-full">
-              {/* Desktop Sidebar */}
-              <div className="hidden lg:block">
-                <AppSidebar />
-              </div>
-              
-              {/* Main Content */}
-              <main className="flex-1 overflow-auto pt-12 lg:pt-0">
-                <Routes>
-                  <Route path="/" element={<MonthlyOverview />} />
-                  <Route path="/trends" element={<TrendTracking />} />
-                  <Route path="/regional" element={<RegionalPotential />} />
-                  <Route path="/feedback" element={<CustomerFeedback />} />
-                  <Route path="/severe-complaints" element={<SevereComplaints />} />
-                  <Route path="/ai-chat" element={<AiChat />} />
-                  <Route path="/documents" element={<Documents />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </main>
+        <div className="min-h-screen flex flex-col w-full bg-gradient-subtle">
+          {/* Header always on top */}
+          <AppHeader />
+          
+          <div className="flex flex-1 w-full relative">
+            {/* Desktop Drawer Navigation */}
+            <div className="hidden lg:block">
+              <AppSidebar />
             </div>
             
-            <AppFooter />
-            
-            {/* Mobile Navigation */}
-            <MobileNavigation />
-            
-            {/* Back to Top Button */}
-            <BackToTop />
+            {/* Main Content */}
+            <main className="flex-1 overflow-auto">
+              <Routes>
+                <Route path="/" element={<MonthlyOverview />} />
+                <Route path="/trends" element={<TrendTracking />} />
+                <Route path="/regional" element={<RegionalPotential />} />
+                <Route path="/feedback" element={<CustomerFeedback />} />
+                <Route path="/severe-complaints" element={<SevereComplaints />} />
+                <Route path="/ai-chat" element={<AiChat />} />
+                <Route path="/documents" element={<Documents />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </main>
           </div>
-        </SidebarProvider>
+          
+          <AppFooter />
+          
+          {/* Mobile Navigation */}
+          <MobileNavigation />
+          
+          {/* Back to Top Button */}
+          <BackToTop />
+        </div>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

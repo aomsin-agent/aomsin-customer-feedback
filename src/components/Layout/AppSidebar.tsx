@@ -8,22 +8,18 @@ import {
   AlertTriangle,
   Bot,
   FileText,
-  ChevronDown,
-  ChevronRight
+  Menu,
+  X
 } from "lucide-react";
 
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-} from "@/components/ui/sidebar";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+  DrawerClose,
+} from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 
 const navigationItems = [
@@ -65,11 +61,9 @@ const navigationItems = [
 ];
 
 export function AppSidebar() {
-  const { state } = useSidebar();
-  const collapsed = state === "collapsed";
   const location = useLocation();
   const currentPath = location.pathname;
-  const [isGroupOpen, setIsGroupOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   const isActive = (path: string) => {
     if (path === "/" && currentPath === "/") return true;
@@ -78,63 +72,65 @@ export function AppSidebar() {
   };
 
   const getNavClassName = (path: string) => {
-    const baseClasses = "w-full justify-start text-left transition-all duration-200";
+    const baseClasses = "w-full justify-start text-left transition-all duration-200 px-4 py-3 rounded-lg";
     if (isActive(path)) {
-      return `${baseClasses} bg-sidebar-accent text-sidebar-primary border-r-2 border-sidebar-primary font-medium`;
+      return `${baseClasses} bg-gray-200 text-gray-900 border-r-4 border-pink-500 font-medium`;
     }
-    return `${baseClasses} text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent/50`;
+    return `${baseClasses} text-gray-700 hover:text-gray-900 hover:bg-gray-100`;
   };
 
   return (
-    <Sidebar
-      className={`${collapsed ? "w-16" : "w-64"} border-r border-sidebar-border bg-sidebar-background shadow-soft`}
-      collapsible="icon"
-    >
-      <SidebarContent className="p-2">
-        <Collapsible open={isGroupOpen} onOpenChange={setIsGroupOpen}>
-          <SidebarGroup>
-            <CollapsibleTrigger asChild>
-              <Button
-                variant="ghost"
-                className={`w-full justify-between p-2 h-auto text-sidebar-foreground hover:bg-sidebar-accent/50 ${collapsed ? "px-2" : "px-2"}`}
-              >
-                <SidebarGroupLabel className={`${collapsed ? "hidden" : "block"} text-sidebar-foreground font-medium`}>
-                  เมนูหลัก
-                </SidebarGroupLabel>
-                {!collapsed && (
-                  isGroupOpen ? (
-                    <ChevronDown className="h-4 w-4 text-sidebar-foreground" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4 text-sidebar-foreground" />
-                  )
-                )}
-              </Button>
-            </CollapsibleTrigger>
-            
-            <CollapsibleContent>
-              <SidebarGroupContent>
-                <SidebarMenu className="space-y-1">
+    <>
+      {/* Drawer Trigger Button */}
+      <div className="fixed left-0 top-1/2 transform -translate-y-1/2 z-40">
+        <Drawer open={isOpen} onOpenChange={setIsOpen}>
+          <DrawerTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-16 w-6 rounded-r-lg rounded-l-none bg-gray-100 hover:bg-gray-200 border-l-0 border-gray-300 flex items-center justify-center shadow-md"
+            >
+              <Menu className="h-4 w-4 text-gray-600" />
+            </Button>
+          </DrawerTrigger>
+          <DrawerContent className="h-full w-80 bg-gray-50/95 backdrop-blur-sm border-r border-gray-200">
+            <div className="flex h-full flex-col">
+              <DrawerHeader className="border-b border-gray-200 bg-white/50">
+                <div className="flex items-center justify-between">
+                  <DrawerTitle className="text-lg font-semibold text-gray-900">
+                    เมนูหลัก
+                  </DrawerTitle>
+                  <DrawerClose asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0 text-gray-500 hover:text-gray-700"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </DrawerClose>
+                </div>
+              </DrawerHeader>
+              
+              <div className="flex-1 overflow-auto p-4">
+                <nav className="space-y-2">
                   {navigationItems.map((item) => (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild>
-                        <NavLink
-                          to={item.url}
-                          className={getNavClassName(item.url)}
-                        >
-                          <item.icon className={`${collapsed ? "mr-0" : "mr-3"} h-5 w-5 flex-shrink-0`} />
-                          {!collapsed && (
-                            <span className="truncate text-sm">{item.title}</span>
-                          )}
-                        </NavLink>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
+                    <NavLink
+                      key={item.title}
+                      to={item.url}
+                      className={getNavClassName(item.url)}
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
+                      <span className="truncate text-sm">{item.title}</span>
+                    </NavLink>
                   ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </CollapsibleContent>
-          </SidebarGroup>
-        </Collapsible>
-      </SidebarContent>
-    </Sidebar>
+                </nav>
+              </div>
+            </div>
+          </DrawerContent>
+        </Drawer>
+      </div>
+    </>
   );
 }
