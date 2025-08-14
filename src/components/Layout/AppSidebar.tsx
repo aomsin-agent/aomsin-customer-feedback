@@ -138,7 +138,7 @@ export function AppSidebar() {
         </Sheet>
 
         {/* Mini Navigation Icons */}
-        <nav className="flex flex-col space-y-1 w-full overflow-y-auto flex-1">
+        <nav className="flex flex-col space-y-1 w-full flex-1">
           {navigationItems.map((item) => (
             <NavLink
               key={item.title}
