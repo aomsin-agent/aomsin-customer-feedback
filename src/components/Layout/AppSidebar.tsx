@@ -82,7 +82,7 @@ export function AppSidebar() {
   return (
     <>
       {/* Mini Sidebar - Always visible on desktop when closed */}
-      <div className="hidden lg:flex fixed left-0 top-[var(--header-height,5rem)] bottom-[var(--footer-height,4rem)] w-16 bg-gray-50/95 backdrop-blur-sm border-r border-gray-200 flex-col items-center py-4 z-20">
+      <div className="hidden lg:flex fixed left-0 w-16 bg-gray-50/95 backdrop-blur-sm border-r border-gray-200 flex-col items-center py-4 z-20" style={{ top: 'calc(var(--header-height, 5rem) + 0px)', bottom: 'calc(var(--footer-height, 4rem) + 0px)' }}>
         {/* Drawer Toggle Button */}
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
           <SheetTrigger asChild>

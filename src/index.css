@@ -79,9 +79,9 @@ All colors MUST be HSL.
     --sidebar-border: 270 6% 91%;
     --sidebar-ring: 320 65% 52%;
 
-    /* Layout Heights - Responsive */
-    --header-height: 5rem;
-    --footer-height: 4rem;
+    /* Layout Heights - Dynamic responsive calculations */
+    --header-height: max(5rem, 80px);
+    --footer-height: max(4rem, 64px);
   }
 
   .dark {
