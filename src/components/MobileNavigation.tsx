@@ -67,13 +67,13 @@ export function MobileNavigation() {
   const getNavClassName = (path: string) => {
     const baseClasses = "flex items-center justify-center p-2 text-xs rounded-lg transition-all duration-200 min-w-0 flex-1";
     if (isActive(path)) {
-      return `${baseClasses} bg-sidebar-accent text-sidebar-primary font-medium border-b-2 border-sidebar-primary`;
+      return `${baseClasses} bg-pink-100 text-pink-700 font-medium border-b-2 border-pink-500`;
     }
-    return `${baseClasses} text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent/50`;
+    return `${baseClasses} text-gray-600 hover:text-pink-600 hover:bg-pink-50`;
   };
 
   return (
-    <nav className="lg:hidden fixed top-16 left-0 right-0 bg-sidebar-background border-b border-sidebar-border shadow-soft z-30">
+    <nav className="lg:hidden fixed top-16 left-0 right-0 bg-white border-b border-gray-200 shadow-sm z-30">
       <div className="flex overflow-x-auto scrollbar-hide">
         {navigationItems.map((item) => (
           <NavLink

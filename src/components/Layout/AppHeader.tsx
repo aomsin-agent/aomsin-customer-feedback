@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Menu } from "lucide-react";
 import { 
   Info, 
   RefreshCw, 
@@ -20,9 +20,8 @@ export function AppHeader() {
   return (
     <header className="bg-gradient-header border-b border-border shadow-soft">
       <div className="flex items-center justify-between h-16 px-6">
-        {/* Left side - Sidebar trigger and title */}
+        {/* Left side - Title */}
         <div className="flex items-center gap-4">
-          <SidebarTrigger className="text-foreground hover:text-primary" />
           <h1 className="text-xl font-semibold text-foreground">
             Dashboard ข้อเสนอและข้อร้องเรียนของลูกค้า
           </h1>
