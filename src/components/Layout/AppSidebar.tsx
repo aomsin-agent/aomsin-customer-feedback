@@ -13,13 +13,13 @@ import {
 } from "lucide-react";
 
 import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-  DrawerClose,
-} from "@/components/ui/drawer";
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+  SheetClose,
+} from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 
 const navigationItems = [
@@ -72,48 +72,51 @@ export function AppSidebar() {
   };
 
   const getNavClassName = (path: string) => {
-    const baseClasses = "w-full justify-start text-left transition-all duration-200 px-4 py-3 rounded-lg";
+    const baseClasses = "flex items-center w-full justify-start text-left transition-all duration-200 px-3 py-2.5 rounded-lg group";
     if (isActive(path)) {
-      return `${baseClasses} bg-gray-200 text-gray-900 border-r-4 border-pink-500 font-medium`;
+      return `${baseClasses} bg-pink-100 text-pink-800 border-l-4 border-pink-500 font-medium shadow-sm`;
     }
-    return `${baseClasses} text-gray-700 hover:text-gray-900 hover:bg-gray-100`;
+    return `${baseClasses} text-gray-700 hover:text-pink-700 hover:bg-pink-50 hover:shadow-sm`;
   };
 
   return (
     <>
-      {/* Drawer Trigger Button */}
+      {/* Sheet Trigger Button */}
       <div className="fixed left-0 top-1/2 transform -translate-y-1/2 z-40">
-        <Drawer open={isOpen} onOpenChange={setIsOpen}>
-          <DrawerTrigger asChild>
+        <Sheet open={isOpen} onOpenChange={setIsOpen}>
+          <SheetTrigger asChild>
             <Button
               variant="outline"
               size="sm"
-              className="h-16 w-6 rounded-r-lg rounded-l-none bg-gray-100 hover:bg-gray-200 border-l-0 border-gray-300 flex items-center justify-center shadow-md"
+              className="h-16 w-6 rounded-r-lg rounded-l-none bg-gray-100 hover:bg-gray-200 border-l-0 border-gray-300 flex items-center justify-center shadow-md transition-all duration-200 hover:w-8 hover:shadow-lg"
             >
               <Menu className="h-4 w-4 text-gray-600" />
             </Button>
-          </DrawerTrigger>
-          <DrawerContent className="h-full w-80 bg-gray-50/95 backdrop-blur-sm border-r border-gray-200">
+          </SheetTrigger>
+          <SheetContent 
+            side="left" 
+            className="w-80 bg-gray-50/95 backdrop-blur-sm border-r border-gray-200 p-0 data-[state=open]:animate-slide-in-left data-[state=closed]:animate-slide-out-left"
+          >
             <div className="flex h-full flex-col">
-              <DrawerHeader className="border-b border-gray-200 bg-white/50">
+              <SheetHeader className="border-b border-gray-200 bg-white/50 p-4">
                 <div className="flex items-center justify-between">
-                  <DrawerTitle className="text-lg font-semibold text-gray-900">
+                  <SheetTitle className="text-lg font-semibold text-gray-900">
                     เมนูหลัก
-                  </DrawerTitle>
-                  <DrawerClose asChild>
+                  </SheetTitle>
+                  <SheetClose asChild>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-8 w-8 p-0 text-gray-500 hover:text-gray-700"
+                      className="h-8 w-8 p-0 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors"
                     >
                       <X className="h-4 w-4" />
                     </Button>
-                  </DrawerClose>
+                  </SheetClose>
                 </div>
-              </DrawerHeader>
+              </SheetHeader>
               
               <div className="flex-1 overflow-auto p-4">
-                <nav className="space-y-2">
+                <nav className="space-y-1">
                   {navigationItems.map((item) => (
                     <NavLink
                       key={item.title}
@@ -121,15 +124,17 @@ export function AppSidebar() {
                       className={getNavClassName(item.url)}
                       onClick={() => setIsOpen(false)}
                     >
-                      <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
-                      <span className="truncate text-sm">{item.title}</span>
+                      <item.icon className="h-5 w-5 flex-shrink-0 mr-3 transition-transform group-hover:scale-110" />
+                      <span className="text-sm font-medium truncate flex-1 min-w-0">
+                        {item.title}
+                      </span>
                     </NavLink>
                   ))}
                 </nav>
               </div>
             </div>
-          </DrawerContent>
-        </Drawer>
+          </SheetContent>
+        </Sheet>
       </div>
     </>
   );
