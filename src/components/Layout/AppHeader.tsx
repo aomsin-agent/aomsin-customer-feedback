@@ -30,7 +30,7 @@ export function AppHeader() {
 
   return (
     <header className="bg-gradient-header border-b border-white/20 shadow-medium">
-      <div className="flex items-center justify-between min-h-16 px-4 sm:px-6 py-3 gap-2 sm:gap-4">
+      <div className="flex items-center justify-between min-h-20 px-6 sm:px-8 py-4 gap-2 sm:gap-4">
         {/* Left side - Title */}
         <div className="flex-1 min-w-0">
           <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-white leading-tight">
