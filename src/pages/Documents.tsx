@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 
 interface CategoryRef {
@@ -144,6 +144,7 @@ export default function Documents() {
                 </TableBody>
               </Table>
             </div>
+            <ScrollBar orientation="horizontal" />
           </ScrollArea>
         </CardContent>
       </Card>
@@ -189,6 +190,7 @@ export default function Documents() {
                 </TableBody>
               </Table>
             </div>
+            <ScrollBar orientation="horizontal" />
           </ScrollArea>
         </CardContent>
       </Card>
