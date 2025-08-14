@@ -73,7 +73,7 @@ export function MobileNavigation() {
   };
 
   return (
-    <nav className="lg:hidden sticky bg-white border-b border-gray-200 shadow-sm z-30" style={{ top: 'max(5rem, calc(5rem + 1vh))' }}>
+    <nav className="lg:hidden bg-white border-b border-gray-200 shadow-sm">
       <div className="flex overflow-x-auto scrollbar-hide px-2 py-1">
         {navigationItems.map((item) => (
           <NavLink
