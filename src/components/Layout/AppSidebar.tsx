@@ -81,8 +81,87 @@ export function AppSidebar() {
 
   return (
     <>
-      {/* Sheet Trigger Button */}
-      <div className="fixed left-0 top-1/2 transform -translate-y-1/2 z-40">
+      {/* Mini Sidebar - Always visible on desktop when closed */}
+      <div className="hidden lg:flex fixed left-0 top-16 bottom-0 w-16 bg-gray-50/95 backdrop-blur-sm border-r border-gray-200 flex-col items-center py-4 z-30">
+        {/* Drawer Toggle Button */}
+        <Sheet open={isOpen} onOpenChange={setIsOpen}>
+          <SheetTrigger asChild>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-12 w-12 mb-4 bg-white hover:bg-gray-100 border-gray-300 shadow-sm transition-all duration-200 hover:shadow-md"
+            >
+              <Menu className="h-5 w-5 text-gray-600" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent 
+            side="left" 
+            className="w-80 bg-gray-50/95 backdrop-blur-sm border-r border-gray-200 p-0 data-[state=open]:animate-slide-in-left data-[state=closed]:animate-slide-out-left"
+          >
+            <div className="flex h-full flex-col">
+              <SheetHeader className="border-b border-gray-200 bg-white/50 p-4">
+                <div className="flex items-center justify-between">
+                  <SheetTitle className="text-lg font-semibold text-gray-900">
+                    เมนูหลัก
+                  </SheetTitle>
+                  <SheetClose asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </SheetClose>
+                </div>
+              </SheetHeader>
+              
+              <div className="flex-1 overflow-auto p-4">
+                <nav className="space-y-1">
+                  {navigationItems.map((item) => (
+                    <NavLink
+                      key={item.title}
+                      to={item.url}
+                      className={getNavClassName(item.url)}
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <item.icon className="h-5 w-5 flex-shrink-0 mr-3 transition-transform group-hover:scale-110" />
+                      <span className="text-sm font-medium truncate flex-1 min-w-0">
+                        {item.title}
+                      </span>
+                    </NavLink>
+                  ))}
+                </nav>
+              </div>
+            </div>
+          </SheetContent>
+        </Sheet>
+
+        {/* Mini Navigation Icons */}
+        <nav className="flex flex-col space-y-2 w-full">
+          {navigationItems.map((item) => (
+            <NavLink
+              key={item.title}
+              to={item.url}
+              className={`flex items-center justify-center w-12 h-12 mx-auto rounded-lg transition-all duration-200 group relative ${
+                isActive(item.url)
+                  ? "bg-pink-100 text-pink-700 shadow-sm border-2 border-pink-300"
+                  : "text-gray-600 hover:text-pink-700 hover:bg-pink-50 hover:shadow-sm"
+              }`}
+              title={item.title}
+            >
+              <item.icon className="h-5 w-5 transition-transform group-hover:scale-110" />
+              {/* Tooltip on hover */}
+              <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                {item.title}
+              </div>
+            </NavLink>
+          ))}
+        </nav>
+      </div>
+
+      {/* Mobile Sheet Trigger Button */}
+      <div className="fixed left-0 top-1/2 transform -translate-y-1/2 z-40 lg:hidden">
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
           <SheetTrigger asChild>
             <Button
