@@ -78,6 +78,10 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 230 13% 9%;
     --sidebar-border: 270 6% 91%;
     --sidebar-ring: 320 65% 52%;
+
+    /* Layout Heights - Responsive */
+    --header-height: 5rem;
+    --footer-height: 4rem;
   }
 
   .dark {
