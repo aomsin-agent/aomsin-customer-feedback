@@ -33,6 +33,9 @@ const App = () => (
           {/* Header always on top */}
           <AppHeader />
           
+          {/* Mobile Navigation - directly under header */}
+          <MobileNavigation />
+          
           <div className="flex flex-1 w-full relative">
             {/* Desktop Drawer Navigation */}
             <div className="hidden lg:block">
@@ -55,9 +58,6 @@ const App = () => (
           </div>
           
           <AppFooter />
-          
-          {/* Mobile Navigation */}
-          <MobileNavigation />
           
           {/* Back to Top Button */}
           <BackToTop />
