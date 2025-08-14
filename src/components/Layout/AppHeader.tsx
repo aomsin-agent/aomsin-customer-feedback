@@ -45,9 +45,9 @@ export function AppHeader() {
         {/* Right side - Last updated and Action buttons */}
         <div className="flex items-start gap-2 sm:gap-3 flex-shrink-0">
           {/* Last updated info */}
-          <div className="hidden md:block text-xs text-white/80 mr-2">
-            <div>อัพเดทล่าสุด:</div>
-            <div className="font-mono">{getCurrentDateTime()}</div>
+          <div className="hidden md:block text-sm text-white/90 mr-2">
+            <div className="font-medium">อัพเดทล่าสุด:</div>
+            <div className="font-mono font-medium">{getCurrentDateTime()}</div>
           </div>
           
           {/* Action buttons - Grid layout on mobile */}
