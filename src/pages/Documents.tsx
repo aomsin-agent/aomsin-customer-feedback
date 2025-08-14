@@ -1,6 +1,88 @@
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useToast } from "@/hooks/use-toast";
+
+interface CategoryRef {
+  main_topic: string;
+  sub_topic: string;
+  definition: string | null;
+  example_sentence: string | null;
+  allow: string;
+  no: number;
+  create_at: string;
+  last_update: string;
+}
+
+interface BranchRef {
+  'สายกิจ': string | null;
+  'เขต (ที่ตั้ง)': string | null;
+  'จังหวัด': string | null;
+  'วันที่ให้บริการ': string | null;
+  'เวลาให้บริการ': string | null;
+  'ลำดับที่': number | null;
+  'ประเภทสถานที่ให้บริกา': string | null;
+  'ชื่อสถานที่ให้บริการ': string | null;
+  'เขต (ตามเขตดูแล)': string | null;
+  'ภาค': string | null;
+}
+
 export default function Documents() {
+  const [categoryData, setCategoryData] = useState<CategoryRef[]>([]);
+  const [branchData, setBranchData] = useState<BranchRef[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch category_ref data
+        const { data: categories, error: categoryError } = await supabase
+          .from('category_ref')
+          .select('*')
+          .order('no', { ascending: true });
+
+        if (categoryError) throw categoryError;
+
+        // Fetch branch_ref data
+        const { data: branches, error: branchError } = await supabase
+          .from('branch_ref')
+          .select('*')
+          .order('ลำดับที่', { ascending: true });
+
+        if (branchError) throw branchError;
+
+        setCategoryData(categories || []);
+        setBranchData(branches || []);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        toast({
+          title: "เกิดข้อผิดพลาด",
+          description: "ไม่สามารถโหลดข้อมูลได้",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [toast]);
+
+  if (loading) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg text-muted-foreground">กำลังโหลดข้อมูล...</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto p-6 space-y-6">
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-foreground mb-2">
           เอกสารอ้างอิง
@@ -9,16 +91,104 @@ export default function Documents() {
           รวบรวมเอกสาร นโยบาย และคู่มือที่เกี่ยวข้องกับการจัดการข้อร้องเรียน
         </p>
       </div>
-      
-      <div className="bg-card rounded-lg shadow-soft p-8 text-center">
-        <div className="text-6xl mb-4">📋</div>
-        <h2 className="text-xl font-semibold text-muted-foreground mb-2">
-          เนื้อหาจะถูกเพิ่มเข้ามาในภายหลัง
-        </h2>
-        <p className="text-muted-foreground">
-          ส่วนนี้จะแสดงเอกสารอ้างอิง นโยบาย และคู่มือการใช้งานระบบ
-        </p>
-      </div>
+
+      {/* Category Reference Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>ตารางอ้างอิงหมวดหมู่ (Category Reference)</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ScrollArea className="h-[400px] w-full">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>ลำดับ</TableHead>
+                  <TableHead>หมวดหมู่หลัก</TableHead>
+                  <TableHead>หมวดหมู่ย่อย</TableHead>
+                  <TableHead>คำนิยาม</TableHead>
+                  <TableHead>ตัวอย่างประโยค</TableHead>
+                  <TableHead>สถานะ</TableHead>
+                  <TableHead>วันที่สร้าง</TableHead>
+                  <TableHead>วันที่อัพเดท</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {categoryData.map((item, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{item.no}</TableCell>
+                    <TableCell className="font-medium">{item.main_topic}</TableCell>
+                    <TableCell>{item.sub_topic}</TableCell>
+                    <TableCell className="max-w-xs truncate" title={item.definition || ''}>
+                      {item.definition || '-'}
+                    </TableCell>
+                    <TableCell className="max-w-xs truncate" title={item.example_sentence || ''}>
+                      {item.example_sentence || '-'}
+                    </TableCell>
+                    <TableCell>
+                      <span className={`px-2 py-1 rounded-full text-xs ${
+                        item.allow === 'yes' 
+                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
+                          : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                      }`}>
+                        {item.allow === 'yes' ? 'อนุญาต' : 'ไม่อนุญาต'}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {new Date(item.create_at).toLocaleDateString('th-TH')}
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {new Date(item.last_update).toLocaleDateString('th-TH')}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </ScrollArea>
+        </CardContent>
+      </Card>
+
+      {/* Branch Reference Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>ตารางอ้างอิงสาขา (Branch Reference)</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ScrollArea className="h-[400px] w-full">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>ลำดับที่</TableHead>
+                  <TableHead>สายกิจ</TableHead>
+                  <TableHead>ชื่อสถานที่ให้บริการ</TableHead>
+                  <TableHead>ประเภทสถานที่</TableHead>
+                  <TableHead>จังหวัด</TableHead>
+                  <TableHead>เขต (ที่ตั้ง)</TableHead>
+                  <TableHead>เขต (ตามเขตดูแล)</TableHead>
+                  <TableHead>ภาค</TableHead>
+                  <TableHead>วันที่ให้บริการ</TableHead>
+                  <TableHead>เวลาให้บริการ</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {branchData.map((item, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{item['ลำดับที่'] || '-'}</TableCell>
+                    <TableCell className="font-medium">{item['สายกิจ'] || '-'}</TableCell>
+                    <TableCell>{item['ชื่อสถานที่ให้บริการ'] || '-'}</TableCell>
+                    <TableCell>{item['ประเภทสถานที่ให้บริกา'] || '-'}</TableCell>
+                    <TableCell>{item['จังหวัด'] || '-'}</TableCell>
+                    <TableCell>{item['เขต (ที่ตั้ง)'] || '-'}</TableCell>
+                    <TableCell>{item['เขต (ตามเขตดูแล)'] || '-'}</TableCell>
+                    <TableCell>{item['ภาค'] || '-'}</TableCell>
+                    <TableCell>{item['วันที่ให้บริการ'] || '-'}</TableCell>
+                    <TableCell>{item['เวลาให้บริการ'] || '-'}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </ScrollArea>
+        </CardContent>
+      </Card>
     </div>
   );
 }
