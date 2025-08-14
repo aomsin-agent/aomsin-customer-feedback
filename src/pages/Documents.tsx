@@ -98,50 +98,52 @@ export default function Documents() {
         </CardHeader>
         <CardContent>
           <ScrollArea className="h-[400px] w-full">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>ลำดับ</TableHead>
-                  <TableHead>หมวดหมู่หลัก</TableHead>
-                  <TableHead>หมวดหมู่ย่อย</TableHead>
-                  <TableHead>คำนิยาม</TableHead>
-                  <TableHead>ตัวอย่างประโยค</TableHead>
-                  <TableHead>สถานะ</TableHead>
-                  <TableHead>วันที่สร้าง</TableHead>
-                  <TableHead>วันที่อัพเดท</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {categoryData.map((item, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{item.no}</TableCell>
-                    <TableCell className="font-medium">{item.main_topic}</TableCell>
-                    <TableCell>{item.sub_topic}</TableCell>
-                    <TableCell className="max-w-xs truncate" title={item.definition || ''}>
-                      {item.definition || '-'}
-                    </TableCell>
-                    <TableCell className="max-w-xs truncate" title={item.example_sentence || ''}>
-                      {item.example_sentence || '-'}
-                    </TableCell>
-                    <TableCell>
-                      <span className={`px-2 py-1 rounded-full text-xs ${
-                        item.allow === 'yes' 
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
-                          : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                      }`}>
-                        {item.allow === 'yes' ? 'อนุญาต' : 'ไม่อนุญาต'}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {new Date(item.create_at).toLocaleDateString('th-TH')}
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {new Date(item.last_update).toLocaleDateString('th-TH')}
-                    </TableCell>
+            <div className="min-w-max">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="whitespace-nowrap">ลำดับ</TableHead>
+                    <TableHead className="whitespace-nowrap">หมวดหมู่หลัก</TableHead>
+                    <TableHead className="whitespace-nowrap">หมวดหมู่ย่อย</TableHead>
+                    <TableHead className="whitespace-nowrap">คำนิยาม</TableHead>
+                    <TableHead className="whitespace-nowrap">ตัวอย่างประโยค</TableHead>
+                    <TableHead className="whitespace-nowrap">สถานะ</TableHead>
+                    <TableHead className="whitespace-nowrap">วันที่สร้าง</TableHead>
+                    <TableHead className="whitespace-nowrap">วันที่อัพเดท</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {categoryData.map((item, index) => (
+                    <TableRow key={index}>
+                      <TableCell className="whitespace-nowrap">{item.no}</TableCell>
+                      <TableCell className="font-medium whitespace-nowrap">{item.main_topic}</TableCell>
+                      <TableCell className="whitespace-nowrap">{item.sub_topic}</TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        {item.definition || '-'}
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        {item.example_sentence || '-'}
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        <span className={`px-2 py-1 rounded-full text-xs ${
+                          item.allow === 'yes' 
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
+                            : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                        }`}>
+                          {item.allow === 'yes' ? 'อนุญาต' : 'ไม่อนุญาต'}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
+                        {new Date(item.create_at).toLocaleDateString('th-TH')}
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
+                        {new Date(item.last_update).toLocaleDateString('th-TH')}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </ScrollArea>
         </CardContent>
       </Card>
@@ -153,38 +155,40 @@ export default function Documents() {
         </CardHeader>
         <CardContent>
           <ScrollArea className="h-[400px] w-full">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>ลำดับที่</TableHead>
-                  <TableHead>สายกิจ</TableHead>
-                  <TableHead>ชื่อสถานที่ให้บริการ</TableHead>
-                  <TableHead>ประเภทสถานที่</TableHead>
-                  <TableHead>จังหวัด</TableHead>
-                  <TableHead>เขต (ที่ตั้ง)</TableHead>
-                  <TableHead>เขต (ตามเขตดูแล)</TableHead>
-                  <TableHead>ภาค</TableHead>
-                  <TableHead>วันที่ให้บริการ</TableHead>
-                  <TableHead>เวลาให้บริการ</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {branchData.map((item, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{item['ลำดับที่'] || '-'}</TableCell>
-                    <TableCell className="font-medium">{item['สายกิจ'] || '-'}</TableCell>
-                    <TableCell>{item['ชื่อสถานที่ให้บริการ'] || '-'}</TableCell>
-                    <TableCell>{item['ประเภทสถานที่ให้บริกา'] || '-'}</TableCell>
-                    <TableCell>{item['จังหวัด'] || '-'}</TableCell>
-                    <TableCell>{item['เขต (ที่ตั้ง)'] || '-'}</TableCell>
-                    <TableCell>{item['เขต (ตามเขตดูแล)'] || '-'}</TableCell>
-                    <TableCell>{item['ภาค'] || '-'}</TableCell>
-                    <TableCell>{item['วันที่ให้บริการ'] || '-'}</TableCell>
-                    <TableCell>{item['เวลาให้บริการ'] || '-'}</TableCell>
+            <div className="min-w-max">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="whitespace-nowrap">ลำดับที่</TableHead>
+                    <TableHead className="whitespace-nowrap">สายกิจ</TableHead>
+                    <TableHead className="whitespace-nowrap">ชื่อสถานที่ให้บริการ</TableHead>
+                    <TableHead className="whitespace-nowrap">ประเภทสถานที่</TableHead>
+                    <TableHead className="whitespace-nowrap">จังหวัด</TableHead>
+                    <TableHead className="whitespace-nowrap">เขต (ที่ตั้ง)</TableHead>
+                    <TableHead className="whitespace-nowrap">เขต (ตามเขตดูแล)</TableHead>
+                    <TableHead className="whitespace-nowrap">ภาค</TableHead>
+                    <TableHead className="whitespace-nowrap">วันที่ให้บริการ</TableHead>
+                    <TableHead className="whitespace-nowrap">เวลาให้บริการ</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {branchData.map((item, index) => (
+                    <TableRow key={index}>
+                      <TableCell className="whitespace-nowrap">{item['ลำดับที่'] || '-'}</TableCell>
+                      <TableCell className="font-medium whitespace-nowrap">{item['สายกิจ'] || '-'}</TableCell>
+                      <TableCell className="whitespace-nowrap">{item['ชื่อสถานที่ให้บริการ'] || '-'}</TableCell>
+                      <TableCell className="whitespace-nowrap">{item['ประเภทสถานที่ให้บริกา'] || '-'}</TableCell>
+                      <TableCell className="whitespace-nowrap">{item['จังหวัด'] || '-'}</TableCell>
+                      <TableCell className="whitespace-nowrap">{item['เขต (ที่ตั้ง)'] || '-'}</TableCell>
+                      <TableCell className="whitespace-nowrap">{item['เขต (ตามเขตดูแล)'] || '-'}</TableCell>
+                      <TableCell className="whitespace-nowrap">{item['ภาค'] || '-'}</TableCell>
+                      <TableCell className="whitespace-nowrap">{item['วันที่ให้บริการ'] || '-'}</TableCell>
+                      <TableCell className="whitespace-nowrap">{item['เวลาให้บริการ'] || '-'}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </ScrollArea>
         </CardContent>
       </Card>
