@@ -3,7 +3,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { RefreshCw } from "lucide-react";
 
 interface CategoryRef {
   main_topic: string;
@@ -33,40 +35,95 @@ export default function Documents() {
   const [categoryData, setCategoryData] = useState<CategoryRef[]>([]);
   const [branchData, setBranchData] = useState<BranchRef[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshingCategory, setRefreshingCategory] = useState(false);
+  const [refreshingBranch, setRefreshingBranch] = useState(false);
   const { toast } = useToast();
 
+  const fetchData = async () => {
+    try {
+      // Fetch category_ref data
+      const { data: categories, error: categoryError } = await supabase
+        .from('category_ref')
+        .select('*')
+        .order('no', { ascending: true });
+
+      if (categoryError) throw categoryError;
+
+      // Fetch branch_ref data
+      const { data: branches, error: branchError } = await supabase
+        .from('branch_ref')
+        .select('*');
+
+      if (branchError) throw branchError;
+
+      setCategoryData(categories || []);
+      setBranchData(branches || []);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถโหลดข้อมูลได้",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const refreshCategoryData = async () => {
+    setRefreshingCategory(true);
+    try {
+      const { data: categories, error: categoryError } = await supabase
+        .from('category_ref')
+        .select('*')
+        .order('no', { ascending: true });
+
+      if (categoryError) throw categoryError;
+      setCategoryData(categories || []);
+      
+      toast({
+        title: "รีเฟรชสำเร็จ",
+        description: "ข้อมูลตารางอ้างอิงหมวดหมู่ได้รับการอัพเดทแล้ว",
+      });
+    } catch (error) {
+      console.error('Error refreshing category data:', error);
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถรีเฟรชข้อมูลได้",
+        variant: "destructive",
+      });
+    } finally {
+      setRefreshingCategory(false);
+    }
+  };
+
+  const refreshBranchData = async () => {
+    setRefreshingBranch(true);
+    try {
+      const { data: branches, error: branchError } = await supabase
+        .from('branch_ref')
+        .select('*');
+
+      if (branchError) throw branchError;
+      setBranchData(branches || []);
+      
+      toast({
+        title: "รีเฟรชสำเร็จ",
+        description: "ข้อมูลตารางอ้างอิงสาขาได้รับการอัพเดทแล้ว",
+      });
+    } catch (error) {
+      console.error('Error refreshing branch data:', error);
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถรีเฟรชข้อมูลได้",
+        variant: "destructive",
+      });
+    } finally {
+      setRefreshingBranch(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch category_ref data
-        const { data: categories, error: categoryError } = await supabase
-          .from('category_ref')
-          .select('*')
-          .order('no', { ascending: true });
-
-        if (categoryError) throw categoryError;
-
-        // Fetch branch_ref data
-        const { data: branches, error: branchError } = await supabase
-          .from('branch_ref')
-          .select('*');
-
-        if (branchError) throw branchError;
-
-        setCategoryData(categories || []);
-        setBranchData(branches || []);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        toast({
-          title: "เกิดข้อผิดพลาด",
-          description: "ไม่สามารถโหลดข้อมูลได้",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchData();
   }, [toast]);
 
@@ -94,7 +151,18 @@ export default function Documents() {
       {/* Category Reference Table */}
       <Card>
         <CardHeader>
-          <CardTitle>ตารางอ้างอิงหมวดหมู่ (Category Reference)</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>ตารางอ้างอิงหมวดหมู่ (Category Reference)</CardTitle>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={refreshCategoryData}
+              disabled={refreshingCategory}
+              className="ml-4"
+            >
+              <RefreshCw className={`h-4 w-4 ${refreshingCategory ? 'animate-spin' : ''}`} />
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <ScrollArea className="h-[400px] w-full">
@@ -152,7 +220,18 @@ export default function Documents() {
       {/* Branch Reference Table */}
       <Card>
         <CardHeader>
-          <CardTitle>ตารางอ้างอิงสาขา (Branch Reference)</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>ตารางอ้างอิงสาขา (Branch Reference)</CardTitle>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={refreshBranchData}
+              disabled={refreshingBranch}
+              className="ml-4"
+            >
+              <RefreshCw className={`h-4 w-4 ${refreshingBranch ? 'animate-spin' : ''}`} />
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <ScrollArea className="h-[400px] w-full">
