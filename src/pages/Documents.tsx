@@ -25,7 +25,6 @@ interface BranchRef {
   'วันที่ให้บริการ': string | null;
   'เวลาให้บริการ': string | null;
   'ลำดับที่': number | null;
-  'ประเภทสถานที่ให้บริกา': string | null;
   'ชื่อสถานที่ให้บริการ': string | null;
   'เขต (ตามเขตดูแล)': string | null;
   'ภาค': string | null;
@@ -242,7 +241,6 @@ export default function Documents() {
                     <TableHead className="whitespace-nowrap">ลำดับที่</TableHead>
                     <TableHead className="whitespace-nowrap">สายกิจ</TableHead>
                     <TableHead className="whitespace-nowrap">ชื่อสถานที่ให้บริการ</TableHead>
-                    <TableHead className="whitespace-nowrap">ประเภทสถานที่</TableHead>
                     <TableHead className="whitespace-nowrap">จังหวัด</TableHead>
                     <TableHead className="whitespace-nowrap">เขต (ที่ตั้ง)</TableHead>
                     <TableHead className="whitespace-nowrap">เขต (ตามเขตดูแล)</TableHead>
@@ -257,7 +255,6 @@ export default function Documents() {
                       <TableCell className="whitespace-nowrap">{item['ลำดับที่'] || '-'}</TableCell>
                       <TableCell className="font-medium whitespace-nowrap">{item['สายกิจ'] || '-'}</TableCell>
                       <TableCell className="whitespace-nowrap">{item['ชื่อสถานที่ให้บริการ'] || '-'}</TableCell>
-                      <TableCell className="whitespace-nowrap">{item['ประเภทสถานที่ให้บริกา'] || '-'}</TableCell>
                       <TableCell className="whitespace-nowrap">{item['จังหวัด'] || '-'}</TableCell>
                       <TableCell className="whitespace-nowrap">{item['เขต (ที่ตั้ง)'] || '-'}</TableCell>
                       <TableCell className="whitespace-nowrap">{item['เขต (ตามเขตดูแล)'] || '-'}</TableCell>
