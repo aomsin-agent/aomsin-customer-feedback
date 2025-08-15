@@ -42,9 +42,10 @@ const App = () => (
               <AppSidebar />
             </div>
             
-            {/* Main Content */}
-            <main className="flex-1 overflow-auto">
-              <Routes>
+            {/* Main Content - with dynamic padding to prevent overlap */}
+            <main className="flex-1 overflow-auto pl-16 lg:pl-20 transition-all duration-300">
+              <div className="p-4 md:p-6 lg:p-8">
+                <Routes>
                 <Route path="/" element={<MonthlyOverview />} />
                 <Route path="/trends" element={<TrendTracking />} />
                 <Route path="/regional" element={<RegionalPotential />} />
@@ -53,7 +54,8 @@ const App = () => (
                 <Route path="/ai-chat" element={<AiChat />} />
                 <Route path="/documents" element={<Documents />} />
                 <Route path="*" element={<NotFound />} />
-              </Routes>
+                </Routes>
+              </div>
             </main>
           </div>
           

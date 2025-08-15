@@ -161,13 +161,13 @@ export function AppSidebar() {
       </div>
 
       {/* Mobile Sheet Trigger Button */}
-      <div className="fixed left-0 top-1/2 transform -translate-y-1/2 z-40 lg:hidden">
+      <div className="fixed left-2 top-1/2 transform -translate-y-1/2 z-40 lg:hidden">
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
           <SheetTrigger asChild>
             <Button
               variant="outline"
               size="sm"
-              className="h-16 w-6 rounded-r-lg rounded-l-none bg-gray-100 hover:bg-gray-200 border-l-0 border-gray-300 flex items-center justify-center shadow-md transition-all duration-200 hover:w-8 hover:shadow-lg"
+              className="h-12 w-8 rounded-lg bg-gray-100/95 hover:bg-gray-200 border border-gray-300 flex items-center justify-center shadow-md transition-all duration-200 hover:shadow-lg backdrop-blur-sm"
             >
               <Menu className="h-4 w-4 text-gray-600" />
             </Button>
