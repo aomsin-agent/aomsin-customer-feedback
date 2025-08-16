@@ -152,8 +152,8 @@ export function HistoryLog() {
   }, [isOpen]);
 
   const getSentimentBackground = (sentences: SentenceCategory[]) => {
-    const positiveCount = sentences.filter(s => s.sentiment?.toLowerCase() === 'positive').length;
-    const negativeCount = sentences.filter(s => s.sentiment?.toLowerCase() === 'negative').length;
+    const positiveCount = sentences.filter(s => s.sentiment === 'Positive').length;
+    const negativeCount = sentences.filter(s => s.sentiment === 'Negative').length;
     
     if (positiveCount > negativeCount) {
       return "bg-green-50 border-green-200 dark:bg-green-950/20 dark:border-green-800/30";
@@ -164,8 +164,8 @@ export function HistoryLog() {
   };
 
   const getOverallSentiment = (sentences: SentenceCategory[]) => {
-    const positiveCount = sentences.filter(s => s.sentiment?.toLowerCase() === 'positive').length;
-    const negativeCount = sentences.filter(s => s.sentiment?.toLowerCase() === 'negative').length;
+    const positiveCount = sentences.filter(s => s.sentiment === 'Positive').length;
+    const negativeCount = sentences.filter(s => s.sentiment === 'Negative').length;
     
     if (positiveCount > negativeCount) {
       return { type: 'positive', label: 'Positive', color: 'text-green-600 dark:text-green-400' };
@@ -329,7 +329,7 @@ export function HistoryLog() {
                               comment.sentences
                                 .sort((a, b) => {
                                   // Sort by sentiment: positive first, then negative, then neutral
-                                  const sentimentOrder = { 'positive': 0, 'negative': 1, 'neutral': 2 };
+                                  const sentimentOrder = { 'Positive': 0, 'Negative': 1, 'Neutral': 2 };
                                   return (sentimentOrder[a.sentiment as keyof typeof sentimentOrder] || 3) - 
                                          (sentimentOrder[b.sentiment as keyof typeof sentimentOrder] || 3);
                                 })
@@ -342,31 +342,31 @@ export function HistoryLog() {
                                     
                                     {/* Sub Category with colored background + Sentence */}
                                     <div className={`p-4 rounded-lg border-l-4 text-sm ${
-                                      sentence.sentiment === 'positive' 
+                                      sentence.sentiment === 'Positive' 
                                         ? 'bg-green-100 dark:bg-green-900/40 border-l-green-600 border border-green-300 dark:border-green-700/60' 
-                                        : sentence.sentiment === 'negative' 
+                                        : sentence.sentiment === 'Negative' 
                                           ? 'bg-red-100 dark:bg-red-900/40 border-l-red-600 border border-red-300 dark:border-red-700/60' 
                                           : 'bg-muted/60 border-l-muted-foreground border border-muted-foreground/30'
                                     }`}>
                                       <div className="flex items-center gap-2 mb-2">
                                         <div className={`font-bold ${
-                                          sentence.sentiment === 'positive' 
+                                          sentence.sentiment === 'Positive' 
                                             ? 'text-green-800 dark:text-green-200' 
-                                            : sentence.sentiment === 'negative' 
+                                            : sentence.sentiment === 'Negative' 
                                               ? 'text-red-800 dark:text-red-200' 
                                               : 'text-foreground'
                                         }`}>
                                           {sentence.sub_category}
                                         </div>
-                                        {sentence.sentiment !== 'neutral' && (
+                                        {sentence.sentiment !== 'Neutral' && (
                                           <Badge 
                                             className={`px-2 py-1 text-white text-xs font-medium rounded-md ${
-                                              sentence.sentiment === 'positive' 
+                                              sentence.sentiment === 'Positive' 
                                                 ? 'bg-green-700 dark:bg-green-600 hover:bg-green-800 dark:hover:bg-green-700' 
                                                 : 'bg-red-700 dark:bg-red-600 hover:bg-red-800 dark:hover:bg-red-700'
                                             }`}
                                           >
-                                            {sentence.sentiment === 'positive' ? 'เชิงบวก' : 'เชิงลบ'}
+                                            {sentence.sentiment === 'Positive' ? 'เชิงบวก' : 'เชิงลบ'}
                                           </Badge>
                                         )}
                                       </div>
