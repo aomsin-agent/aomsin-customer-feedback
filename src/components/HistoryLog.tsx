@@ -156,11 +156,23 @@ export function HistoryLog() {
     const negativeCount = sentences.filter(s => s.sentiment?.toLowerCase() === 'negative').length;
     
     if (positiveCount > negativeCount) {
-      return "bg-green-50 border-green-200";
+      return "bg-green-50 border-green-200 dark:bg-green-950/20 dark:border-green-800/30";
     } else if (negativeCount > positiveCount) {
-      return "bg-red-50 border-red-200";
+      return "bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-800/30";
     }
-    return "bg-muted/30";
+    return "bg-muted/30 border-muted-foreground/20";
+  };
+
+  const getOverallSentiment = (sentences: SentenceCategory[]) => {
+    const positiveCount = sentences.filter(s => s.sentiment?.toLowerCase() === 'positive').length;
+    const negativeCount = sentences.filter(s => s.sentiment?.toLowerCase() === 'negative').length;
+    
+    if (positiveCount > negativeCount) {
+      return { type: 'positive', label: 'Positive', color: 'text-green-600 dark:text-green-400' };
+    } else if (negativeCount > positiveCount) {
+      return { type: 'negative', label: 'Negative', color: 'text-red-600 dark:text-red-400' };
+    }
+    return { type: 'neutral', label: 'Neutral', color: 'text-muted-foreground' };
   };
 
   const getUsedServices = (comment: RawComment) => {
@@ -219,16 +231,23 @@ export function HistoryLog() {
                 </p>
               </div>
             ) : (
-              comments.map((comment) => (
+              comments.map((comment) => {
+                const overallSentiment = getOverallSentiment(comment.sentences);
+                return (
                 <Card 
                   key={comment.comment_id} 
-                  className={`p-4 ${getSentimentBackground(comment.sentences)} border transition-all duration-200`}
+                  className={`p-6 ${getSentimentBackground(comment.sentences)} border-2 transition-all duration-300 hover:shadow-lg`}
                 >
-                  {/* Header with Comment ID */}
-                  <div className="mb-3 pb-2 border-b">
-                    <p className="text-sm font-mono text-muted-foreground">
-                      ID: {comment.comment_id}
-                    </p>
+                  {/* Header with Comment ID and Overall Sentiment */}
+                  <div className="mb-4 pb-3 border-b border-border/50">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-mono text-muted-foreground">
+                        ID: {comment.comment_id}
+                      </p>
+                      <div className={`text-sm font-semibold ${overallSentiment.color}`}>
+                        {overallSentiment.label}
+                      </div>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -325,16 +344,16 @@ export function HistoryLog() {
                                   </div>
                                   
                                   {/* Sub Category with colored background + Sentence - Third Line */}
-                                  <div className={`p-2 rounded text-xs ${
+                                  <div className={`p-3 rounded-lg border-l-4 text-xs ${
                                     sentence.sentiment === 'positive' 
-                                      ? 'bg-green-100 dark:bg-green-900/30' 
+                                      ? 'bg-green-50 dark:bg-green-950/20 border-l-green-500 border border-green-200 dark:border-green-800/50' 
                                       : sentence.sentiment === 'negative' 
-                                        ? 'bg-red-100 dark:bg-red-900/30' 
-                                        : 'bg-muted/50'
+                                        ? 'bg-red-50 dark:bg-red-950/20 border-l-red-500 border border-red-200 dark:border-red-800/50' 
+                                        : 'bg-muted/50 border-l-muted-foreground border border-muted-foreground/20'
                                   }`}>
-                                    <span className="font-medium text-foreground">{sentence.sub_category}</span>
+                                    <div className="font-semibold text-foreground mb-1">{sentence.sub_category}</div>
                                     {sentence.sentence && (
-                                      <span className="text-muted-foreground"> - {sentence.sentence}</span>
+                                      <div className="text-muted-foreground leading-relaxed">{sentence.sentence}</div>
                                     )}
                                   </div>
                                 </div>
@@ -345,7 +364,8 @@ export function HistoryLog() {
                     </div>
                   </div>
                 </Card>
-              ))
+                );
+              })
             )}
           </div>
         </ScrollArea>
