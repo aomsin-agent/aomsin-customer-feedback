@@ -77,60 +77,66 @@ export function SettingsDialog() {
           <Settings className="h-4 w-4" strokeWidth={1.5} />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-4xl w-full max-h-[80vh] overflow-hidden">
+      <DialogContent className="max-w-4xl w-full max-h-[85vh] sm:max-h-[80vh] overflow-hidden mx-4 sm:mx-0">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-foreground">
             การจัดการเครื่องมือภายนอก
           </DialogTitle>
         </DialogHeader>
-        <div className="flex flex-col h-full min-h-[500px]">
-          <div className="flex-1 p-6 bg-muted/30 rounded-lg overflow-auto">
-            <div className="space-y-4">
+        <div className="flex flex-col h-full min-h-[300px] sm:min-h-[500px]">
+          <div className="flex-1 p-3 sm:p-6 bg-muted/30 rounded-lg overflow-auto">
+            <div className="space-y-3 sm:space-y-4">
               {configs.map((config) => (
-                <div key={config.id} className="flex items-center gap-4 p-4 bg-background rounded-lg border">
+                <div key={config.id} className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-background rounded-lg border">
                   {/* Label */}
-                  <div className="w-48 flex-shrink-0">
+                  <div className="w-full sm:w-48 sm:flex-shrink-0">
                     <label className="text-sm font-medium text-foreground">
                       {config.label}
                     </label>
                   </div>
                   
-                  {/* Input */}
-                  <div className="flex-1">
-                    <Input
-                      type={config.isVisible || isEditing(config.id) ? "text" : "password"}
-                      value={getDisplayValue(config)}
-                      onChange={(e) => handleInputChange(config.id, e.target.value)}
-                      className="w-full"
-                      placeholder={config.label}
-                    />
+                  {/* Input and Controls Container */}
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 w-full sm:flex-1">
+                    {/* Input */}
+                    <div className="flex-1">
+                      <Input
+                        type={config.isVisible || isEditing(config.id) ? "text" : "password"}
+                        value={getDisplayValue(config)}
+                        onChange={(e) => handleInputChange(config.id, e.target.value)}
+                        className="w-full"
+                        placeholder={config.label}
+                      />
+                    </div>
+                    
+                    {/* Controls Container */}
+                    <div className="flex gap-2 sm:gap-4 items-center justify-end sm:justify-start">
+                      {/* Save button */}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleSave(config.id)}
+                        disabled={!isEditing(config.id)}
+                        className="min-w-[70px] sm:min-w-[80px] text-xs sm:text-sm"
+                      >
+                        <Save className="h-3 w-3 mr-1" />
+                        บันทึก
+                      </Button>
+                      
+                      {/* Visibility toggle */}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => toggleVisibility(config.id)}
+                        className="h-8 w-8 flex-shrink-0"
+                      >
+                        {config.isVisible ? (
+                          <Eye className="h-4 w-4" />
+                        ) : (
+                          <EyeOff className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
                   </div>
-                  
-                  {/* Save button */}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleSave(config.id)}
-                    disabled={!isEditing(config.id)}
-                    className="min-w-[80px]"
-                  >
-                    <Save className="h-3 w-3 mr-1" />
-                    บันทึก
-                  </Button>
-                  
-                  {/* Visibility toggle */}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => toggleVisibility(config.id)}
-                    className="h-8 w-8 flex-shrink-0"
-                  >
-                    {config.isVisible ? (
-                      <Eye className="h-4 w-4" />
-                    ) : (
-                      <EyeOff className="h-4 w-4" />
-                    )}
-                  </Button>
                 </div>
               ))}
             </div>
