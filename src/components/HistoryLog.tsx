@@ -303,11 +303,17 @@ export function HistoryLog() {
                     </div>
 
                     {/* Right Column */}
-                    <div className="space-y-4">
+                    <div className={`space-y-6 p-4 rounded-lg ${
+                      overallSentiment.type === 'positive' 
+                        ? 'bg-green-50/70 dark:bg-green-950/30' 
+                        : overallSentiment.type === 'negative' 
+                          ? 'bg-red-50/70 dark:bg-red-950/30' 
+                          : 'bg-muted/30'
+                    }`}>
                       {/* ส่วนที่ 5: ความคิดเห็น */}
                       <div>
-                        <h4 className="text-sm font-semibold mb-1 text-foreground">ความคิดเห็น</h4>
-                        <div className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">
+                        <h4 className="text-sm font-semibold mb-3 text-foreground">ความคิดเห็น</h4>
+                        <div className="text-xs text-muted-foreground bg-background/80 p-3 rounded-lg border">
                           {comment.comment}
                         </div>
                       </div>
