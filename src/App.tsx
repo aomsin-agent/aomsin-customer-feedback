@@ -43,8 +43,8 @@ const App = () => (
             </div>
             
             {/* Main Content - with dynamic padding to prevent overlap */}
-            <main className="flex-1 overflow-auto pl-16 lg:pl-20 transition-all duration-300">
-              <div className="p-4 md:p-6 lg:p-8">
+            <main className="flex-1 overflow-auto lg:pl-20 transition-all duration-300">
+              <div className="p-2 md:p-6 lg:p-8">
                 <Routes>
                 <Route path="/" element={<MonthlyOverview />} />
                 <Route path="/trends" element={<TrendTracking />} />

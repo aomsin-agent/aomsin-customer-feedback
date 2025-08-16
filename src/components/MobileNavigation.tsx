@@ -30,7 +30,7 @@ const navigationItems = [
   },
   {
     title: "ความคิดเห็น",
-    shortTitle: "ความคิดเห็น",
+    shortTitle: "ความเห็น",
     url: "/feedback",
     icon: MessageSquare,
   },
