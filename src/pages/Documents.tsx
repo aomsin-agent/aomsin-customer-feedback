@@ -128,21 +128,21 @@ export default function Documents() {
 
   if (loading) {
     return (
-      <div className="container mx-auto p-6">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-lg text-muted-foreground">กำลังโหลดข้อมูล...</div>
+      <div className="w-full">
+        <div className="flex items-center justify-center h-32 md:h-64">
+          <div className="text-base md:text-lg text-muted-foreground">กำลังโหลดข้อมูล...</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-foreground mb-2">
+    <div className="w-full space-y-4 md:space-y-6">
+      <div className="mb-4 md:mb-6">
+        <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
           เอกสารอ้างอิง
         </h1>
-        <p className="text-muted-foreground">
+        <p className="text-sm md:text-base text-muted-foreground">
           รวบรวมเอกสาร นโยบาย และคู่มือที่เกี่ยวข้องกับการจัดการข้อร้องเรียน
         </p>
       </div>
@@ -150,16 +150,17 @@ export default function Documents() {
       {/* Category Reference Table */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>ตารางอ้างอิงหมวดหมู่ (Category Reference)</CardTitle>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <CardTitle className="text-lg md:text-xl">ตารางอ้างอิงหมวดหมู่ (Category Reference)</CardTitle>
             <Button
               variant="outline"
               size="sm"
               onClick={refreshCategoryData}
               disabled={refreshingCategory}
-              className="ml-4"
+              className="self-start sm:self-center"
             >
               <RefreshCw className={`h-4 w-4 ${refreshingCategory ? 'animate-spin' : ''}`} />
+              <span className="ml-1 sm:hidden">รีเฟรช</span>
             </Button>
           </div>
         </CardHeader>
@@ -219,16 +220,17 @@ export default function Documents() {
       {/* Branch Reference Table */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>ตารางอ้างอิงสาขา (Branch Reference)</CardTitle>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <CardTitle className="text-lg md:text-xl">ตารางอ้างอิงสาขา (Branch Reference)</CardTitle>
             <Button
               variant="outline"
               size="sm"
               onClick={refreshBranchData}
               disabled={refreshingBranch}
-              className="ml-4"
+              className="self-start sm:self-center"
             >
               <RefreshCw className={`h-4 w-4 ${refreshingBranch ? 'animate-spin' : ''}`} />
+              <span className="ml-1 sm:hidden">รีเฟรช</span>
             </Button>
           </div>
         </CardHeader>
