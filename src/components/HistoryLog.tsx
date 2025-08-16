@@ -295,30 +295,50 @@ export function HistoryLog() {
 
                       {/* ส่วนที่ 6: การจำแนกประเภทความคิดเห็น */}
                       <div>
-                        <h4 className="text-sm font-semibold mb-1 text-foreground">การจำแนกประเภทความคิดเห็น</h4>
-                        <div className="space-y-2">
+                        <h4 className="text-sm font-semibold mb-2 text-foreground">การจำแนกประเภทความคิดเห็น</h4>
+                        <div className="space-y-3">
                           {comment.sentences.length === 0 ? (
                             <p className="text-xs text-muted-foreground">ยังไม่มีการจำแนกประเภท</p>
                           ) : (
-                            comment.sentences.map((sentence, idx) => (
-                              <div key={idx} className="bg-muted/30 p-2 rounded text-xs space-y-1">
-                                <p className="text-muted-foreground">{sentence.sentence}</p>
-                                <div className="flex flex-wrap gap-1">
-                                  <Badge variant="outline" className="text-xs">
-                                    {sentence.main_category}
-                                  </Badge>
-                                  <Badge variant="outline" className="text-xs">
-                                    {sentence.sub_category}
-                                  </Badge>
-                                  <Badge 
-                                    variant={sentence.sentiment === 'positive' ? 'default' : sentence.sentiment === 'negative' ? 'destructive' : 'secondary'} 
-                                    className="text-xs"
-                                  >
-                                    {sentence.sentiment}
-                                  </Badge>
+                            comment.sentences
+                              .sort((a, b) => {
+                                // Sort by sentiment: positive first, then negative, then neutral
+                                const sentimentOrder = { 'positive': 0, 'negative': 1, 'neutral': 2 };
+                                return (sentimentOrder[a.sentiment as keyof typeof sentimentOrder] || 3) - 
+                                       (sentimentOrder[b.sentiment as keyof typeof sentimentOrder] || 3);
+                              })
+                              .map((sentence, idx) => (
+                                <div key={idx} className="space-y-1">
+                                  {/* Sentiment Badge - First Line */}
+                                  <div>
+                                    <Badge 
+                                      variant={sentence.sentiment === 'positive' ? 'default' : sentence.sentiment === 'negative' ? 'destructive' : 'secondary'} 
+                                      className="text-xs font-medium"
+                                    >
+                                      {sentence.sentiment === 'positive' ? 'Positive' : sentence.sentiment === 'negative' ? 'Negative' : sentence.sentiment}
+                                    </Badge>
+                                  </div>
+                                  
+                                  {/* Main Category - Second Line (Header style) */}
+                                  <div>
+                                    <h5 className="text-xs font-semibold text-foreground">{sentence.main_category}</h5>
+                                  </div>
+                                  
+                                  {/* Sub Category with colored background + Sentence - Third Line */}
+                                  <div className={`p-2 rounded text-xs ${
+                                    sentence.sentiment === 'positive' 
+                                      ? 'bg-green-100 dark:bg-green-900/30' 
+                                      : sentence.sentiment === 'negative' 
+                                        ? 'bg-red-100 dark:bg-red-900/30' 
+                                        : 'bg-muted/50'
+                                  }`}>
+                                    <span className="font-medium text-foreground">{sentence.sub_category}</span>
+                                    {sentence.sentence && (
+                                      <span className="text-muted-foreground"> - {sentence.sentence}</span>
+                                    )}
+                                  </div>
                                 </div>
-                              </div>
-                            ))
+                              ))
                           )}
                         </div>
                       </div>
