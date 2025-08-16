@@ -333,31 +333,29 @@ export function HistoryLog() {
                                        (sentimentOrder[b.sentiment as keyof typeof sentimentOrder] || 3);
                               })
                               .map((sentence, idx) => (
-                                <div key={idx} className="space-y-1">
-                                  {/* Sentiment Badge - First Line */}
+                                <div key={idx} className="space-y-2">
+                                  {/* Main Category - Header style */}
                                   <div>
-                                    <Badge 
-                                      variant={sentence.sentiment === 'positive' ? 'default' : sentence.sentiment === 'negative' ? 'destructive' : 'secondary'} 
-                                      className="text-xs font-medium"
-                                    >
-                                      {sentence.sentiment === 'positive' ? 'Positive' : sentence.sentiment === 'negative' ? 'Negative' : sentence.sentiment}
-                                    </Badge>
+                                    <h5 className="text-sm font-semibold text-foreground">{sentence.main_category}</h5>
                                   </div>
                                   
-                                  {/* Main Category - Second Line (Header style) */}
-                                  <div>
-                                    <h5 className="text-xs font-semibold text-foreground">{sentence.main_category}</h5>
-                                  </div>
-                                  
-                                  {/* Sub Category with colored background + Sentence - Third Line */}
-                                  <div className={`p-3 rounded-lg border-l-4 text-xs ${
+                                  {/* Sub Category with colored background + Sentence */}
+                                  <div className={`p-4 rounded-lg border-l-4 text-sm ${
                                     sentence.sentiment === 'positive' 
-                                      ? 'bg-green-50 dark:bg-green-950/20 border-l-green-500 border border-green-200 dark:border-green-800/50' 
+                                      ? 'bg-green-100 dark:bg-green-900/40 border-l-green-600 border border-green-300 dark:border-green-700/60' 
                                       : sentence.sentiment === 'negative' 
-                                        ? 'bg-red-50 dark:bg-red-950/20 border-l-red-500 border border-red-200 dark:border-red-800/50' 
-                                        : 'bg-muted/50 border-l-muted-foreground border border-muted-foreground/20'
+                                        ? 'bg-red-100 dark:bg-red-900/40 border-l-red-600 border border-red-300 dark:border-red-700/60' 
+                                        : 'bg-muted/60 border-l-muted-foreground border border-muted-foreground/30'
                                   }`}>
-                                    <div className="font-semibold text-foreground mb-1">{sentence.sub_category}</div>
+                                    <div className={`font-bold mb-2 ${
+                                      sentence.sentiment === 'positive' 
+                                        ? 'text-green-800 dark:text-green-200' 
+                                        : sentence.sentiment === 'negative' 
+                                          ? 'text-red-800 dark:text-red-200' 
+                                          : 'text-foreground'
+                                    }`}>
+                                      {sentence.sub_category}
+                                    </div>
                                     {sentence.sentence && (
                                       <div className="text-muted-foreground leading-relaxed">{sentence.sentence}</div>
                                     )}
