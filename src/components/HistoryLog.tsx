@@ -321,49 +321,64 @@ export function HistoryLog() {
                       {/* ส่วนที่ 6: การจำแนกประเภทความคิดเห็น */}
                       <div>
                         <h4 className="text-sm font-semibold mb-2 text-foreground">การจำแนกประเภทความคิดเห็น</h4>
-                        <div className="space-y-3">
-                          {comment.sentences.length === 0 ? (
-                            <p className="text-xs text-muted-foreground">ยังไม่มีการจำแนกประเภท</p>
-                          ) : (
-                            comment.sentences
-                              .sort((a, b) => {
-                                // Sort by sentiment: positive first, then negative, then neutral
-                                const sentimentOrder = { 'positive': 0, 'negative': 1, 'neutral': 2 };
-                                return (sentimentOrder[a.sentiment as keyof typeof sentimentOrder] || 3) - 
-                                       (sentimentOrder[b.sentiment as keyof typeof sentimentOrder] || 3);
-                              })
-                              .map((sentence, idx) => (
-                                <div key={idx} className="space-y-2">
-                                  {/* Main Category - Header style */}
-                                  <div>
-                                    <h5 className="text-sm font-semibold text-foreground">{sentence.main_category}</h5>
-                                  </div>
-                                  
-                                  {/* Sub Category with colored background + Sentence */}
-                                  <div className={`p-4 rounded-lg border-l-4 text-sm ${
-                                    sentence.sentiment === 'positive' 
-                                      ? 'bg-green-100 dark:bg-green-900/40 border-l-green-600 border border-green-300 dark:border-green-700/60' 
-                                      : sentence.sentiment === 'negative' 
-                                        ? 'bg-red-100 dark:bg-red-900/40 border-l-red-600 border border-red-300 dark:border-red-700/60' 
-                                        : 'bg-muted/60 border-l-muted-foreground border border-muted-foreground/30'
-                                  }`}>
-                                    <div className={`font-bold mb-2 ${
-                                      sentence.sentiment === 'positive' 
-                                        ? 'text-green-800 dark:text-green-200' 
-                                        : sentence.sentiment === 'negative' 
-                                          ? 'text-red-800 dark:text-red-200' 
-                                          : 'text-foreground'
-                                    }`}>
-                                      {sentence.sub_category}
+                        <ScrollArea className="h-[400px] w-full">
+                          <div className="space-y-3 pr-4">
+                            {comment.sentences.length === 0 ? (
+                              <p className="text-xs text-muted-foreground">ยังไม่มีการจำแนกประเภท</p>
+                            ) : (
+                              comment.sentences
+                                .sort((a, b) => {
+                                  // Sort by sentiment: positive first, then negative, then neutral
+                                  const sentimentOrder = { 'positive': 0, 'negative': 1, 'neutral': 2 };
+                                  return (sentimentOrder[a.sentiment as keyof typeof sentimentOrder] || 3) - 
+                                         (sentimentOrder[b.sentiment as keyof typeof sentimentOrder] || 3);
+                                })
+                                .map((sentence, idx) => (
+                                  <div key={idx} className="space-y-2">
+                                    {/* Main Category - Header style */}
+                                    <div>
+                                      <h5 className="text-sm font-semibold text-foreground">{sentence.main_category}</h5>
                                     </div>
-                                    {sentence.sentence && (
-                                      <div className="text-muted-foreground leading-relaxed">{sentence.sentence}</div>
-                                    )}
+                                    
+                                    {/* Sub Category with colored background + Sentence */}
+                                    <div className={`p-4 rounded-lg border-l-4 text-sm ${
+                                      sentence.sentiment === 'positive' 
+                                        ? 'bg-green-100 dark:bg-green-900/40 border-l-green-600 border border-green-300 dark:border-green-700/60' 
+                                        : sentence.sentiment === 'negative' 
+                                          ? 'bg-red-100 dark:bg-red-900/40 border-l-red-600 border border-red-300 dark:border-red-700/60' 
+                                          : 'bg-muted/60 border-l-muted-foreground border border-muted-foreground/30'
+                                    }`}>
+                                      <div className="flex items-center gap-2 mb-2">
+                                        <div className={`font-bold ${
+                                          sentence.sentiment === 'positive' 
+                                            ? 'text-green-800 dark:text-green-200' 
+                                            : sentence.sentiment === 'negative' 
+                                              ? 'text-red-800 dark:text-red-200' 
+                                              : 'text-foreground'
+                                        }`}>
+                                          {sentence.sub_category}
+                                        </div>
+                                        {sentence.sentiment !== 'neutral' && (
+                                          <Badge 
+                                            className={`px-2 py-1 text-white text-xs font-medium rounded-md ${
+                                              sentence.sentiment === 'positive' 
+                                                ? 'bg-green-700 dark:bg-green-600 hover:bg-green-800 dark:hover:bg-green-700' 
+                                                : 'bg-red-700 dark:bg-red-600 hover:bg-red-800 dark:hover:bg-red-700'
+                                            }`}
+                                          >
+                                            {sentence.sentiment === 'positive' ? 'เชิงบวก' : 'เชิงลบ'}
+                                          </Badge>
+                                        )}
+                                      </div>
+                                      {sentence.sentence && (
+                                        <div className="text-muted-foreground leading-relaxed">{sentence.sentence}</div>
+                                      )}
+                                    </div>
                                   </div>
-                                </div>
-                              ))
-                          )}
-                        </div>
+                                ))
+                            )}
+                          </div>
+                        </ScrollArea>
                       </div>
                     </div>
                   </div>
