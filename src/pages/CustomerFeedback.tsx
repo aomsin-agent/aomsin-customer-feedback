@@ -66,6 +66,7 @@ const THAI_MONTHS = [
 ];
 
 const TIME_RANGES = [
+  { label: 'เลือกทั้งหมด', days: null },
   { label: '1 วัน', days: 1 },
   { label: '7 วัน', days: 7 },
   { label: '14 วัน', days: 14 },
@@ -92,7 +93,7 @@ export default function CustomerFeedback() {
   // Time filter states
   const [timeFilterType, setTimeFilterType] = useState<'monthly' | 'range' | 'custom'>('monthly');
   const [selectedMonth, setSelectedMonth] = useState<string>('');
-  const [selectedTimeRange, setSelectedTimeRange] = useState<number>(30);
+  const [selectedTimeRange, setSelectedTimeRange] = useState<number | null>(30);
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [endDate, setEndDate] = useState<Date>(new Date());
 
@@ -110,11 +111,10 @@ export default function CustomerFeedback() {
     try {
       setLoading(true);
       
-      // Fetch branches
+      // Fetch branches with proper sorting
       const { data: branchData, error: branchError } = await supabase
         .from('branch_ref')
-        .select('*')
-        .order('region', { ascending: true });
+        .select('*');
 
       if (branchError) throw branchError;
 
@@ -164,7 +164,7 @@ export default function CustomerFeedback() {
         const startOfMonth = new Date(year, monthIndex, 1);
         const endOfMonth = new Date(year, monthIndex + 1, 0);
         dateFilter = `date.gte.${format(startOfMonth, 'yyyy-MM-dd')}.and(date.lte.${format(endOfMonth, 'yyyy-MM-dd')})`;
-      } else if (timeFilterType === 'range') {
+      } else if (timeFilterType === 'range' && selectedTimeRange !== null) {
         const rangeStart = subDays(today, selectedTimeRange);
         dateFilter = `date.gte.${format(rangeStart, 'yyyy-MM-dd')}`;
       } else if (timeFilterType === 'custom') {
@@ -180,7 +180,7 @@ export default function CustomerFeedback() {
         query = query.or(dateFilter);
       }
 
-      if (selectedRegions.length > 0 && selectedRegions.length < branches.length) {
+      if (selectedRegions.length > 0 && selectedRegions.length < sortedRegions.length) {
         query = query.in('region', selectedRegions);
       }
 
@@ -274,7 +274,16 @@ export default function CustomerFeedback() {
     sentimentFilter
   ]);
 
-  // Derived data for hierarchical filtering
+  // Derived data for hierarchical filtering with proper sorting
+  const sortedRegions = useMemo(() => {
+    const uniqueRegions = [...new Set(branches.map(b => b.region).filter(Boolean))];
+    return uniqueRegions.sort((a, b) => {
+      const numA = parseInt(a.replace(/[^0-9]/g, ''));
+      const numB = parseInt(b.replace(/[^0-9]/g, ''));
+      return numA - numB;
+    });
+  }, [branches]);
+
   const availableDistricts = useMemo(() => {
     return [...new Set(branches
       .filter(b => selectedRegions.length === 0 || selectedRegions.includes(b.region))
@@ -307,10 +316,25 @@ export default function CustomerFeedback() {
     setSelectedSubCategories(categories.map(c => c.sub_topic));
     setSentimentFilter('all');
     setTimeFilterType('monthly');
+    setSelectedTimeRange(30);
     
     const now = new Date();
     const currentMonth = `${THAI_MONTHS[now.getMonth()]} ${(now.getFullYear() + 543).toString().slice(-2)}`;
     setSelectedMonth(currentMonth);
+  };
+
+  // Helper function to format selection display
+  const formatSelectionDisplay = (selected: string[], total: number, itemType: string) => {
+    if (selected.length === 0) {
+      return `เลือก${itemType}`;
+    }
+    if (selected.length === total) {
+      return `เลือกทั้งหมด (${total} รายการ)`;
+    }
+    if (selected.length <= 3) {
+      return selected.join(', ');
+    }
+    return `เลือก ${selected.length} รายการ`;
   };
 
   const getSentimentBadgeColor = (sentiment: string) => {
@@ -385,19 +409,41 @@ export default function CustomerFeedback() {
               <label className="text-sm font-medium mb-2 block">พื้นที่ดูแล - ภาค</label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-between">
-                    {selectedRegions.length === 0 ? 'เลือกภาค' : `เลือกแล้ว ${selectedRegions.length} ภาค`}
+                  <Button variant="outline" className="w-full justify-between text-left">
+                    {formatSelectionDisplay(selectedRegions, sortedRegions.length, 'ภาค')}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-80">
+                <PopoverContent className="w-80 z-50" align="start" side="bottom">
                   <div className="space-y-2">
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setSelectedRegions(sortedRegions)}
+                        className="flex-1"
+                      >
+                        เลือกทั้งหมด
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setSelectedRegions([]);
+                          setSelectedDistricts([]);
+                          setSelectedBranches([]);
+                        }}
+                        className="flex-1"
+                      >
+                        ยกเลิกทั้งหมด
+                      </Button>
+                    </div>
                     <Input
                       placeholder="ค้นหาภาค..."
                       value={regionSearch}
                       onChange={(e) => setRegionSearch(e.target.value)}
                     />
                     <ScrollArea className="h-48">
-                      {[...new Set(branches.map(b => b.region).filter(Boolean))]
+                      {sortedRegions
                         .filter(region => region.toLowerCase().includes(regionSearch.toLowerCase()))
                         .map(region => (
                           <div key={region} className="flex items-center space-x-2 p-2">
@@ -426,12 +472,33 @@ export default function CustomerFeedback() {
               <label className="text-sm font-medium mb-2 block">เขต</label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-between">
-                    {selectedDistricts.length === 0 ? 'เลือกเขต' : `เลือกแล้ว ${selectedDistricts.length} เขต`}
+                  <Button variant="outline" className="w-full justify-between text-left">
+                    {formatSelectionDisplay(selectedDistricts, availableDistricts.length, 'เขต')}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-80">
+                <PopoverContent className="w-80 z-50" align="start" side="bottom">
                   <div className="space-y-2">
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setSelectedDistricts(availableDistricts)}
+                        className="flex-1"
+                      >
+                        เลือกทั้งหมด
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setSelectedDistricts([]);
+                          setSelectedBranches([]);
+                        }}
+                        className="flex-1"
+                      >
+                        ยกเลิกทั้งหมด
+                      </Button>
+                    </div>
                     <Input
                       placeholder="ค้นหาเขต..."
                       value={districtSearch}
@@ -466,12 +533,30 @@ export default function CustomerFeedback() {
               <label className="text-sm font-medium mb-2 block">สาขา</label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-between">
-                    {selectedBranches.length === 0 ? 'เลือกสาขา' : `เลือกแล้ว ${selectedBranches.length} สาขา`}
+                  <Button variant="outline" className="w-full justify-between text-left">
+                    {formatSelectionDisplay(selectedBranches, availableBranches.length, 'สาขา')}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-80">
+                <PopoverContent className="w-80 z-50" align="start" side="bottom">
                   <div className="space-y-2">
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setSelectedBranches(availableBranches.map(b => b.branch_name))}
+                        className="flex-1"
+                      >
+                        เลือกทั้งหมด
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setSelectedBranches([])}
+                        className="flex-1"
+                      >
+                        ยกเลิกทั้งหมด
+                      </Button>
+                    </div>
                     <Input
                       placeholder="ค้นหาสาขา..."
                       value={branchSearch}
@@ -503,14 +588,14 @@ export default function CustomerFeedback() {
           </div>
 
           {/* Time Filtering */}
-          <div>
-            <label className="text-sm font-medium mb-2 block">ช่วงเวลา</label>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Select value={timeFilterType} onValueChange={(value: any) => setTimeFilterType(value)}>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block">ช่วงเวลา</label>
+              <Select value={timeFilterType} onValueChange={(value: 'monthly' | 'range' | 'custom') => setTimeFilterType(value)}>
                 <SelectTrigger>
-                  <SelectValue placeholder="เลือกประเภทช่วงเวลา" />
+                  <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="z-50">
                   <SelectItem value="monthly">ข้อมูลประจำเดือน</SelectItem>
                   <SelectItem value="range">ช่วงเวลาย้อนหลัง</SelectItem>
                   <SelectItem value="custom">กำหนดช่วงเวลาเอง</SelectItem>
@@ -518,73 +603,87 @@ export default function CustomerFeedback() {
               </Select>
 
               {timeFilterType === 'monthly' && (
-                <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="เลือกเดือน" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Array.from({ length: 12 }, (_, i) => {
-                      const year = new Date().getFullYear() + 543;
-                      const month = `${THAI_MONTHS[i]} ${year.toString().slice(-2)}`;
-                      return (
-                        <SelectItem key={month} value={month}>
-                          {month}
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
+                <div className="mt-4">
+                  <label className="text-sm font-medium mb-2 block">เลือกเดือน</label>
+                  <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="z-50">
+                      {Array.from({ length: 12 }, (_, i) => {
+                        const currentYear = new Date().getFullYear() + 543;
+                        const monthStr = `${THAI_MONTHS[i]} ${currentYear.toString().slice(-2)}`;
+                        return (
+                          <SelectItem key={monthStr} value={monthStr}>
+                            {monthStr}
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                </div>
               )}
 
               {timeFilterType === 'range' && (
-                <Select value={selectedTimeRange.toString()} onValueChange={(value) => setSelectedTimeRange(parseInt(value))}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="เลือกช่วงเวลา" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {TIME_RANGES.map(range => (
-                      <SelectItem key={range.days} value={range.days.toString()}>
-                        {range.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="mt-4">
+                  <label className="text-sm font-medium mb-2 block">ช่วงเวลาย้อนหลัง</label>
+                  <Select value={selectedTimeRange?.toString() || ''} onValueChange={(value) => setSelectedTimeRange(value === 'null' ? null : parseInt(value))}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="z-50">
+                      {TIME_RANGES.map(range => (
+                        <SelectItem key={range.label} value={range.days?.toString() || 'null'}>
+                          {range.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               )}
 
               {timeFilterType === 'custom' && (
-                <div className="flex gap-2">
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" className="flex-1">
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {format(startDate, 'dd/MM/yyyy')}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={startDate}
-                        onSelect={(date) => date && setStartDate(date)}
-                        className="pointer-events-auto"
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" className="flex-1">
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {format(endDate, 'dd/MM/yyyy')}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={endDate}
-                        onSelect={(date) => date && setEndDate(date)}
-                        className="pointer-events-auto"
-                      />
-                    </PopoverContent>
-                  </Popover>
+                <div className="mt-4 flex gap-2">
+                  <div className="flex-1">
+                    <label className="text-sm font-medium mb-2 block">วันที่เริ่มต้น</label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className="w-full justify-start">
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {format(startDate, "dd/MM/yyyy")}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 z-50" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={startDate}
+                          onSelect={(date) => date && setStartDate(date)}
+                          initialFocus
+                          className="pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <div className="flex-1">
+                    <label className="text-sm font-medium mb-2 block">วันที่สิ้นสุด</label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className="w-full justify-start">
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {format(endDate, "dd/MM/yyyy")}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 z-50" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={endDate}
+                          onSelect={(date) => date && setEndDate(date)}
+                          initialFocus
+                          className="pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
                 </div>
               )}
             </div>
@@ -596,37 +695,61 @@ export default function CustomerFeedback() {
               <label className="text-sm font-medium mb-2 block">หมวดหมู่ใหญ่</label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-between">
-                    {selectedMainCategories.length === 0 ? 'เลือกหมวดหมู่ใหญ่' : `เลือกแล้ว ${selectedMainCategories.length} หมวด`}
+                  <Button variant="outline" className="w-full justify-between text-left">
+                    {formatSelectionDisplay(selectedMainCategories, [...new Set(categories.map(c => c.main_topic))].length, 'หมวด')}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-80">
+                <PopoverContent className="w-80 z-50" align="start" side="bottom">
                   <div className="space-y-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        const allMainCategories = [...new Set(categories.map(c => c.main_topic))];
-                        setSelectedMainCategories(allMainCategories);
-                      }}
-                    >
-                      เลือกทั้งหมด
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setSelectedMainCategories([...new Set(categories.map(c => c.main_topic))])}
+                        className="flex-1"
+                      >
+                        เลือกทั้งหมด
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setSelectedMainCategories([]);
+                          setSelectedSubCategories([]);
+                        }}
+                        className="flex-1"
+                      >
+                        ยกเลิกทั้งหมด
+                      </Button>
+                    </div>
+                    <Input
+                      placeholder="ค้นหาหมวดหมู่..."
+                      value={categorySearch}
+                      onChange={(e) => setCategorySearch(e.target.value)}
+                    />
                     <ScrollArea className="h-48">
                       {[...new Set(categories.map(c => c.main_topic))]
-                        .map(mainCategory => (
-                          <div key={mainCategory} className="flex items-center space-x-2 p-2">
+                        .filter(topic => topic.toLowerCase().includes(categorySearch.toLowerCase()))
+                        .map(topic => (
+                          <div key={topic} className="flex items-center space-x-2 p-2">
                             <Checkbox
-                              checked={selectedMainCategories.includes(mainCategory)}
+                              checked={selectedMainCategories.includes(topic)}
                               onCheckedChange={(checked) => {
                                 if (checked) {
-                                  setSelectedMainCategories([...selectedMainCategories, mainCategory]);
+                                  setSelectedMainCategories([...selectedMainCategories, topic]);
                                 } else {
-                                  setSelectedMainCategories(selectedMainCategories.filter(c => c !== mainCategory));
+                                  setSelectedMainCategories(selectedMainCategories.filter(c => c !== topic));
+                                  // Also remove related sub-categories
+                                  const relatedSubCategories = categories
+                                    .filter(c => c.main_topic === topic)
+                                    .map(c => c.sub_topic);
+                                  setSelectedSubCategories(
+                                    selectedSubCategories.filter(sub => !relatedSubCategories.includes(sub))
+                                  );
                                 }
                               }}
                             />
-                            <label className="text-sm">{mainCategory}</label>
+                            <label className="text-sm">{topic}</label>
                           </div>
                         ))}
                     </ScrollArea>
@@ -639,43 +762,46 @@ export default function CustomerFeedback() {
               <label className="text-sm font-medium mb-2 block">หมวดหมู่ย่อย</label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-between">
-                    {selectedSubCategories.length === 0 ? 'เลือกหมวดหมู่ย่อย' : `เลือกแล้ว ${selectedSubCategories.length} หมวด`}
+                  <Button variant="outline" className="w-full justify-between text-left">
+                    {formatSelectionDisplay(selectedSubCategories, availableSubCategories.length, 'หมวด')}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-80">
+                <PopoverContent className="w-80 z-50" align="start" side="bottom">
                   <div className="space-y-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        const allSubCategories = availableSubCategories.map(c => c.sub_topic);
-                        setSelectedSubCategories(allSubCategories);
-                      }}
-                    >
-                      เลือกทั้งหมด
-                    </Button>
-                    <Input
-                      placeholder="ค้นหาหมวดหมู่..."
-                      value={categorySearch}
-                      onChange={(e) => setCategorySearch(e.target.value)}
-                    />
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setSelectedSubCategories(availableSubCategories.map(c => c.sub_topic))}
+                        className="flex-1"
+                      >
+                        เลือกทั้งหมด
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setSelectedSubCategories([])}
+                        className="flex-1"
+                      >
+                        ยกเลิกทั้งหมด
+                      </Button>
+                    </div>
                     <ScrollArea className="h-48">
                       {availableSubCategories
-                        .filter(category => category.sub_topic.toLowerCase().includes(categorySearch.toLowerCase()))
-                        .map(category => (
-                          <div key={category.sub_topic} className="flex items-center space-x-2 p-2">
+                        .filter(cat => cat.sub_topic.toLowerCase().includes(categorySearch.toLowerCase()))
+                        .map(cat => (
+                          <div key={cat.sub_topic} className="flex items-center space-x-2 p-2">
                             <Checkbox
-                              checked={selectedSubCategories.includes(category.sub_topic)}
+                              checked={selectedSubCategories.includes(cat.sub_topic)}
                               onCheckedChange={(checked) => {
                                 if (checked) {
-                                  setSelectedSubCategories([...selectedSubCategories, category.sub_topic]);
+                                  setSelectedSubCategories([...selectedSubCategories, cat.sub_topic]);
                                 } else {
-                                  setSelectedSubCategories(selectedSubCategories.filter(c => c !== category.sub_topic));
+                                  setSelectedSubCategories(selectedSubCategories.filter(c => c !== cat.sub_topic));
                                 }
                               }}
                             />
-                            <label className="text-sm">{category.sub_topic}</label>
+                            <label className="text-sm">{cat.sub_topic}</label>
                           </div>
                         ))}
                     </ScrollArea>
@@ -697,87 +823,101 @@ export default function CustomerFeedback() {
       {/* Comments Section */}
       <Card>
         <CardHeader>
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <CardTitle>ความคิดเห็นของลูกค้า</CardTitle>
-            <div className="flex items-center gap-2">
-              <Select value={sentimentFilter} onValueChange={(value: any) => setSentimentFilter(value)}>
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">ทั้งหมด</SelectItem>
-                  <SelectItem value="positive">เชิงบวก</SelectItem>
-                  <SelectItem value="negative">เชิงลบ</SelectItem>
-                </SelectContent>
-              </Select>
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+            <div>
+              <h3 className="text-lg font-semibold mb-2">ความคิดเห็นของลูกค้า</h3>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                variant={sentimentFilter === 'all' ? 'default' : 'outline'}
+                onClick={() => setSentimentFilter('all')}
+                className={cn(
+                  'min-w-20',
+                  sentimentFilter === 'all' 
+                    ? 'bg-foreground text-background hover:bg-foreground/90' 
+                    : 'bg-muted/50 text-muted-foreground border-muted hover:bg-muted/70'
+                )}
+              >
+                ทั้งหมด
+              </Button>
+              <Button
+                variant={sentimentFilter === 'positive' ? 'default' : 'outline'}
+                onClick={() => setSentimentFilter('positive')}
+                className={cn(
+                  'min-w-20',
+                  sentimentFilter === 'positive' 
+                    ? 'bg-success text-success-foreground hover:bg-success/90' 
+                    : 'bg-muted/50 text-muted-foreground border-muted hover:bg-muted/70'
+                )}
+              >
+                เชิงบวก
+              </Button>
+              <Button
+                variant={sentimentFilter === 'negative' ? 'default' : 'outline'}
+                onClick={() => setSentimentFilter('negative')}
+                className={cn(
+                  'min-w-20',
+                  sentimentFilter === 'negative' 
+                    ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90' 
+                    : 'bg-muted/50 text-muted-foreground border-muted hover:bg-muted/70'
+                )}
+              >
+                เชิงลบ
+              </Button>
             </div>
           </div>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground mb-4">
             พบความคิดเห็น {comments.length} รายการ
           </p>
         </CardHeader>
         <CardContent>
-          <ScrollArea className="h-[600px]">
+          <ScrollArea className="h-[600px] w-full">
             <div className="space-y-4">
               {comments.map((comment) => (
-                <Card 
-                  key={comment.comment_id}
-                  className={cn(
-                    "transition-colors",
-                    getCommentBackgroundColor(comment.overallSentiment)
-                  )}
-                >
+                <Card key={comment.comment_id} className={cn(
+                  "border-l-4",
+                  getCommentBackgroundColor(comment.overallSentiment)
+                )}>
                   <CardContent className="p-4">
-                    <div className="space-y-3">
-                      {/* Location and Time */}
-                      <div className="flex flex-col sm:flex-row justify-between text-sm text-muted-foreground">
-                        <span>
-                          {comment.region} → {comment.district} → {comment.branch_name}
-                        </span>
-                        <span>
-                          {format(new Date(comment.date), 'dd/MM/yyyy')} {comment.time}
-                        </span>
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 mb-3">
+                      <div className="text-sm text-muted-foreground">
+                        <span className="font-medium">{comment.region}</span>
+                        {comment.district && <span> | {comment.district}</span>}
+                        <span> | {comment.branch_name}</span>
                       </div>
-
-                      {/* Comment Text */}
-                      <div className="bg-background/50 p-3 rounded-md">
-                        <p className="text-sm">{comment.comment}</p>
+                      <div className="text-sm text-muted-foreground">
+                        {format(new Date(comment.date), 'dd/MM/yyyy')} | {comment.time}
                       </div>
-
-                      {/* Categories */}
-                      {comment.categories.length > 0 && (
-                        <div>
-                          <p className="text-xs font-medium text-muted-foreground mb-2">หมวดหมู่ที่ถูกกล่าวถึง:</p>
-                          <div className="flex flex-wrap gap-2">
-                            {[...new Set(comment.categories.map(c => c.sub_category))].map((subCategory) => {
-                              const categoryData = comment.categories.find(c => c.sub_category === subCategory);
-                              const sentiment = categoryData?.sentiment || '';
-                              
-                              return (
-                                <div key={subCategory} className="flex items-center gap-1">
-                                  <Badge variant="outline" className="text-xs">
-                                    {subCategory}
-                                  </Badge>
-                                  <Badge className={cn("text-xs", getSentimentBadgeColor(sentiment))}>
-                                    {sentiment.toLowerCase().includes('positive') ? 'เชิงบวก' : 'เชิงลบ'}
-                                  </Badge>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      )}
                     </div>
+                    
+                    <p className="text-foreground mb-3">
+                      {comment.comment}
+                    </p>
+                    
+                    {comment.categories.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {comment.categories.map((category) => (
+                          <Badge
+                            key={`${category.comment_id}-${category.sub_category}`}
+                            variant="secondary"
+                            className={cn(
+                              "text-white",
+                              getSentimentBadgeColor(category.sentiment)
+                            )}
+                          >
+                            {category.sub_category}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               ))}
-
+              
               {comments.length === 0 && (
-                <Card>
-                  <CardContent className="text-center py-8">
-                    <p className="text-muted-foreground">ไม่พบความคิดเห็นที่ตรงกับเงื่อนไขการกรอง</p>
-                  </CardContent>
-                </Card>
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">ไม่พบความคิดเห็นที่ตรงกับเงื่อนไขที่กำหนด</p>
+                </div>
               )}
             </div>
           </ScrollArea>
