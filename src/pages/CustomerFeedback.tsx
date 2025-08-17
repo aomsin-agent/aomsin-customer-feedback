@@ -9,7 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CalendarIcon, Search, RotateCcw, Filter } from 'lucide-react';
+import { CalendarIcon, Search, RotateCcw, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format, subDays, subMonths, subYears } from 'date-fns';
 import { cn } from '@/lib/utils';
 
@@ -103,6 +103,10 @@ export default function CustomerFeedback() {
   const [branchSearch, setBranchSearch] = useState('');
   const [categorySearch, setCategorySearch] = useState('');
   const [subCategorySearch, setSubCategorySearch] = useState('');
+
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const COMMENTS_PER_PAGE = 10;
 
   useEffect(() => {
     fetchInitialData();
@@ -319,6 +323,7 @@ export default function CustomerFeedback() {
     setTimeFilterType('all');
     setSelectedTimeRange(null);
     setSelectedMonth('');
+    setCurrentPage(1);
   };
 
   // Helper function to format selection display with required asterisk
@@ -351,6 +356,17 @@ export default function CustomerFeedback() {
     } catch (error) {
       return `${date} | ${time}`;
     }
+  };
+
+  // Pagination helpers
+  const totalPages = Math.ceil(comments.length / COMMENTS_PER_PAGE);
+  const paginatedComments = comments.slice(
+    (currentPage - 1) * COMMENTS_PER_PAGE,
+    currentPage * COMMENTS_PER_PAGE
+  );
+
+  const goToPage = (page: number) => {
+    setCurrentPage(Math.max(1, Math.min(page, totalPages)));
   };
 
   const getSentimentBadgeColor = (sentiment: string) => {
@@ -432,7 +448,7 @@ export default function CustomerFeedback() {
                     {formatSelectionDisplay(selectedRegions, sortedRegions.length, 'ภาค', true)}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-80 z-50" side="bottom" sideOffset={5}>
+                <PopoverContent className="w-80 z-50" side="bottom" sideOffset={8} align="start" avoidCollisions={true} collisionPadding={16}>
                   <div className="space-y-2">
                     <Input
                       placeholder="ค้นหาภาค..."
@@ -488,7 +504,7 @@ export default function CustomerFeedback() {
                     {formatSelectionDisplay(selectedDistricts, availableDistricts.length, 'เขต')}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-80 z-50" side="bottom" sideOffset={5}>
+                <PopoverContent className="w-80 z-50" side="bottom" sideOffset={8} align="start" avoidCollisions={true} collisionPadding={16}>
                   <div className="space-y-2">
                     <Input
                       placeholder="ค้นหาเขต..."
@@ -542,7 +558,7 @@ export default function CustomerFeedback() {
                     {formatSelectionDisplay(selectedBranches, availableBranches.length, 'สาขา')}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-80 z-50" side="bottom" sideOffset={5}>
+                <PopoverContent className="w-80 z-50" side="bottom" sideOffset={8} align="start" avoidCollisions={true} collisionPadding={16}>
                   <div className="space-y-2">
                     <Input
                       placeholder="ค้นหาสาขา..."
@@ -600,8 +616,8 @@ export default function CustomerFeedback() {
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="z-50" side="bottom" sideOffset={5}>
-                      <SelectItem value="all">เลือกทั้งหมด</SelectItem>
+                    <SelectContent className="z-50" side="bottom" sideOffset={8} align="start" avoidCollisions={true} collisionPadding={16}>
+                      <SelectItem value="all" className="font-medium">เลือกทั้งหมด</SelectItem>
                       <SelectItem value="monthly">ข้อมูลประจำเดือน</SelectItem>
                       <SelectItem value="range">ช่วงเวลาย้อนหลัง</SelectItem>
                       <SelectItem value="custom">กำหนดช่วงเวลาเอง</SelectItem>
@@ -615,7 +631,7 @@ export default function CustomerFeedback() {
                       <SelectTrigger>
                         <SelectValue placeholder="เลือกเดือน" />
                       </SelectTrigger>
-                      <SelectContent className="z-50" side="bottom" sideOffset={5}>
+                      <SelectContent className="z-50" side="bottom" sideOffset={8} align="start" avoidCollisions={true} collisionPadding={16}>
                         {Array.from({ length: 12 }, (_, i) => {
                           const currentYear = new Date().getFullYear() + 543;
                           const monthStr = `${THAI_MONTHS[i]} ${currentYear.toString().slice(-2)}`;
@@ -636,9 +652,9 @@ export default function CustomerFeedback() {
                       <SelectTrigger>
                         <SelectValue placeholder="เลือกช่วงเวลา" />
                       </SelectTrigger>
-                      <SelectContent className="z-50" side="bottom" sideOffset={5}>
+                      <SelectContent className="z-50" side="bottom" sideOffset={8} align="start" avoidCollisions={true} collisionPadding={16}>
                         {TIME_RANGES.map(range => (
-                          <SelectItem key={range.label} value={range.days?.toString() || 'null'}>
+                          <SelectItem key={range.label} value={range.days?.toString() || 'null'} className={range.days === null ? 'font-medium' : ''}>
                             {range.label}
                           </SelectItem>
                         ))}
@@ -659,7 +675,7 @@ export default function CustomerFeedback() {
                           {format(startDate, "dd/MM/yyyy")}
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0 z-50" side="bottom" sideOffset={5}>
+                      <PopoverContent className="w-auto p-0 z-50" side="bottom" sideOffset={8} align="start" avoidCollisions={true} collisionPadding={16}>
                         <Calendar
                           mode="single"
                           selected={startDate}
@@ -679,7 +695,7 @@ export default function CustomerFeedback() {
                           {format(endDate, "dd/MM/yyyy")}
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0 z-50" side="bottom" sideOffset={5}>
+                      <PopoverContent className="w-auto p-0 z-50" side="bottom" sideOffset={8} align="start" avoidCollisions={true} collisionPadding={16}>
                         <Calendar
                           mode="single"
                           selected={endDate}
@@ -708,7 +724,7 @@ export default function CustomerFeedback() {
                     {formatSelectionDisplay(selectedMainCategories, [...new Set(categories.map(c => c.main_topic))].length, 'หมวด', true)}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-80 z-50" side="bottom" sideOffset={5}>
+                <PopoverContent className="w-80 z-50" side="bottom" sideOffset={8} align="start" avoidCollisions={true} collisionPadding={16}>
                   <div className="space-y-2">
                     <Input
                       placeholder="ค้นหาหมวดหมู่..."
@@ -771,7 +787,7 @@ export default function CustomerFeedback() {
                     {formatSelectionDisplay(selectedSubCategories, availableSubCategories.length, 'หมวด', true)}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-80 z-50" side="bottom" sideOffset={5}>
+                <PopoverContent className="w-80 z-50" side="bottom" sideOffset={8} align="start" avoidCollisions={true} collisionPadding={16}>
                   <div className="space-y-2">
                     <Input
                       placeholder="ค้นหาหมวดหมู่ย่อย..."
@@ -873,59 +889,110 @@ export default function CustomerFeedback() {
           </div>
           <p className="text-sm text-muted-foreground mb-4">
             พบความคิดเห็น {comments.length} รายการ
+            {comments.length > COMMENTS_PER_PAGE && ` | หน้า ${currentPage} จาก ${totalPages}`}
           </p>
         </CardHeader>
-        <CardContent>
-          <ScrollArea className="h-[600px] w-full">
-            <div className="space-y-4">
-              {comments.map((comment) => (
-                <Card key={comment.comment_id} className={cn(
-                  "border-l-4",
-                  getCommentBackgroundColor(comment.overallSentiment)
-                )}>
-                  <CardContent className="p-4">
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 mb-3">
-                      <div className="text-sm text-muted-foreground">
-                        <span className="font-medium">{comment.region}</span>
-                        {comment.district && <span> | {comment.district}</span>}
-                        <span> | {comment.branch_name}</span>
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {formatThaiDateTime(comment.date, comment.time)}
-                      </div>
+        <CardContent className="space-y-4">
+          <div className="space-y-4">
+            {paginatedComments.map((comment) => (
+              <Card key={comment.comment_id} className={cn(
+                "border-l-4",
+                getCommentBackgroundColor(comment.overallSentiment)
+              )}>
+                <CardContent className="p-4">
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 mb-3">
+                    <div className="text-sm text-muted-foreground">
+                      <span className="font-medium">{comment.region}</span>
+                      {comment.district && <span> | {comment.district}</span>}
+                      <span> | {comment.branch_name}</span>
                     </div>
-                    
-                    <p className="text-foreground mb-3">
-                      {comment.comment}
-                    </p>
-                    
-                    {comment.categories.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {comment.categories.map((category) => (
-                          <Badge
-                            key={`${category.comment_id}-${category.sub_category}`}
-                            variant="secondary"
-                            className={cn(
-                              "text-white",
-                              getSentimentBadgeColor(category.sentiment)
-                            )}
-                          >
-                            {category.sub_category}
-                          </Badge>
-                        ))}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
+                    <div className="text-sm text-muted-foreground">
+                      {formatThaiDateTime(comment.date, comment.time)}
+                    </div>
+                  </div>
+                  
+                  <p className="text-foreground mb-3">
+                    {comment.comment}
+                  </p>
+                  
+                  {comment.categories.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {comment.categories.map((category) => (
+                        <Badge
+                          key={`${category.comment_id}-${category.sub_category}`}
+                          variant="secondary"
+                          className={cn(
+                            "text-white",
+                            getSentimentBadgeColor(category.sentiment)
+                          )}
+                        >
+                          {category.sub_category}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+            
+            {comments.length === 0 && (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">ไม่พบความคิดเห็นที่ตรงกับเงื่อนไขที่กำหนด</p>
+              </div>
+            )}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center gap-2 pt-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => goToPage(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="h-9 w-9 p-0"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
               
-              {comments.length === 0 && (
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground">ไม่พบความคิดเห็นที่ตรงกับเงื่อนไขที่กำหนด</p>
-                </div>
-              )}
+              <div className="flex items-center gap-2">
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let pageNum;
+                  if (totalPages <= 5) {
+                    pageNum = i + 1;
+                  } else if (currentPage <= 3) {
+                    pageNum = i + 1;
+                  } else if (currentPage >= totalPages - 2) {
+                    pageNum = totalPages - 4 + i;
+                  } else {
+                    pageNum = currentPage - 2 + i;
+                  }
+                  
+                  return (
+                    <Button
+                      key={pageNum}
+                      variant={currentPage === pageNum ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => goToPage(pageNum)}
+                      className="h-9 w-9 p-0"
+                    >
+                      {pageNum}
+                    </Button>
+                  );
+                })}
+              </div>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => goToPage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="h-9 w-9 p-0"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
             </div>
-          </ScrollArea>
+          )}
         </CardContent>
       </Card>
     </div>
