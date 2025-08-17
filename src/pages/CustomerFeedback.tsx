@@ -432,7 +432,7 @@ export default function CustomerFeedback() {
                     {formatSelectionDisplay(selectedRegions, sortedRegions.length, 'ภาค', true)}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-80 z-50" align="start" side="bottom" sideOffset={5}>
+                <PopoverContent className="w-80 z-50" side="bottom" sideOffset={5}>
                   <div className="space-y-2">
                     <Input
                       placeholder="ค้นหาภาค..."
@@ -488,7 +488,7 @@ export default function CustomerFeedback() {
                     {formatSelectionDisplay(selectedDistricts, availableDistricts.length, 'เขต')}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-80 z-50" align="start" side="bottom" sideOffset={5}>
+                <PopoverContent className="w-80 z-50" side="bottom" sideOffset={5}>
                   <div className="space-y-2">
                     <Input
                       placeholder="ค้นหาเขต..."
@@ -542,7 +542,7 @@ export default function CustomerFeedback() {
                     {formatSelectionDisplay(selectedBranches, availableBranches.length, 'สาขา')}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-80 z-50" align="start" side="bottom" sideOffset={5}>
+                <PopoverContent className="w-80 z-50" side="bottom" sideOffset={5}>
                   <div className="space-y-2">
                     <Input
                       placeholder="ค้นหาสาขา..."
@@ -659,7 +659,7 @@ export default function CustomerFeedback() {
                           {format(startDate, "dd/MM/yyyy")}
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0 z-50" align="start" side="bottom" sideOffset={5}>
+                      <PopoverContent className="w-auto p-0 z-50" side="bottom" sideOffset={5}>
                         <Calendar
                           mode="single"
                           selected={startDate}
@@ -679,7 +679,7 @@ export default function CustomerFeedback() {
                           {format(endDate, "dd/MM/yyyy")}
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0 z-50" align="start" side="bottom" sideOffset={5}>
+                      <PopoverContent className="w-auto p-0 z-50" side="bottom" sideOffset={5}>
                         <Calendar
                           mode="single"
                           selected={endDate}
@@ -708,7 +708,7 @@ export default function CustomerFeedback() {
                     {formatSelectionDisplay(selectedMainCategories, [...new Set(categories.map(c => c.main_topic))].length, 'หมวด', true)}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-80 z-50" align="start" side="bottom" sideOffset={5}>
+                <PopoverContent className="w-80 z-50" side="bottom" sideOffset={5}>
                   <div className="space-y-2">
                     <Input
                       placeholder="ค้นหาหมวดหมู่..."
@@ -771,7 +771,7 @@ export default function CustomerFeedback() {
                     {formatSelectionDisplay(selectedSubCategories, availableSubCategories.length, 'หมวด', true)}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-80 z-50" align="start" side="bottom" sideOffset={5}>
+                <PopoverContent className="w-80 z-50" side="bottom" sideOffset={5}>
                   <div className="space-y-2">
                     <Input
                       placeholder="ค้นหาหมวดหมู่ย่อย..."
