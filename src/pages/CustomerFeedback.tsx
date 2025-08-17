@@ -90,10 +90,10 @@ export default function CustomerFeedback() {
   const [selectedSubCategories, setSelectedSubCategories] = useState<string[]>([]);
   const [sentimentFilter, setSentimentFilter] = useState<'all' | 'positive' | 'negative'>('all');
   
-  // Time filter states
-  const [timeFilterType, setTimeFilterType] = useState<'monthly' | 'range' | 'custom'>('monthly');
+// Time filter states
+  const [timeFilterType, setTimeFilterType] = useState<'all' | 'monthly' | 'range' | 'custom'>('all');
   const [selectedMonth, setSelectedMonth] = useState<string>('');
-  const [selectedTimeRange, setSelectedTimeRange] = useState<number | null>(30);
+  const [selectedTimeRange, setSelectedTimeRange] = useState<number | null>(null);
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [endDate, setEndDate] = useState<Date>(new Date());
 
@@ -102,6 +102,7 @@ export default function CustomerFeedback() {
   const [districtSearch, setDistrictSearch] = useState('');
   const [branchSearch, setBranchSearch] = useState('');
   const [categorySearch, setCategorySearch] = useState('');
+  const [subCategorySearch, setSubCategorySearch] = useState('');
 
   useEffect(() => {
     fetchInitialData();
@@ -315,18 +316,16 @@ export default function CustomerFeedback() {
     setSelectedMainCategories(allMainCategories);
     setSelectedSubCategories(categories.map(c => c.sub_topic));
     setSentimentFilter('all');
-    setTimeFilterType('monthly');
-    setSelectedTimeRange(30);
-    
-    const now = new Date();
-    const currentMonth = `${THAI_MONTHS[now.getMonth()]} ${(now.getFullYear() + 543).toString().slice(-2)}`;
-    setSelectedMonth(currentMonth);
+    setTimeFilterType('all');
+    setSelectedTimeRange(null);
+    setSelectedMonth('');
   };
 
-  // Helper function to format selection display
-  const formatSelectionDisplay = (selected: string[], total: number, itemType: string) => {
+  // Helper function to format selection display with required asterisk
+  const formatSelectionDisplay = (selected: string[], total: number, itemType: string, showRequired = false) => {
+    const asterisk = showRequired && selected.length === 0 ? ' *' : '';
     if (selected.length === 0) {
-      return `เลือก${itemType}`;
+      return `เลือก${itemType}${asterisk}`;
     }
     if (selected.length === total) {
       return `เลือกทั้งหมด (${total} รายการ)`;
@@ -335,6 +334,23 @@ export default function CustomerFeedback() {
       return selected.join(', ');
     }
     return `เลือก ${selected.length} รายการ`;
+  };
+
+  // Helper function to format Thai date time
+  const formatThaiDateTime = (date: string, time: string) => {
+    try {
+      const dateObj = new Date(date);
+      const day = dateObj.getDate();
+      const month = THAI_MONTHS[dateObj.getMonth()];
+      const year = dateObj.getFullYear() + 543;
+      
+      // Format time to remove seconds if present
+      const timeFormatted = time.split(':').slice(0, 2).join(':');
+      
+      return `${day} ${month} ${year} | ${timeFormatted} น.`;
+    } catch (error) {
+      return `${date} | ${time}`;
+    }
   };
 
   const getSentimentBadgeColor = (sentiment: string) => {
@@ -406,43 +422,39 @@ export default function CustomerFeedback() {
           {/* Area Filtering */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="text-sm font-medium mb-2 block">พื้นที่ดูแล - ภาค</label>
+              <label className="text-sm font-medium mb-2 block">
+                พื้นที่ดูแล - ภาค
+                {selectedRegions.length === 0 && <span className="text-destructive">*</span>}
+              </label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button variant="outline" className="w-full justify-between text-left">
-                    {formatSelectionDisplay(selectedRegions, sortedRegions.length, 'ภาค')}
+                    {formatSelectionDisplay(selectedRegions, sortedRegions.length, 'ภาค', true)}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-80 z-50" align="start" side="bottom">
+                <PopoverContent className="w-80 z-50" align="start" side="bottom" sideOffset={5}>
                   <div className="space-y-2">
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setSelectedRegions(sortedRegions)}
-                        className="flex-1"
-                      >
-                        เลือกทั้งหมด
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          setSelectedRegions([]);
-                          setSelectedDistricts([]);
-                          setSelectedBranches([]);
-                        }}
-                        className="flex-1"
-                      >
-                        ยกเลิกทั้งหมด
-                      </Button>
-                    </div>
                     <Input
                       placeholder="ค้นหาภาค..."
                       value={regionSearch}
                       onChange={(e) => setRegionSearch(e.target.value)}
                     />
                     <ScrollArea className="h-48">
+                      <div className="flex items-center space-x-2 p-2 border-b">
+                        <Checkbox
+                          checked={selectedRegions.length === sortedRegions.length}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedRegions(sortedRegions);
+                            } else {
+                              setSelectedRegions([]);
+                              setSelectedDistricts([]);
+                              setSelectedBranches([]);
+                            }
+                          }}
+                        />
+                        <label className="text-sm font-medium">เลือกทั้งหมด</label>
+                      </div>
                       {sortedRegions
                         .filter(region => region.toLowerCase().includes(regionSearch.toLowerCase()))
                         .map(region => (
@@ -476,35 +488,28 @@ export default function CustomerFeedback() {
                     {formatSelectionDisplay(selectedDistricts, availableDistricts.length, 'เขต')}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-80 z-50" align="start" side="bottom">
+                <PopoverContent className="w-80 z-50" align="start" side="bottom" sideOffset={5}>
                   <div className="space-y-2">
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setSelectedDistricts(availableDistricts)}
-                        className="flex-1"
-                      >
-                        เลือกทั้งหมด
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          setSelectedDistricts([]);
-                          setSelectedBranches([]);
-                        }}
-                        className="flex-1"
-                      >
-                        ยกเลิกทั้งหมด
-                      </Button>
-                    </div>
                     <Input
                       placeholder="ค้นหาเขต..."
                       value={districtSearch}
                       onChange={(e) => setDistrictSearch(e.target.value)}
                     />
                     <ScrollArea className="h-48">
+                      <div className="flex items-center space-x-2 p-2 border-b">
+                        <Checkbox
+                          checked={selectedDistricts.length === availableDistricts.length}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedDistricts(availableDistricts);
+                            } else {
+                              setSelectedDistricts([]);
+                              setSelectedBranches([]);
+                            }
+                          }}
+                        />
+                        <label className="text-sm font-medium">เลือกทั้งหมด</label>
+                      </div>
                       {availableDistricts
                         .filter(district => district.toLowerCase().includes(districtSearch.toLowerCase()))
                         .map(district => (
@@ -537,32 +542,27 @@ export default function CustomerFeedback() {
                     {formatSelectionDisplay(selectedBranches, availableBranches.length, 'สาขา')}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-80 z-50" align="start" side="bottom">
+                <PopoverContent className="w-80 z-50" align="start" side="bottom" sideOffset={5}>
                   <div className="space-y-2">
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setSelectedBranches(availableBranches.map(b => b.branch_name))}
-                        className="flex-1"
-                      >
-                        เลือกทั้งหมด
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setSelectedBranches([])}
-                        className="flex-1"
-                      >
-                        ยกเลิกทั้งหมด
-                      </Button>
-                    </div>
                     <Input
                       placeholder="ค้นหาสาขา..."
                       value={branchSearch}
                       onChange={(e) => setBranchSearch(e.target.value)}
                     />
                     <ScrollArea className="h-48">
+                      <div className="flex items-center space-x-2 p-2 border-b">
+                        <Checkbox
+                          checked={selectedBranches.length === availableBranches.length}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedBranches(availableBranches.map(b => b.branch_name));
+                            } else {
+                              setSelectedBranches([]);
+                            }
+                          }}
+                        />
+                        <label className="text-sm font-medium">เลือกทั้งหมด</label>
+                      </div>
                       {availableBranches
                         .filter(branch => branch.branch_name.toLowerCase().includes(branchSearch.toLowerCase()))
                         .map(branch => (
@@ -590,60 +590,66 @@ export default function CustomerFeedback() {
           {/* Time Filtering */}
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium mb-2 block">ช่วงเวลา</label>
-              <Select value={timeFilterType} onValueChange={(value: 'monthly' | 'range' | 'custom') => setTimeFilterType(value)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="z-50">
-                  <SelectItem value="monthly">ข้อมูลประจำเดือน</SelectItem>
-                  <SelectItem value="range">ช่วงเวลาย้อนหลัง</SelectItem>
-                  <SelectItem value="custom">กำหนดช่วงเวลาเอง</SelectItem>
-                </SelectContent>
-              </Select>
-
-              {timeFilterType === 'monthly' && (
-                <div className="mt-4">
-                  <label className="text-sm font-medium mb-2 block">เลือกเดือน</label>
-                  <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+              <label className="text-sm font-medium mb-2 block">
+                ช่วงเวลา
+                {timeFilterType !== 'all' && (timeFilterType === 'monthly' && !selectedMonth) && <span className="text-destructive">*</span>}
+              </label>
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex-1">
+                  <Select value={timeFilterType} onValueChange={(value: 'all' | 'monthly' | 'range' | 'custom') => setTimeFilterType(value)}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="z-50">
-                      {Array.from({ length: 12 }, (_, i) => {
-                        const currentYear = new Date().getFullYear() + 543;
-                        const monthStr = `${THAI_MONTHS[i]} ${currentYear.toString().slice(-2)}`;
-                        return (
-                          <SelectItem key={monthStr} value={monthStr}>
-                            {monthStr}
+                    <SelectContent className="z-50" side="bottom" sideOffset={5}>
+                      <SelectItem value="all">เลือกทั้งหมด</SelectItem>
+                      <SelectItem value="monthly">ข้อมูลประจำเดือน</SelectItem>
+                      <SelectItem value="range">ช่วงเวลาย้อนหลัง</SelectItem>
+                      <SelectItem value="custom">กำหนดช่วงเวลาเอง</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {timeFilterType === 'monthly' && (
+                  <div className="flex-1">
+                    <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="เลือกเดือน" />
+                      </SelectTrigger>
+                      <SelectContent className="z-50" side="bottom" sideOffset={5}>
+                        {Array.from({ length: 12 }, (_, i) => {
+                          const currentYear = new Date().getFullYear() + 543;
+                          const monthStr = `${THAI_MONTHS[i]} ${currentYear.toString().slice(-2)}`;
+                          return (
+                            <SelectItem key={monthStr} value={monthStr}>
+                              {monthStr}
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
+                {timeFilterType === 'range' && (
+                  <div className="flex-1">
+                    <Select value={selectedTimeRange?.toString() || ''} onValueChange={(value) => setSelectedTimeRange(value === 'null' ? null : parseInt(value))}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="เลือกช่วงเวลา" />
+                      </SelectTrigger>
+                      <SelectContent className="z-50" side="bottom" sideOffset={5}>
+                        {TIME_RANGES.map(range => (
+                          <SelectItem key={range.label} value={range.days?.toString() || 'null'}>
+                            {range.label}
                           </SelectItem>
-                        );
-                      })}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-
-              {timeFilterType === 'range' && (
-                <div className="mt-4">
-                  <label className="text-sm font-medium mb-2 block">ช่วงเวลาย้อนหลัง</label>
-                  <Select value={selectedTimeRange?.toString() || ''} onValueChange={(value) => setSelectedTimeRange(value === 'null' ? null : parseInt(value))}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="z-50">
-                      {TIME_RANGES.map(range => (
-                        <SelectItem key={range.label} value={range.days?.toString() || 'null'}>
-                          {range.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              </div>
 
               {timeFilterType === 'custom' && (
-                <div className="mt-4 flex gap-2">
+                <div className="mt-4 flex flex-col md:flex-row gap-4">
                   <div className="flex-1">
                     <label className="text-sm font-medium mb-2 block">วันที่เริ่มต้น</label>
                     <Popover>
@@ -653,7 +659,7 @@ export default function CustomerFeedback() {
                           {format(startDate, "dd/MM/yyyy")}
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0 z-50" align="start">
+                      <PopoverContent className="w-auto p-0 z-50" align="start" side="bottom" sideOffset={5}>
                         <Calendar
                           mode="single"
                           selected={startDate}
@@ -673,7 +679,7 @@ export default function CustomerFeedback() {
                           {format(endDate, "dd/MM/yyyy")}
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0 z-50" align="start">
+                      <PopoverContent className="w-auto p-0 z-50" align="start" side="bottom" sideOffset={5}>
                         <Calendar
                           mode="single"
                           selected={endDate}
@@ -692,42 +698,38 @@ export default function CustomerFeedback() {
           {/* Category Filtering */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium mb-2 block">หมวดหมู่ใหญ่</label>
+              <label className="text-sm font-medium mb-2 block">
+                หมวดหมู่ใหญ่
+                {selectedMainCategories.length === 0 && <span className="text-destructive">*</span>}
+              </label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button variant="outline" className="w-full justify-between text-left">
-                    {formatSelectionDisplay(selectedMainCategories, [...new Set(categories.map(c => c.main_topic))].length, 'หมวด')}
+                    {formatSelectionDisplay(selectedMainCategories, [...new Set(categories.map(c => c.main_topic))].length, 'หมวด', true)}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-80 z-50" align="start" side="bottom">
+                <PopoverContent className="w-80 z-50" align="start" side="bottom" sideOffset={5}>
                   <div className="space-y-2">
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setSelectedMainCategories([...new Set(categories.map(c => c.main_topic))])}
-                        className="flex-1"
-                      >
-                        เลือกทั้งหมด
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          setSelectedMainCategories([]);
-                          setSelectedSubCategories([]);
-                        }}
-                        className="flex-1"
-                      >
-                        ยกเลิกทั้งหมด
-                      </Button>
-                    </div>
                     <Input
                       placeholder="ค้นหาหมวดหมู่..."
                       value={categorySearch}
                       onChange={(e) => setCategorySearch(e.target.value)}
                     />
                     <ScrollArea className="h-48">
+                      <div className="flex items-center space-x-2 p-2 border-b">
+                        <Checkbox
+                          checked={selectedMainCategories.length === [...new Set(categories.map(c => c.main_topic))].length}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedMainCategories([...new Set(categories.map(c => c.main_topic))]);
+                            } else {
+                              setSelectedMainCategories([]);
+                              setSelectedSubCategories([]);
+                            }
+                          }}
+                        />
+                        <label className="text-sm font-medium">เลือกทั้งหมด</label>
+                      </div>
                       {[...new Set(categories.map(c => c.main_topic))]
                         .filter(topic => topic.toLowerCase().includes(categorySearch.toLowerCase()))
                         .map(topic => (
@@ -759,36 +761,39 @@ export default function CustomerFeedback() {
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">หมวดหมู่ย่อย</label>
+              <label className="text-sm font-medium mb-2 block">
+                หมวดหมู่ย่อย
+                {selectedSubCategories.length === 0 && <span className="text-destructive">*</span>}
+              </label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button variant="outline" className="w-full justify-between text-left">
-                    {formatSelectionDisplay(selectedSubCategories, availableSubCategories.length, 'หมวด')}
+                    {formatSelectionDisplay(selectedSubCategories, availableSubCategories.length, 'หมวด', true)}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-80 z-50" align="start" side="bottom">
+                <PopoverContent className="w-80 z-50" align="start" side="bottom" sideOffset={5}>
                   <div className="space-y-2">
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setSelectedSubCategories(availableSubCategories.map(c => c.sub_topic))}
-                        className="flex-1"
-                      >
-                        เลือกทั้งหมด
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setSelectedSubCategories([])}
-                        className="flex-1"
-                      >
-                        ยกเลิกทั้งหมด
-                      </Button>
-                    </div>
+                    <Input
+                      placeholder="ค้นหาหมวดหมู่ย่อย..."
+                      value={subCategorySearch}
+                      onChange={(e) => setSubCategorySearch(e.target.value)}
+                    />
                     <ScrollArea className="h-48">
+                      <div className="flex items-center space-x-2 p-2 border-b">
+                        <Checkbox
+                          checked={selectedSubCategories.length === availableSubCategories.length}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedSubCategories(availableSubCategories.map(c => c.sub_topic));
+                            } else {
+                              setSelectedSubCategories([]);
+                            }
+                          }}
+                        />
+                        <label className="text-sm font-medium">เลือกทั้งหมด</label>
+                      </div>
                       {availableSubCategories
-                        .filter(cat => cat.sub_topic.toLowerCase().includes(categorySearch.toLowerCase()))
+                        .filter(cat => cat.sub_topic.toLowerCase().includes(subCategorySearch.toLowerCase()))
                         .map(cat => (
                           <div key={cat.sub_topic} className="flex items-center space-x-2 p-2">
                             <Checkbox
@@ -886,7 +891,7 @@ export default function CustomerFeedback() {
                         <span> | {comment.branch_name}</span>
                       </div>
                       <div className="text-sm text-muted-foreground">
-                        {format(new Date(comment.date), 'dd/MM/yyyy')} | {comment.time}
+                        {formatThaiDateTime(comment.date, comment.time)}
                       </div>
                     </div>
                     
