@@ -1,6 +1,6 @@
 export default function SevereComplaints() {
   return (
-    <div className="container mx-auto p-6">
+    <div className="w-full p-2 md:p-6 lg:px-8">
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-foreground mb-2">
           ข้อร้องเรียนที่รุนแรง

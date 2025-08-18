@@ -19,15 +19,20 @@ interface CategoryRef {
 }
 
 interface BranchRef {
-  'สายกิจ': string | null;
-  'เขต (ที่ตั้ง)': string | null;
-  'จังหวัด': string | null;
-  'วันที่ให้บริการ': string | null;
-  'เวลาให้บริการ': string | null;
-  'ลำดับที่': number | null;
-  'ชื่อสถานที่ให้บริการ': string | null;
-  'เขต (ตามเขตดูแล)': string | null;
-  'ภาค': string | null;
+  branch_id: number | null;
+  branch_name: string;
+  address: string | null;
+  district: string | null;
+  province: string | null;
+  region: number | null;
+  division: number | null;
+  resdesc: string | null;
+  branch_type: string | null;
+  telephone: string | null;
+  fax: string | null;
+  service_time: string | null;
+  work_time: string | null;
+  parent_branch: string | null;
 }
 
 export default function Documents() {
@@ -56,7 +61,7 @@ export default function Documents() {
       if (branchError) throw branchError;
 
       setCategoryData(categories || []);
-      setBranchData(branches || []);
+      setBranchData((branches as unknown as BranchRef[]) || []);
     } catch (error) {
       console.error('Error fetching data:', error);
       toast({
@@ -104,7 +109,7 @@ export default function Documents() {
         .select('*');
 
       if (branchError) throw branchError;
-      setBranchData(branches || []);
+      setBranchData((branches as unknown as BranchRef[]) || []);
       
       toast({
         title: "รีเฟรชสำเร็จ",
@@ -171,8 +176,8 @@ export default function Documents() {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="whitespace-nowrap">ลำดับ</TableHead>
-                    <TableHead className="whitespace-nowrap">หมวดหมู่หลัก</TableHead>
                     <TableHead className="whitespace-nowrap">หมวดหมู่ย่อย</TableHead>
+                    <TableHead className="whitespace-nowrap">หมวดหมู่หลัก</TableHead>
                     <TableHead className="whitespace-nowrap">คำนิยาม</TableHead>
                     <TableHead className="whitespace-nowrap">ตัวอย่างประโยค</TableHead>
                     <TableHead className="whitespace-nowrap">สถานะ</TableHead>
@@ -184,8 +189,8 @@ export default function Documents() {
                   {categoryData.map((item, index) => (
                     <TableRow key={index}>
                       <TableCell className="whitespace-nowrap">{item.no}</TableCell>
-                      <TableCell className="font-medium whitespace-nowrap">{item.main_topic}</TableCell>
-                      <TableCell className="whitespace-nowrap">{item.sub_topic}</TableCell>
+                      <TableCell className="font-medium whitespace-nowrap">{item.sub_topic}</TableCell>
+                      <TableCell className="whitespace-nowrap">{item.main_topic}</TableCell>
                       <TableCell className="whitespace-nowrap">
                         {item.definition || '-'}
                       </TableCell>
@@ -240,29 +245,39 @@ export default function Documents() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="whitespace-nowrap">ลำดับที่</TableHead>
-                    <TableHead className="whitespace-nowrap">สายกิจ</TableHead>
-                    <TableHead className="whitespace-nowrap">ชื่อสถานที่ให้บริการ</TableHead>
+                    <TableHead className="whitespace-nowrap">รหัสสาขา</TableHead>
+                    <TableHead className="whitespace-nowrap">ชื่อสาขา</TableHead>
+                    <TableHead className="whitespace-nowrap">ที่อยู่</TableHead>
+                    <TableHead className="whitespace-nowrap">อำเภอ/เขต</TableHead>
                     <TableHead className="whitespace-nowrap">จังหวัด</TableHead>
-                    <TableHead className="whitespace-nowrap">เขต (ที่ตั้ง)</TableHead>
-                    <TableHead className="whitespace-nowrap">เขต (ตามเขตดูแล)</TableHead>
                     <TableHead className="whitespace-nowrap">ภาค</TableHead>
-                    <TableHead className="whitespace-nowrap">วันที่ให้บริการ</TableHead>
+                    <TableHead className="whitespace-nowrap">กอง</TableHead>
+                    <TableHead className="whitespace-nowrap">คำอธิบาย</TableHead>
+                    <TableHead className="whitespace-nowrap">ประเภทสาขา</TableHead>
+                    <TableHead className="whitespace-nowrap">โทรศัพท์</TableHead>
+                    <TableHead className="whitespace-nowrap">โทรสาร</TableHead>
                     <TableHead className="whitespace-nowrap">เวลาให้บริการ</TableHead>
+                    <TableHead className="whitespace-nowrap">เวลาทำงาน</TableHead>
+                    <TableHead className="whitespace-nowrap">สาขาแม่</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {branchData.map((item, index) => (
                     <TableRow key={index}>
-                      <TableCell className="whitespace-nowrap">{item['ลำดับที่'] || '-'}</TableCell>
-                      <TableCell className="font-medium whitespace-nowrap">{item['สายกิจ'] || '-'}</TableCell>
-                      <TableCell className="whitespace-nowrap">{item['ชื่อสถานที่ให้บริการ'] || '-'}</TableCell>
-                      <TableCell className="whitespace-nowrap">{item['จังหวัด'] || '-'}</TableCell>
-                      <TableCell className="whitespace-nowrap">{item['เขต (ที่ตั้ง)'] || '-'}</TableCell>
-                      <TableCell className="whitespace-nowrap">{item['เขต (ตามเขตดูแล)'] || '-'}</TableCell>
-                      <TableCell className="whitespace-nowrap">{item['ภาค'] || '-'}</TableCell>
-                      <TableCell className="whitespace-nowrap">{item['วันที่ให้บริการ'] || '-'}</TableCell>
-                      <TableCell className="whitespace-nowrap">{item['เวลาให้บริการ'] || '-'}</TableCell>
+                      <TableCell className="whitespace-nowrap">{item.branch_id || '-'}</TableCell>
+                      <TableCell className="font-medium whitespace-nowrap">{item.branch_name}</TableCell>
+                      <TableCell className="max-w-xs truncate" title={item.address || '-'}>{item.address || '-'}</TableCell>
+                      <TableCell className="whitespace-nowrap">{item.district || '-'}</TableCell>
+                      <TableCell className="whitespace-nowrap">{item.province || '-'}</TableCell>
+                      <TableCell className="whitespace-nowrap">{item.region || '-'}</TableCell>
+                      <TableCell className="whitespace-nowrap">{item.division || '-'}</TableCell>
+                      <TableCell className="whitespace-nowrap">{item.resdesc || '-'}</TableCell>
+                      <TableCell className="whitespace-nowrap">{item.branch_type || '-'}</TableCell>
+                      <TableCell className="max-w-xs truncate" title={item.telephone || '-'}>{item.telephone || '-'}</TableCell>
+                      <TableCell className="whitespace-nowrap">{item.fax || '-'}</TableCell>
+                      <TableCell className="whitespace-nowrap">{item.service_time || '-'}</TableCell>
+                      <TableCell className="whitespace-nowrap">{item.work_time || '-'}</TableCell>
+                      <TableCell className="whitespace-nowrap">{item.parent_branch || '-'}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

@@ -28,7 +28,7 @@ export function AppHeader() {
           <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-white leading-tight">
             Dashboard ข้อเสนอแนะ ข้อร้องเรียน การใช้บริการสาขา
           </h1>
-          <p className="text-xs sm:text-sm text-white/90 mt-1 hidden sm:block">
+          <p className="text-xs sm:text-sm text-white/90 mt-1">
             ระบบติดตามและวิเคราะห์ข้อร้องเรียนลูกค้าธนาคารออมสิน
           </p>
         </div>
