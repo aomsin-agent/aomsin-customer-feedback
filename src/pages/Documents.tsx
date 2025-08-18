@@ -142,7 +142,7 @@ export default function Documents() {
   }
 
   return (
-    <div className="w-full space-y-4 md:space-y-6 p-4 md:p-6 lg:pl-72 xl:pl-80">
+    <div className="w-full space-y-4 md:space-y-6 p-4 md:p-6 lg:pl-6 lg:pr-6 xl:pl-8 xl:pr-8">
       <div className="mb-4 md:mb-6">
         <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
           เอกสารอ้างอิง
@@ -172,16 +172,16 @@ export default function Documents() {
           <ScrollArea className="h-[400px] w-full">
             <div className="min-w-max pr-4">
               <Table>
-                <TableHeader>
+                <TableHeader className="sticky top-0 bg-background z-10">
                   <TableRow>
-                    <TableHead className="whitespace-nowrap">ลำดับ</TableHead>
-                    <TableHead className="whitespace-nowrap">หมวดหมู่ย่อย</TableHead>
-                    <TableHead className="whitespace-nowrap">หมวดหมู่หลัก</TableHead>
-                    <TableHead className="whitespace-nowrap">คำนิยาม</TableHead>
-                    <TableHead className="whitespace-nowrap">ตัวอย่างประโยค</TableHead>
-                    <TableHead className="whitespace-nowrap">สถานะ</TableHead>
-                    <TableHead className="whitespace-nowrap">วันที่สร้าง</TableHead>
-                    <TableHead className="whitespace-nowrap">วันที่อัพเดท</TableHead>
+                    <TableHead className="whitespace-nowrap">No.</TableHead>
+                    <TableHead className="whitespace-nowrap">Sub Topic</TableHead>
+                    <TableHead className="whitespace-nowrap">Main Topic</TableHead>
+                    <TableHead className="whitespace-nowrap">Definition</TableHead>
+                    <TableHead className="whitespace-nowrap">Example Sentence</TableHead>
+                    <TableHead className="whitespace-nowrap">Status</TableHead>
+                    <TableHead className="whitespace-nowrap">Created At</TableHead>
+                    <TableHead className="whitespace-nowrap">Last Update</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -241,22 +241,22 @@ export default function Documents() {
           <ScrollArea className="h-[400px] w-full">
             <div className="min-w-max pr-4">
               <Table>
-                <TableHeader>
+                <TableHeader className="sticky top-0 bg-background z-10">
                   <TableRow>
-                    <TableHead className="whitespace-nowrap">รหัสสาขา</TableHead>
-                    <TableHead className="whitespace-nowrap">ชื่อสาขา</TableHead>
-                    <TableHead className="whitespace-nowrap">ที่อยู่</TableHead>
-                    <TableHead className="whitespace-nowrap">อำเภอ/เขต</TableHead>
-                    <TableHead className="whitespace-nowrap">จังหวัด</TableHead>
-                    <TableHead className="whitespace-nowrap">ภาค</TableHead>
-                    <TableHead className="whitespace-nowrap">กอง</TableHead>
-                    <TableHead className="whitespace-nowrap">คำอธิบาย</TableHead>
-                    <TableHead className="whitespace-nowrap">ประเภทสาขา</TableHead>
-                    <TableHead className="whitespace-nowrap">โทรศัพท์</TableHead>
-                    <TableHead className="whitespace-nowrap">โทรสาร</TableHead>
-                    <TableHead className="whitespace-nowrap">เวลาให้บริการ</TableHead>
-                    <TableHead className="whitespace-nowrap">เวลาทำงาน</TableHead>
-                    <TableHead className="whitespace-nowrap">สาขาแม่</TableHead>
+                    <TableHead className="whitespace-nowrap">Branch ID</TableHead>
+                    <TableHead className="whitespace-nowrap">Branch Name</TableHead>
+                    <TableHead className="whitespace-nowrap">Parent Branch</TableHead>
+                    <TableHead className="whitespace-nowrap">Address</TableHead>
+                    <TableHead className="whitespace-nowrap">Division</TableHead>
+                    <TableHead className="whitespace-nowrap">Region</TableHead>
+                    <TableHead className="whitespace-nowrap">District</TableHead>
+                    <TableHead className="whitespace-nowrap">Description</TableHead>
+                    <TableHead className="whitespace-nowrap">Telephone</TableHead>
+                    <TableHead className="whitespace-nowrap">Province</TableHead>
+                    <TableHead className="whitespace-nowrap">Branch Type</TableHead>
+                    <TableHead className="whitespace-nowrap">Fax</TableHead>
+                    <TableHead className="whitespace-nowrap">Service Time</TableHead>
+                    <TableHead className="whitespace-nowrap">Work Time</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -264,18 +264,18 @@ export default function Documents() {
                     <TableRow key={index}>
                       <TableCell className="whitespace-nowrap">{item.branch_id || '-'}</TableCell>
                       <TableCell className="font-medium whitespace-nowrap">{item.branch_name}</TableCell>
+                      <TableCell className="whitespace-nowrap">{item.parent_branch || '-'}</TableCell>
                       <TableCell className="max-w-xs truncate" title={item.address || '-'}>{item.address || '-'}</TableCell>
-                      <TableCell className="whitespace-nowrap">{item.district || '-'}</TableCell>
-                      <TableCell className="whitespace-nowrap">{item.province || '-'}</TableCell>
-                      <TableCell className="whitespace-nowrap">{item.region || '-'}</TableCell>
                       <TableCell className="whitespace-nowrap">{item.division || '-'}</TableCell>
+                      <TableCell className="whitespace-nowrap">{item.region || '-'}</TableCell>
+                      <TableCell className="whitespace-nowrap">{item.district || '-'}</TableCell>
                       <TableCell className="whitespace-nowrap">{item.resdesc || '-'}</TableCell>
-                      <TableCell className="whitespace-nowrap">{item.branch_type || '-'}</TableCell>
                       <TableCell className="max-w-xs truncate" title={item.telephone || '-'}>{item.telephone || '-'}</TableCell>
+                      <TableCell className="whitespace-nowrap">{item.province || '-'}</TableCell>
+                      <TableCell className="whitespace-nowrap">{item.branch_type || '-'}</TableCell>
                       <TableCell className="whitespace-nowrap">{item.fax || '-'}</TableCell>
                       <TableCell className="whitespace-nowrap">{item.service_time || '-'}</TableCell>
                       <TableCell className="whitespace-nowrap">{item.work_time || '-'}</TableCell>
-                      <TableCell className="whitespace-nowrap">{item.parent_branch || '-'}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
