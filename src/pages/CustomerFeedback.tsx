@@ -526,9 +526,7 @@ export default function CustomerFeedback() {
               <div className="flex flex-col md:flex-row gap-4">
                 <div className="flex-1">
                   <Select value={timeFilterType} onValueChange={(value: 'all' | 'monthly' | 'range' | 'custom') => setTimeFilterType(value)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
+                    
                     <SelectContent className="z-50" side="bottom" sideOffset={8} align="start" avoidCollisions={true} collisionPadding={16}>
                       <SelectItem value="all" className="font-medium">เลือกทั้งหมด</SelectItem>
                       <SelectItem value="monthly">ข้อมูลประจำเดือน</SelectItem>
@@ -613,9 +611,7 @@ export default function CustomerFeedback() {
               </label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-between text-left">
-                    {formatSelectionDisplay(selectedMainCategories, [...new Set(categories.map(c => c.main_topic))].length, 'หมวด', true)}
-                  </Button>
+                  
                 </PopoverTrigger>
                 <PopoverContent className="w-80 z-50" side="bottom" sideOffset={8} align="start" avoidCollisions={true} collisionPadding={16}>
                   <div className="space-y-2">
@@ -658,9 +654,7 @@ export default function CustomerFeedback() {
               </label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-between text-left">
-                    {formatSelectionDisplay(selectedSubCategories, availableSubCategories.length, 'หมวด', true)}
-                  </Button>
+                  
                 </PopoverTrigger>
                 <PopoverContent className="w-80 z-50" side="bottom" sideOffset={8} align="start" avoidCollisions={true} collisionPadding={16}>
                   <div className="space-y-2">
