@@ -405,7 +405,12 @@ export default function CustomerFeedback() {
               </label>
               <Popover>
                 <PopoverTrigger asChild>
-                  
+                  <Button variant="outline" className="w-full justify-between" size="sm">
+                    <span className="truncate">
+                      {formatSelectionDisplay(selectedRegions, sortedRegions.length, 'ภาค', true)}
+                    </span>
+                    <Filter className="h-4 w-4 flex-shrink-0" />
+                  </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-80 z-50" side="bottom" sideOffset={8} align="start" avoidCollisions={true} collisionPadding={16}>
                   <div className="space-y-2">
@@ -445,7 +450,12 @@ export default function CustomerFeedback() {
               <label className="text-sm font-medium mb-2 block">เขต</label>
               <Popover>
                 <PopoverTrigger asChild>
-                  
+                  <Button variant="outline" className="w-full justify-between" size="sm">
+                    <span className="truncate">
+                      {formatSelectionDisplay(selectedDistricts, availableDistricts.length, 'เขต')}
+                    </span>
+                    <Filter className="h-4 w-4 flex-shrink-0" />
+                  </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-80 z-50" side="bottom" sideOffset={8} align="start" avoidCollisions={true} collisionPadding={16}>
                   <div className="space-y-2">
@@ -483,7 +493,12 @@ export default function CustomerFeedback() {
               <label className="text-sm font-medium mb-2 block">สาขา</label>
               <Popover>
                 <PopoverTrigger asChild>
-                  
+                  <Button variant="outline" className="w-full justify-between" size="sm">
+                    <span className="truncate">
+                      {formatSelectionDisplay(selectedBranches, availableBranches.length, 'สาขา')}
+                    </span>
+                    <Filter className="h-4 w-4 flex-shrink-0" />
+                  </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-80 z-50" side="bottom" sideOffset={8} align="start" avoidCollisions={true} collisionPadding={16}>
                   <div className="space-y-2">
@@ -525,9 +540,11 @@ export default function CustomerFeedback() {
               </label>
               <div className="flex flex-col md:flex-row gap-4">
                 <div className="flex-1">
-                  <Select value={timeFilterType} onValueChange={(value: 'all' | 'monthly' | 'range' | 'custom') => setTimeFilterType(value)}>
-                    
-                    <SelectContent className="z-50" side="bottom" sideOffset={8} align="start" avoidCollisions={true} collisionPadding={16}>
+                    <Select value={timeFilterType} onValueChange={(value: 'all' | 'monthly' | 'range' | 'custom') => setTimeFilterType(value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="เลือกประเภทช่วงเวลา" />
+                    </SelectTrigger>
+                    <SelectContent className="z-50" side="bottom" sideOffset={8} avoidCollisions={true} collisionPadding={16}>
                       <SelectItem value="all" className="font-medium">เลือกทั้งหมด</SelectItem>
                       <SelectItem value="monthly">ข้อมูลประจำเดือน</SelectItem>
                       <SelectItem value="range">ช่วงเวลาย้อนหลัง</SelectItem>
@@ -603,7 +620,7 @@ export default function CustomerFeedback() {
           </div>
 
           {/* Category Filtering */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="text-sm font-medium mb-2 block">
                 หมวดหมู่ใหญ่
@@ -611,9 +628,14 @@ export default function CustomerFeedback() {
               </label>
               <Popover>
                 <PopoverTrigger asChild>
-                  
+                  <Button variant="outline" className="w-full justify-between" size="sm">
+                    <span className="truncate">
+                      {formatSelectionDisplay(selectedMainCategories, [...new Set(categories.map(c => c.main_topic))].length, 'หมวดหมู่ใหญ่', true)}
+                    </span>
+                    <Filter className="h-4 w-4 flex-shrink-0" />
+                  </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-80 z-50" side="bottom" sideOffset={8} align="start" avoidCollisions={true} collisionPadding={16}>
+                <PopoverContent className="w-80 z-50" side="bottom" sideOffset={8} avoidCollisions={true} collisionPadding={16}>
                   <div className="space-y-2">
                     <Input placeholder="ค้นหาหมวดหมู่..." value={categorySearch} onChange={e => setCategorySearch(e.target.value)} />
                     <ScrollArea className="h-48">
@@ -654,9 +676,14 @@ export default function CustomerFeedback() {
               </label>
               <Popover>
                 <PopoverTrigger asChild>
-                  
+                  <Button variant="outline" className="w-full justify-between" size="sm">
+                    <span className="truncate">
+                      {formatSelectionDisplay(selectedSubCategories, availableSubCategories.length, 'หมวดหมู่ย่อย', true)}
+                    </span>
+                    <Filter className="h-4 w-4 flex-shrink-0" />
+                  </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-80 z-50" side="bottom" sideOffset={8} align="start" avoidCollisions={true} collisionPadding={16}>
+                <PopoverContent className="w-80 z-50" side="bottom" sideOffset={8} avoidCollisions={true} collisionPadding={16}>
                   <div className="space-y-2">
                     <Input placeholder="ค้นหาหมวดหมู่ย่อย..." value={subCategorySearch} onChange={e => setSubCategorySearch(e.target.value)} />
                     <ScrollArea className="h-48">
@@ -685,6 +712,64 @@ export default function CustomerFeedback() {
                 </PopoverContent>
               </Popover>
             </div>
+
+            <div>
+              <label className="text-sm font-medium mb-2 block">อารมณ์ความรู้สึก</label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="w-full justify-between" size="sm">
+                    <span className="truncate">
+                      {sentimentFilter === 'all' ? 'เลือกทั้งหมด' : 
+                       sentimentFilter === 'positive' ? 'เชิงบวก' : 'เชิงลบ'}
+                    </span>
+                    <Filter className="h-4 w-4 flex-shrink-0" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-60 z-50" side="bottom" sideOffset={8} avoidCollisions={true} collisionPadding={16}>
+                  <div className="space-y-2">
+                    <div 
+                      className={cn(
+                        "flex items-center space-x-2 p-2 rounded cursor-pointer hover:bg-accent",
+                        sentimentFilter === 'all' && "bg-accent"
+                      )}
+                      onClick={() => setSentimentFilter('all')}
+                    >
+                      <div className={cn(
+                        "w-3 h-3 rounded-full border-2",
+                        sentimentFilter === 'all' ? "bg-foreground border-foreground" : "border-muted-foreground"
+                      )} />
+                      <label className="text-sm font-medium cursor-pointer">เลือกทั้งหมด</label>
+                    </div>
+                    <div 
+                      className={cn(
+                        "flex items-center space-x-2 p-2 rounded cursor-pointer hover:bg-accent",
+                        sentimentFilter === 'positive' && "bg-accent"
+                      )}
+                      onClick={() => setSentimentFilter('positive')}
+                    >
+                      <div className={cn(
+                        "w-3 h-3 rounded-full border-2",
+                        sentimentFilter === 'positive' ? "bg-success border-success" : "border-muted-foreground"
+                      )} />
+                      <label className="text-sm cursor-pointer">เชิงบวก</label>
+                    </div>
+                    <div 
+                      className={cn(
+                        "flex items-center space-x-2 p-2 rounded cursor-pointer hover:bg-accent",
+                        sentimentFilter === 'negative' && "bg-accent"
+                      )}
+                      onClick={() => setSentimentFilter('negative')}
+                    >
+                      <div className={cn(
+                        "w-3 h-3 rounded-full border-2",
+                        sentimentFilter === 'negative' ? "bg-destructive border-destructive" : "border-muted-foreground"
+                      )} />
+                      <label className="text-sm cursor-pointer">เชิงลบ</label>
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
 
           <div className="flex justify-end">
@@ -703,16 +788,8 @@ export default function CustomerFeedback() {
             <div>
               <h3 className="text-lg font-semibold mb-2">ความคิดเห็นของลูกค้า</h3>
             </div>
-            <div className="flex flex-wrap gap-2">
-              <Button variant={sentimentFilter === 'all' ? 'default' : 'outline'} onClick={() => setSentimentFilter('all')} className={cn('min-w-20', sentimentFilter === 'all' ? 'bg-foreground text-background hover:bg-foreground/90' : 'bg-muted/50 text-muted-foreground border-muted hover:bg-muted/70')}>
-                ทั้งหมด
-              </Button>
-              <Button variant={sentimentFilter === 'positive' ? 'default' : 'outline'} onClick={() => setSentimentFilter('positive')} className={cn('min-w-20', sentimentFilter === 'positive' ? 'bg-success text-success-foreground hover:bg-success/90' : 'bg-muted/50 text-muted-foreground border-muted hover:bg-muted/70')}>
-                เชิงบวก
-              </Button>
-              <Button variant={sentimentFilter === 'negative' ? 'default' : 'outline'} onClick={() => setSentimentFilter('negative')} className={cn('min-w-20', sentimentFilter === 'negative' ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90' : 'bg-muted/50 text-muted-foreground border-muted hover:bg-muted/70')}>
-                เชิงลบ
-              </Button>
+            <div className="text-sm text-muted-foreground">
+              กรองอารมณ์ความรู้สึกด้วย dropdown ตัวกรองข้อมูลด้านบน
             </div>
           </div>
           <p className="text-sm text-muted-foreground mb-4">
