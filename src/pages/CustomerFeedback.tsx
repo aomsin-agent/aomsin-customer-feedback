@@ -13,15 +13,20 @@ import { CalendarIcon, Search, RotateCcw, Filter, ChevronLeft, ChevronRight } fr
 import { format, subDays, subMonths, subYears } from 'date-fns';
 import { cn } from '@/lib/utils';
 interface BranchRef {
-  no: number;
+  branch_id: number;
   branch_name: string;
-  region: string;
-  division: string;
+  region: number;
+  division: number;
   district: string;
   province: string;
   resdesc: string;
-  'open-time': string;
-  'service-time': string;
+  address: string;
+  telephone: string;
+  fax: string;
+  service_time: string;
+  work_time: string;
+  branch_type: string;
+  parent_branch: string;
 }
 interface CategoryRef {
   no: number;
@@ -86,10 +91,13 @@ export default function CustomerFeedback() {
   const [comments, setComments] = useState<CommentWithCategories[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Filter states
-  const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
+  // Filter states - updated for new schema
+  const [selectedRegions, setSelectedRegions] = useState<number[]>([]);
+  const [selectedDivisions, setSelectedDivisions] = useState<number[]>([]);
+  const [selectedProvinces, setSelectedProvinces] = useState<string[]>([]);
   const [selectedDistricts, setSelectedDistricts] = useState<string[]>([]);
   const [selectedBranches, setSelectedBranches] = useState<string[]>([]);
+  const [selectedBranchTypes, setSelectedBranchTypes] = useState<string[]>([]);
   const [selectedMainCategories, setSelectedMainCategories] = useState<string[]>([]);
   const [selectedSubCategories, setSelectedSubCategories] = useState<string[]>([]);
   const [sentimentFilter, setSentimentFilter] = useState<'all' | 'positive' | 'negative'>('all');
@@ -101,10 +109,13 @@ export default function CustomerFeedback() {
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [endDate, setEndDate] = useState<Date>(new Date());
 
-  // Search states
+  // Search states for all dropdowns
   const [regionSearch, setRegionSearch] = useState('');
+  const [divisionSearch, setDivisionSearch] = useState('');
+  const [provinceSearch, setProvinceSearch] = useState('');
   const [districtSearch, setDistrictSearch] = useState('');
   const [branchSearch, setBranchSearch] = useState('');
+  const [branchTypeSearch, setBranchTypeSearch] = useState('');
   const [categorySearch, setCategorySearch] = useState('');
   const [subCategorySearch, setSubCategorySearch] = useState('');
 
@@ -136,10 +147,22 @@ export default function CustomerFeedback() {
       setBranches(branchData as unknown as BranchRef[] || []);
       setCategories(categoryData as unknown as CategoryRef[] || []);
 
-      // Set default selections
-      const allRegions = [...new Set((branchData as unknown as BranchRef[] || []).map(b => b.region).filter(Boolean))];
-      const allMainCategories = [...new Set((categoryData as unknown as CategoryRef[] || []).map(c => c.main_topic))];
+      // Set default selections for new schema
+      const allRegions = [...new Set((branchData as unknown as BranchRef[] || [])
+        .map(b => b.region).filter(Boolean))].sort((a, b) => a - b);
+      const allDivisions = [...new Set((branchData as unknown as BranchRef[] || [])
+        .map(b => b.division).filter(Boolean))].sort((a, b) => a - b);
+      const allProvinces = [...new Set((branchData as unknown as BranchRef[] || [])
+        .map(b => b.province).filter(Boolean))].sort();
+      const allBranchTypes = [...new Set((branchData as unknown as BranchRef[] || [])
+        .map(b => b.branch_type).filter(Boolean))].sort();
+      const allMainCategories = [...new Set((categoryData as unknown as CategoryRef[] || [])
+        .map(c => c.main_topic))];
+      
       setSelectedRegions(allRegions);
+      setSelectedDivisions(allDivisions);
+      setSelectedProvinces(allProvinces);
+      setSelectedBranchTypes(allBranchTypes);
       setSelectedMainCategories(allMainCategories);
       setSelectedSubCategories((categoryData as unknown as CategoryRef[] || []).map(c => c.sub_topic));
 
@@ -179,7 +202,16 @@ export default function CustomerFeedback() {
         query = query.or(dateFilter);
       }
       if (selectedRegions.length > 0 && selectedRegions.length < sortedRegions.length) {
-        query = query.in('region', selectedRegions);
+        query = query.in('region', selectedRegions.map(String));
+      }
+      if (selectedDivisions.length > 0 && selectedDivisions.length < availableDivisions.length) {
+        query = query.in('division', selectedDivisions.map(String));
+      }
+      if (selectedProvinces.length > 0 && selectedProvinces.length < availableProvinces.length) {
+        query = query.in('province', selectedProvinces);
+      }
+      if (selectedDistricts.length > 0 && selectedDistricts.length < availableDistricts.length) {
+        query = query.in('district', selectedDistricts);
       }
       if (selectedBranches.length > 0) {
         query = query.in('branch_name', selectedBranches);
@@ -260,36 +292,77 @@ export default function CustomerFeedback() {
     if (branches.length > 0 && categories.length > 0) {
       fetchComments();
     }
-  }, [selectedRegions, selectedDistricts, selectedBranches, selectedMainCategories, selectedSubCategories, timeFilterType, selectedMonth, selectedTimeRange, startDate, endDate, sentimentFilter]);
+  }, [selectedRegions, selectedDivisions, selectedProvinces, selectedDistricts, selectedBranches, selectedBranchTypes, selectedMainCategories, selectedSubCategories, timeFilterType, selectedMonth, selectedTimeRange, startDate, endDate, sentimentFilter]);
 
   // Derived data for hierarchical filtering with proper sorting
   const sortedRegions = useMemo(() => {
     const uniqueRegions = [...new Set(branches.map(b => b.region).filter(Boolean))];
-    return uniqueRegions.sort((a, b) => {
-      const numA = parseInt(a.replace(/[^0-9]/g, ''));
-      const numB = parseInt(b.replace(/[^0-9]/g, ''));
-      return numA - numB;
-    });
+    return uniqueRegions.sort((a, b) => a - b);
   }, [branches]);
-  const availableDistricts = useMemo(() => {
-    return [...new Set(branches.filter(b => selectedRegions.length === 0 || selectedRegions.includes(b.region)).map(b => b.district).filter(Boolean))];
+
+  const availableDivisions = useMemo(() => {
+    const filteredBranches = branches.filter(b => 
+      selectedRegions.length === 0 || selectedRegions.includes(b.region)
+    );
+    return [...new Set(filteredBranches.map(b => b.division).filter(Boolean))].sort((a, b) => a - b);
   }, [branches, selectedRegions]);
+
+  const availableProvinces = useMemo(() => {
+    const filteredBranches = branches.filter(b => {
+      const regionMatch = selectedRegions.length === 0 || selectedRegions.includes(b.region);
+      const divisionMatch = selectedDivisions.length === 0 || selectedDivisions.includes(b.division);
+      return regionMatch && divisionMatch;
+    });
+    return [...new Set(filteredBranches.map(b => b.province).filter(Boolean))].sort();
+  }, [branches, selectedRegions, selectedDivisions]);
+
+  const availableDistricts = useMemo(() => {
+    const filteredBranches = branches.filter(b => {
+      const regionMatch = selectedRegions.length === 0 || selectedRegions.includes(b.region);
+      const divisionMatch = selectedDivisions.length === 0 || selectedDivisions.includes(b.division);
+      const provinceMatch = selectedProvinces.length === 0 || selectedProvinces.includes(b.province);
+      return regionMatch && divisionMatch && provinceMatch;
+    });
+    return [...new Set(filteredBranches.map(b => b.district).filter(Boolean))].sort();
+  }, [branches, selectedRegions, selectedDivisions, selectedProvinces]);
+
   const availableBranches = useMemo(() => {
     return branches.filter(b => {
       const regionMatch = selectedRegions.length === 0 || selectedRegions.includes(b.region);
+      const divisionMatch = selectedDivisions.length === 0 || selectedDivisions.includes(b.division);
+      const provinceMatch = selectedProvinces.length === 0 || selectedProvinces.includes(b.province);
       const districtMatch = selectedDistricts.length === 0 || selectedDistricts.includes(b.district);
-      return regionMatch && districtMatch;
+      const branchTypeMatch = selectedBranchTypes.length === 0 || selectedBranchTypes.includes(b.branch_type);
+      return regionMatch && divisionMatch && provinceMatch && districtMatch && branchTypeMatch;
     });
-  }, [branches, selectedRegions, selectedDistricts]);
+  }, [branches, selectedRegions, selectedDivisions, selectedProvinces, selectedDistricts, selectedBranchTypes]);
+
+  const availableBranchTypes = useMemo(() => {
+    const filteredBranches = branches.filter(b => {
+      const regionMatch = selectedRegions.length === 0 || selectedRegions.includes(b.region);
+      const divisionMatch = selectedDivisions.length === 0 || selectedDivisions.includes(b.division);
+      const provinceMatch = selectedProvinces.length === 0 || selectedProvinces.includes(b.province);
+      const districtMatch = selectedDistricts.length === 0 || selectedDistricts.includes(b.district);
+      return regionMatch && divisionMatch && provinceMatch && districtMatch;
+    });
+    return [...new Set(filteredBranches.map(b => b.branch_type).filter(Boolean))].sort();
+  }, [branches, selectedRegions, selectedDivisions, selectedProvinces, selectedDistricts]);
   const availableSubCategories = useMemo(() => {
     return categories.filter(c => selectedMainCategories.length === 0 || selectedMainCategories.includes(c.main_topic));
   }, [categories, selectedMainCategories]);
   const resetFilters = () => {
-    const allRegions = [...new Set(branches.map(b => b.region).filter(Boolean))];
+    const allRegions = [...new Set(branches.map(b => b.region).filter(Boolean))].sort((a, b) => a - b);
+    const allDivisions = [...new Set(branches.map(b => b.division).filter(Boolean))].sort((a, b) => a - b);
+    const allProvinces = [...new Set(branches.map(b => b.province).filter(Boolean))].sort();
+    const allBranchTypes = [...new Set(branches.map(b => b.branch_type).filter(Boolean))].sort();
     const allMainCategories = [...new Set(categories.map(c => c.main_topic))];
+    
     setSelectedRegions(allRegions);
+    setSelectedDivisions(allDivisions);
+    setSelectedProvinces(allProvinces);
     setSelectedDistricts([]);
     setSelectedBranches([]);
+    setSelectedBranchTypes(allBranchTypes);
     setSelectedMainCategories(allMainCategories);
     setSelectedSubCategories(categories.map(c => c.sub_topic));
     setSentimentFilter('all');
@@ -407,7 +480,7 @@ export default function CustomerFeedback() {
                 <PopoverTrigger asChild>
                   <Button variant="outline" className="w-full justify-between" size="sm">
                     <span className="truncate">
-                      {formatSelectionDisplay(selectedRegions, sortedRegions.length, 'ภาค', true)}
+                      {formatSelectionDisplay(selectedRegions.map(String), sortedRegions.length, 'ภาค', true)}
                     </span>
                     <Filter className="h-4 w-4 flex-shrink-0" />
                   </Button>
@@ -428,7 +501,7 @@ export default function CustomerFeedback() {
                       }} />
                         <label className="text-sm font-medium">เลือกทั้งหมด</label>
                       </div>
-                      {sortedRegions.filter(region => region.toLowerCase().includes(regionSearch.toLowerCase())).map(region => <div key={region} className="flex items-center space-x-2 p-2">
+                      {sortedRegions.filter(region => region.toString().includes(regionSearch)).map(region => <div key={region} className="flex items-center space-x-2 p-2">
                             <Checkbox checked={selectedRegions.includes(region)} onCheckedChange={checked => {
                         if (checked) {
                           setSelectedRegions([...selectedRegions, region]);
