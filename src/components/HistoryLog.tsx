@@ -17,8 +17,7 @@ import { th } from "date-fns/locale";
 
 interface RawComment {
   comment_id: string;
-  date: string;
-  time: string;
+  comment_date: string;
   division: string | null;
   region: string | null;
   province: string;
@@ -38,6 +37,9 @@ interface RawComment {
   satisfaction_7: number;
   comment: string;
   contact: string | null;
+  comment_meaning: string;
+  resdesc: string | null;
+  create_at: string;
 }
 
 interface SentenceCategory {
@@ -84,8 +86,7 @@ export function HistoryLog() {
       const { data: rawComments } = await supabase
         .from('raw_comment')
         .select('*')
-        .order('date', { ascending: false })
-        .order('time', { ascending: false })
+        .order('comment_date', { ascending: false })
         .limit(5);
 
       if (!rawComments) {
@@ -111,10 +112,9 @@ export function HistoryLog() {
       }, {} as Record<string, SentenceCategory[]>) || {};
 
       // Combine data
-      const combinedData: CommentData[] = rawComments.map(comment => ({
+      const combinedData: CommentData[] = rawComments.map((comment: any) => ({
         comment_id: comment.comment_id,
-        date: comment.date,
-        time: comment.time,
+        comment_date: comment.comment_date,
         division: comment.division,
         region: comment.region,
         province: comment.province,
@@ -134,6 +134,9 @@ export function HistoryLog() {
         satisfaction_7: comment.satisfaction_7,
         comment: comment.comment,
         contact: comment.contact,
+        comment_meaning: comment.comment_meaning,
+        resdesc: comment.resdesc,
+        create_at: comment.create_at,
         sentences: groupedSentences[comment.comment_id] || []
       }));
 
@@ -257,8 +260,7 @@ export function HistoryLog() {
                       <div>
                         <h4 className="text-sm font-semibold mb-1 text-foreground">เวลาที่ส่งข้อเสนอแนะ</h4>
                         <div className="text-sm text-muted-foreground space-y-1">
-                          <p>วันที่: {format(new Date(comment.date), 'dd MMMM yyyy', { locale: th })}</p>
-                          <p>เวลา: {comment.time}</p>
+                          <p>{format(new Date(comment.comment_date), 'dd MMM yyyy | HH:mm น.', { locale: th })}</p>
                         </div>
                       </div>
 
