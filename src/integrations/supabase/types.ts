@@ -16,40 +16,52 @@ export type Database = {
     Tables: {
       branch_ref: {
         Row: {
-          "เขต (ตามเขตดูแล)": string | null
-          "เขต (ที่ตั้ง)": string | null
-          จังหวัด: string | null
-          ชื่อสถานที่ให้บริการ: string | null
-          ประเภทสถานที่ให้บริกา: string | null
-          ภาค: string | null
-          ลำดับที่: number | null
-          วันที่ให้บริการ: string | null
-          เวลาให้บริการ: string | null
-          สายกิจ: string | null
+          address: string | null
+          branch_id: number | null
+          branch_name: string
+          branch_type: string | null
+          district: string | null
+          division: number | null
+          fax: string | null
+          parent_branch: string | null
+          province: string | null
+          region: number | null
+          resdesc: string | null
+          service_time: string | null
+          telephone: string | null
+          work_time: string | null
         }
         Insert: {
-          "เขต (ตามเขตดูแล)"?: string | null
-          "เขต (ที่ตั้ง)"?: string | null
-          จังหวัด?: string | null
-          ชื่อสถานที่ให้บริการ?: string | null
-          ประเภทสถานที่ให้บริกา?: string | null
-          ภาค?: string | null
-          ลำดับที่?: number | null
-          วันที่ให้บริการ?: string | null
-          เวลาให้บริการ?: string | null
-          สายกิจ?: string | null
+          address?: string | null
+          branch_id?: number | null
+          branch_name: string
+          branch_type?: string | null
+          district?: string | null
+          division?: number | null
+          fax?: string | null
+          parent_branch?: string | null
+          province?: string | null
+          region?: number | null
+          resdesc?: string | null
+          service_time?: string | null
+          telephone?: string | null
+          work_time?: string | null
         }
         Update: {
-          "เขต (ตามเขตดูแล)"?: string | null
-          "เขต (ที่ตั้ง)"?: string | null
-          จังหวัด?: string | null
-          ชื่อสถานที่ให้บริการ?: string | null
-          ประเภทสถานที่ให้บริกา?: string | null
-          ภาค?: string | null
-          ลำดับที่?: number | null
-          วันที่ให้บริการ?: string | null
-          เวลาให้บริการ?: string | null
-          สายกิจ?: string | null
+          address?: string | null
+          branch_id?: number | null
+          branch_name?: string
+          branch_type?: string | null
+          district?: string | null
+          division?: number | null
+          fax?: string | null
+          parent_branch?: string | null
+          province?: string | null
+          region?: number | null
+          resdesc?: string | null
+          service_time?: string | null
+          telephone?: string | null
+          work_time?: string | null
         }
         Relationships: []
       }
@@ -90,13 +102,16 @@ export type Database = {
         Row: {
           branch_name: string
           comment: string
+          comment_date: string
           comment_id: string
-          contact: string
-          date: string
-          district: string
-          division: string
+          comment_meaning: string
+          contact: string | null
+          create_at: string
+          district: string | null
+          division: string | null
           province: string
-          region: string
+          region: string | null
+          resdesc: string | null
           satisfaction_1: number
           satisfaction_2: number
           satisfaction_3: number
@@ -104,23 +119,25 @@ export type Database = {
           satisfaction_5: number
           satisfaction_6: number
           satisfaction_7: number
-          service_1: number
-          service_2: number
-          service_3: number
-          service_4: number
-          service_5: number
-          time: string
+          service_1: string
+          service_2: string
+          service_3: string
+          service_4: string
+          service_5: string
         }
         Insert: {
           branch_name: string
           comment: string
+          comment_date: string
           comment_id?: string
-          contact?: string
-          date: string
-          district: string
-          division: string
+          comment_meaning?: string
+          contact?: string | null
+          create_at?: string
+          district?: string | null
+          division?: string | null
           province: string
-          region: string
+          region?: string | null
+          resdesc?: string | null
           satisfaction_1: number
           satisfaction_2: number
           satisfaction_3: number
@@ -128,23 +145,25 @@ export type Database = {
           satisfaction_5: number
           satisfaction_6: number
           satisfaction_7: number
-          service_1: number
-          service_2: number
-          service_3: number
-          service_4: number
-          service_5: number
-          time: string
+          service_1?: string
+          service_2?: string
+          service_3?: string
+          service_4?: string
+          service_5?: string
         }
         Update: {
           branch_name?: string
           comment?: string
+          comment_date?: string
           comment_id?: string
-          contact?: string
-          date?: string
-          district?: string
-          division?: string
+          comment_meaning?: string
+          contact?: string | null
+          create_at?: string
+          district?: string | null
+          division?: string | null
           province?: string
-          region?: string
+          region?: string | null
+          resdesc?: string | null
           satisfaction_1?: number
           satisfaction_2?: number
           satisfaction_3?: number
@@ -152,12 +171,11 @@ export type Database = {
           satisfaction_5?: number
           satisfaction_6?: number
           satisfaction_7?: number
-          service_1?: number
-          service_2?: number
-          service_3?: number
-          service_4?: number
-          service_5?: number
-          time?: string
+          service_1?: string
+          service_2?: string
+          service_3?: string
+          service_4?: string
+          service_5?: string
         }
         Relationships: []
       }
@@ -166,6 +184,7 @@ export type Database = {
           comment_id: string
           created_at: string
           main_category: string
+          sentence: string | null
           sentence_id: string
           sentiment: string
           sub_category: string
@@ -174,6 +193,7 @@ export type Database = {
           comment_id?: string
           created_at?: string
           main_category: string
+          sentence?: string | null
           sentence_id?: string
           sentiment: string
           sub_category: string
@@ -182,11 +202,20 @@ export type Database = {
           comment_id?: string
           created_at?: string
           main_category?: string
+          sentence?: string | null
           sentence_id?: string
           sentiment?: string
           sub_category?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "sentence_category_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "raw_comment"
+            referencedColumns: ["comment_id"]
+          },
+        ]
       }
     }
     Views: {

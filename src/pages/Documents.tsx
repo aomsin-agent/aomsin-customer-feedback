@@ -142,7 +142,7 @@ export default function Documents() {
   }
 
   return (
-    <div className="w-full space-y-4 md:space-y-6">
+    <div className="w-full space-y-4 md:space-y-6 p-4 md:p-6 lg:pl-72 xl:pl-80">
       <div className="mb-4 md:mb-6">
         <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
           เอกสารอ้างอิง
@@ -165,7 +165,6 @@ export default function Documents() {
               className="self-start sm:self-center"
             >
               <RefreshCw className={`h-4 w-4 ${refreshingCategory ? 'animate-spin' : ''}`} />
-              <span className="ml-1 sm:hidden">รีเฟรช</span>
             </Button>
           </div>
         </CardHeader>
@@ -235,7 +234,6 @@ export default function Documents() {
               className="self-start sm:self-center"
             >
               <RefreshCw className={`h-4 w-4 ${refreshingBranch ? 'animate-spin' : ''}`} />
-              <span className="ml-1 sm:hidden">รีเฟรช</span>
             </Button>
           </div>
         </CardHeader>

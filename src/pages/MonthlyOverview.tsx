@@ -1,6 +1,6 @@
 export default function MonthlyOverview() {
   return (
-    <div className="w-full">
+    <div className="w-full p-4 md:p-6 lg:pl-72 xl:pl-80">
       <div className="mb-4 md:mb-6">
         <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
           สรุปภาพรวมประจำเดือน
