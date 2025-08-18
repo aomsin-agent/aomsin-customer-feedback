@@ -1,12 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -14,7 +8,6 @@ import { History, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
-
 interface RawComment {
   comment_id: string;
   comment_date: string;
@@ -41,7 +34,6 @@ interface RawComment {
   resdesc: string | null;
   create_at: string;
 }
-
 interface SentenceCategory {
   sentence: string | null;
   main_category: string;
@@ -51,44 +43,24 @@ interface SentenceCategory {
   sentence_id: string;
   created_at: string;
 }
-
 interface CommentData extends RawComment {
   sentences: SentenceCategory[];
 }
-
 export function HistoryLog() {
   const [isOpen, setIsOpen] = useState(false);
   const [comments, setComments] = useState<CommentData[]>([]);
   const [loading, setLoading] = useState(false);
-
-  const serviceLabels = [
-    "ฝากเงินถอนเงิน",
-    "ชำระค่าธรรมเนียม/สินเชื่อ", 
-    "สมัครใช้ผลิตภัณฑ์",
-    "สอบถาม/ปรึกษา",
-    "อื่นๆ"
-  ];
-
-  const satisfactionLabels = [
-    "การดูแล เอาใจใส่ ความสบายใจเมื่อมาใช้บริการ",
-    "การตอบคำถาม ให้คำแนะนำ ความน่าเชื่อถือ ความเป็นมืออาชีพ",
-    "ความรวดเร็วในการให้บริการ (หลังเรียกคิว)",
-    "ความถูกต้องในการทำธุรกรรม",
-    "ความพร้อมของเครื่องมือ",
-    "ภาพแวดล้อมของสาขา เช่น การจัดพื้นที่ ความสะอาด แสงสว่าง",
-    "ความประทับใจในการเข้าใช้บริการที่ธนาคารออมสินสาขา"
-  ];
-
+  const serviceLabels = ["ฝากเงินถอนเงิน", "ชำระค่าธรรมเนียม/สินเชื่อ", "สมัครใช้ผลิตภัณฑ์", "สอบถาม/ปรึกษา", "อื่นๆ"];
+  const satisfactionLabels = ["การดูแล เอาใจใส่ ความสบายใจเมื่อมาใช้บริการ", "การตอบคำถาม ให้คำแนะนำ ความน่าเชื่อถือ ความเป็นมืออาชีพ", "ความรวดเร็วในการให้บริการ (หลังเรียกคิว)", "ความถูกต้องในการทำธุรกรรม", "ความพร้อมของเครื่องมือ", "ภาพแวดล้อมของสาขา เช่น การจัดพื้นที่ ความสะอาด แสงสว่าง", "ความประทับใจในการเข้าใช้บริการที่ธนาคารออมสินสาขา"];
   const fetchComments = async () => {
     setLoading(true);
     try {
       // Fetch raw comments (latest 5)
-      const { data: rawComments } = await supabase
-        .from('raw_comment')
-        .select('*')
-        .order('comment_date', { ascending: false })
-        .limit(5);
-
+      const {
+        data: rawComments
+      } = await supabase.from('raw_comment').select('*').order('comment_date', {
+        ascending: false
+      }).limit(5);
       if (!rawComments) {
         setComments([]);
         return;
@@ -96,11 +68,11 @@ export function HistoryLog() {
 
       // Fetch sentence categories for these comments
       const commentIds = rawComments.map(c => c.comment_id);
-      const { data: sentences } = await supabase
-        .from('sentence_category')
-        .select('*')
-        .in('comment_id', commentIds)
-        .order('created_at', { ascending: true });
+      const {
+        data: sentences
+      } = await supabase.from('sentence_category').select('*').in('comment_id', commentIds).order('created_at', {
+        ascending: true
+      });
 
       // Group sentences by comment_id
       const groupedSentences = sentences?.reduce((acc, sentence) => {
@@ -139,7 +111,6 @@ export function HistoryLog() {
         create_at: comment.create_at,
         sentences: groupedSentences[comment.comment_id] || []
       }));
-
       setComments(combinedData);
     } catch (error) {
       console.error('Error fetching comments:', error);
@@ -147,17 +118,14 @@ export function HistoryLog() {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     if (isOpen) {
       fetchComments();
     }
   }, [isOpen]);
-
   const getSentimentBackground = (sentences: SentenceCategory[]) => {
     const positiveCount = sentences.filter(s => s.sentiment === 'Positive').length;
     const negativeCount = sentences.filter(s => s.sentiment === 'Negative').length;
-    
     if (positiveCount > negativeCount) {
       return "bg-green-50 border-green-200 dark:bg-green-950/20 dark:border-green-800/30";
     } else if (negativeCount > positiveCount) {
@@ -165,39 +133,50 @@ export function HistoryLog() {
     }
     return "bg-muted/30 border-muted-foreground/20";
   };
-
   const getOverallSentiment = (sentences: SentenceCategory[]) => {
     const positiveCount = sentences.filter(s => s.sentiment === 'Positive').length;
     const negativeCount = sentences.filter(s => s.sentiment === 'Negative').length;
-    
     if (positiveCount > negativeCount) {
-      return { type: 'positive', label: 'Positive', color: 'text-green-600 dark:text-green-400' };
+      return {
+        type: 'positive',
+        label: 'Positive',
+        color: 'text-green-600 dark:text-green-400'
+      };
     } else if (negativeCount > positiveCount) {
-      return { type: 'negative', label: 'Negative', color: 'text-red-600 dark:text-red-400' };
+      return {
+        type: 'negative',
+        label: 'Negative',
+        color: 'text-red-600 dark:text-red-400'
+      };
     }
-    return { type: 'neutral', label: 'Neutral', color: 'text-muted-foreground' };
+    return {
+      type: 'neutral',
+      label: 'Neutral',
+      color: 'text-muted-foreground'
+    };
   };
-
   const getUsedServices = (comment: RawComment) => {
-    const services = [
-      { key: 'service_1', label: serviceLabels[0] },
-      { key: 'service_2', label: serviceLabels[1] },
-      { key: 'service_3', label: serviceLabels[2] },
-      { key: 'service_4', label: serviceLabels[3] },
-      { key: 'service_5', label: serviceLabels[4] }
-    ];
-    
+    const services = [{
+      key: 'service_1',
+      label: serviceLabels[0]
+    }, {
+      key: 'service_2',
+      label: serviceLabels[1]
+    }, {
+      key: 'service_3',
+      label: serviceLabels[2]
+    }, {
+      key: 'service_4',
+      label: serviceLabels[3]
+    }, {
+      key: 'service_5',
+      label: serviceLabels[4]
+    }];
     return services.filter(service => comment[service.key as keyof RawComment] === 'Y');
   };
-
-  return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+  return <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button 
-          variant="ghost" 
-          size="icon"
-          className="h-8 w-8 sm:h-9 sm:w-9 text-white hover:text-white hover:bg-white/20 border border-white/30 rounded-lg"
-        >
+        <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9 text-white hover:text-white hover:bg-white/20 border border-white/30 rounded-lg">
           <History className="h-4 w-4" strokeWidth={1.5} />
         </Button>
       </DialogTrigger>
@@ -206,41 +185,23 @@ export function HistoryLog() {
           <DialogTitle className="text-xl font-bold text-foreground">
             ประวัติการประมวล Flow ด้วย Agent
           </DialogTitle>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={fetchComments}
-            disabled={loading}
-            className="flex items-center gap-2"
-          >
-            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-            รีเฟรช
-          </Button>
+          
         </DialogHeader>
         
         <ScrollArea className="flex-1 h-[calc(80vh-120px)]">
           <div className="p-4 space-y-4">
-            {loading ? (
-              <div className="text-center py-8">
+            {loading ? <div className="text-center py-8">
                 <RefreshCw className="h-8 w-8 mx-auto animate-spin text-muted-foreground mb-2" />
                 <p className="text-muted-foreground">กำลังโหลดข้อมูล...</p>
-              </div>
-            ) : comments.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
+              </div> : comments.length === 0 ? <div className="text-center py-8 text-muted-foreground">
                 <History className="h-16 w-16 mx-auto mb-4 text-muted-foreground/40" />
                 <p className="text-lg mb-2">ยังไม่มีประวัติการประมวลผล</p>
                 <p className="text-sm">
                   ประวัติการประมวล Flow ด้วย Agent จะแสดงที่นี่เมื่อมีการใช้งาน
                 </p>
-              </div>
-            ) : (
-              comments.map((comment) => {
-                const overallSentiment = getOverallSentiment(comment.sentences);
-                return (
-                <Card 
-                  key={comment.comment_id} 
-                  className={`p-6 ${getSentimentBackground(comment.sentences)} border-2 transition-all duration-300 hover:shadow-lg`}
-                >
+              </div> : comments.map(comment => {
+            const overallSentiment = getOverallSentiment(comment.sentences);
+            return <Card key={comment.comment_id} className={`p-6 ${getSentimentBackground(comment.sentences)} border-2 transition-all duration-300 hover:shadow-lg`}>
                   {/* Header with Comment ID and Overall Sentiment */}
                   <div className="mb-4 pb-3 border-b border-border/50">
                     <div className="flex items-center justify-between">
@@ -260,7 +221,9 @@ export function HistoryLog() {
                       <div>
                         <h4 className="text-sm font-semibold mb-1 text-foreground">เวลาที่ส่งข้อเสนอแนะ</h4>
                         <div className="text-sm text-muted-foreground space-y-1">
-                          <p>{format(new Date(comment.comment_date), 'dd MMM yyyy | HH:mm น.', { locale: th })}</p>
+                          <p>{format(new Date(comment.comment_date), 'dd MMM yyyy | HH:mm น.', {
+                          locale: th
+                        })}</p>
                         </div>
                       </div>
 
@@ -280,11 +243,9 @@ export function HistoryLog() {
                       <div>
                         <h4 className="text-sm font-semibold mb-1 text-foreground">ประเภทที่ใช้บริการ</h4>
                         <div className="flex flex-wrap gap-1">
-                          {getUsedServices(comment).map((service, idx) => (
-                            <Badge key={idx} variant="secondary" className="text-xs">
+                          {getUsedServices(comment).map((service, idx) => <Badge key={idx} variant="secondary" className="text-xs">
                               {service.label}
-                            </Badge>
-                          ))}
+                            </Badge>)}
                         </div>
                       </div>
 
@@ -292,26 +253,18 @@ export function HistoryLog() {
                       <div>
                         <h4 className="text-sm font-semibold mb-1 text-foreground">ความพึงพอใจ</h4>
                         <div className="space-y-1">
-                          {satisfactionLabels.map((label, idx) => (
-                            <div key={idx} className="flex justify-between text-xs">
+                          {satisfactionLabels.map((label, idx) => <div key={idx} className="flex justify-between text-xs">
                               <span className="text-muted-foreground flex-1 pr-2">{label}:</span>
                               <span className="font-medium">
                                 {comment[`satisfaction_${idx + 1}` as keyof RawComment]}/5
                               </span>
-                            </div>
-                          ))}
+                            </div>)}
                         </div>
                       </div>
                     </div>
 
                     {/* Right Column */}
-                    <div className={`space-y-6 p-4 rounded-lg ${
-                      overallSentiment.type === 'positive' 
-                        ? 'bg-green-50/70 dark:bg-green-950/30' 
-                        : overallSentiment.type === 'negative' 
-                          ? 'bg-red-50/70 dark:bg-red-950/30' 
-                          : 'bg-muted/30'
-                    }`}>
+                    <div className={`space-y-6 p-4 rounded-lg ${overallSentiment.type === 'positive' ? 'bg-green-50/70 dark:bg-green-950/30' : overallSentiment.type === 'negative' ? 'bg-red-50/70 dark:bg-red-950/30' : 'bg-muted/30'}`}>
                       {/* ส่วนที่ 5: ความคิดเห็น */}
                       <div>
                         <h4 className="text-sm font-semibold mb-3 text-foreground">ความคิดเห็น</h4>
@@ -325,72 +278,42 @@ export function HistoryLog() {
                         <h4 className="text-sm font-semibold mb-2 text-foreground">การจำแนกประเภทความคิดเห็น</h4>
                         <ScrollArea className="h-[400px] w-full">
                           <div className="space-y-3 pr-4">
-                            {comment.sentences.length === 0 ? (
-                              <p className="text-xs text-muted-foreground">ยังไม่มีการจำแนกประเภท</p>
-                            ) : (
-                              comment.sentences
-                                .sort((a, b) => {
-                                  // Sort by sentiment: positive first, then negative, then neutral
-                                  const sentimentOrder = { 'Positive': 0, 'Negative': 1, 'Neutral': 2 };
-                                  return (sentimentOrder[a.sentiment as keyof typeof sentimentOrder] || 3) - 
-                                         (sentimentOrder[b.sentiment as keyof typeof sentimentOrder] || 3);
-                                })
-                                .map((sentence, idx) => (
-                                  <div key={idx} className="space-y-2">
+                            {comment.sentences.length === 0 ? <p className="text-xs text-muted-foreground">ยังไม่มีการจำแนกประเภท</p> : comment.sentences.sort((a, b) => {
+                          // Sort by sentiment: positive first, then negative, then neutral
+                          const sentimentOrder = {
+                            'Positive': 0,
+                            'Negative': 1,
+                            'Neutral': 2
+                          };
+                          return (sentimentOrder[a.sentiment as keyof typeof sentimentOrder] || 3) - (sentimentOrder[b.sentiment as keyof typeof sentimentOrder] || 3);
+                        }).map((sentence, idx) => <div key={idx} className="space-y-2">
                                     {/* Main Category - Header style */}
                                     <div>
                                       <h5 className="text-sm font-semibold text-foreground">{sentence.main_category}</h5>
                                     </div>
                                     
                                     {/* Sub Category with colored background + Sentence */}
-                                    <div className={`p-4 rounded-lg border-l-4 text-sm ${
-                                      sentence.sentiment === 'Positive' 
-                                        ? 'bg-green-100 dark:bg-green-900/40 border-l-green-600 border border-green-300 dark:border-green-700/60' 
-                                        : sentence.sentiment === 'Negative' 
-                                          ? 'bg-red-100 dark:bg-red-900/40 border-l-red-600 border border-red-300 dark:border-red-700/60' 
-                                          : 'bg-muted/60 border-l-muted-foreground border border-muted-foreground/30'
-                                    }`}>
+                                    <div className={`p-4 rounded-lg border-l-4 text-sm ${sentence.sentiment === 'Positive' ? 'bg-green-100 dark:bg-green-900/40 border-l-green-600 border border-green-300 dark:border-green-700/60' : sentence.sentiment === 'Negative' ? 'bg-red-100 dark:bg-red-900/40 border-l-red-600 border border-red-300 dark:border-red-700/60' : 'bg-muted/60 border-l-muted-foreground border border-muted-foreground/30'}`}>
                                       <div className="flex items-center gap-2 mb-2">
-                                        <div className={`font-bold ${
-                                          sentence.sentiment === 'Positive' 
-                                            ? 'text-green-800 dark:text-green-200' 
-                                            : sentence.sentiment === 'Negative' 
-                                              ? 'text-red-800 dark:text-red-200' 
-                                              : 'text-foreground'
-                                        }`}>
+                                        <div className={`font-bold ${sentence.sentiment === 'Positive' ? 'text-green-800 dark:text-green-200' : sentence.sentiment === 'Negative' ? 'text-red-800 dark:text-red-200' : 'text-foreground'}`}>
                                           {sentence.sub_category}
                                         </div>
-                                        {sentence.sentiment !== 'Neutral' && (
-                                          <Badge 
-                                            className={`px-2 py-1 text-white text-xs font-medium rounded-md ${
-                                              sentence.sentiment === 'Positive' 
-                                                ? 'bg-green-700 dark:bg-green-600 hover:bg-green-800 dark:hover:bg-green-700' 
-                                                : 'bg-red-700 dark:bg-red-600 hover:bg-red-800 dark:hover:bg-red-700'
-                                            }`}
-                                          >
+                                        {sentence.sentiment !== 'Neutral' && <Badge className={`px-2 py-1 text-white text-xs font-medium rounded-md ${sentence.sentiment === 'Positive' ? 'bg-green-700 dark:bg-green-600 hover:bg-green-800 dark:hover:bg-green-700' : 'bg-red-700 dark:bg-red-600 hover:bg-red-800 dark:hover:bg-red-700'}`}>
                                             {sentence.sentiment === 'Positive' ? 'เชิงบวก' : 'เชิงลบ'}
-                                          </Badge>
-                                        )}
+                                          </Badge>}
                                       </div>
-                                      {sentence.sentence && (
-                                        <div className="text-muted-foreground leading-relaxed">{sentence.sentence}</div>
-                                      )}
+                                      {sentence.sentence && <div className="text-muted-foreground leading-relaxed">{sentence.sentence}</div>}
                                     </div>
-                                  </div>
-                                ))
-                            )}
+                                  </div>)}
                           </div>
                         </ScrollArea>
                       </div>
                     </div>
                   </div>
-                </Card>
-                );
-              })
-            )}
+                </Card>;
+          })}
           </div>
         </ScrollArea>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>;
 }
