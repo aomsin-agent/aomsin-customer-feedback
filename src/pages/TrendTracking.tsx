@@ -1,6 +1,6 @@
 export default function TrendTracking() {
   return (
-    <div className="w-full p-4 md:p-6 lg:pl-72 xl:pl-80">
+    <div className="w-full p-4 md:p-6 lg:pl-6 lg:pr-6 xl:pl-8 xl:pr-8">
       <div className="mb-4 md:mb-6">
         <h1 className="text-3xl font-bold text-foreground mb-2">
           การติดตามแนวโน้ม
