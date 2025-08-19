@@ -4,55 +4,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-interface BranchData {
-  region: number;
-  division: number;
-  branch_name: string;
-}
-
-export default function CustomerFeedback() {
-  const [branches, setBranches] = useState<BranchData[]>([]);
-  const [selectedRegion, setSelectedRegion] = useState<string>('all');
-  const [selectedDivision, setSelectedDivision] = useState<string>('all');
-  const [selectedBranch, setSelectedBranch] = useState<string>('all');
-  const [searchTerm, setSearchTerm] = useState('');
-
-  // กันเฟรมแรกเพี้ยนกรณี SSR/Hydration: เรนเดอร์ Select หลัง mount
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-
-  useEffect(() => {
-    fetchBranches();
-  }, []);
-
-  const fetchBranches = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('branch_ref')
-        .select('region, division, branch_name')
-        .order('region', { ascending: true });
-
-      if (error) throw error;
-      setBranches(data || []);
-    } catch (error) {
-      console.error('Error fetching branches:', error);
-    }
-  };
-
-  const uniqueRegions = Array.from(new Set(branches.map(b => b.region))).filter(Boolean);
-  const uniqueDivisions = Array.from(new Set(
-    branches
-      .filter(b => selectedRegion === 'all' || b.region.toString() === selectedRegion)
-      .map(b => b.division)
-  )).filter(Boolean);
-
-  const filteredBranches = branches.filter(b => {
-    const regionMatch = selectedRegion === 'all' || b.region.toString() === selectedRegion;
-    const divisionMatch = selectedDivision === 'all' || b.division.toString() === selectedDivision;
-    const searchMatch = searchTerm === '' || b.branch_name.toLowerCase().includes(searchTerm.toLowerCase());
-    return regionMatch && divisionMatch && searchMatch;
-  });
-
   return (
     <div className="w-full p-4 md:p-6 lg:pl-2 lg:pr-4 xl:pl-3 xl:pr-6">
       <div className="mb-4 md:mb-6">
