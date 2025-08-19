@@ -68,11 +68,17 @@ export default function CustomerFeedback() {
           <SelectTrigger className="w-48">
             <SelectValue placeholder="เลือกตัวเลือก" />
           </SelectTrigger>
-          <SelectContent className="bg-background border shadow-lg z-50">
-            <SelectItem value="1">ตัวเลือก 1</SelectItem>
-            <SelectItem value="2">ตัวเลือก 2</SelectItem>
-            <SelectItem value="3">ตัวเลือก 3</SelectItem>
-          </SelectContent>
+            <SelectContent
+              position="popper"
+              side="bottom"
+              align="start"
+              sideOffset={4}
+              className="bg-background border shadow-lg z-50"
+            >
+              <SelectItem value="1">ตัวเลือก 1</SelectItem>
+              <SelectItem value="2">ตัวเลือก 2</SelectItem>
+              <SelectItem value="3">ตัวเลือก 3</SelectItem>
+            </SelectContent>
         </Select>
       </div>
 
