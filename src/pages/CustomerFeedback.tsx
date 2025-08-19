@@ -12,15 +12,14 @@ export default function CustomerFeedback() {
         </p>
       </div>
       
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <h2 className="text-lg font-medium text-muted-foreground mb-2">
-            หน้าข้อคิดเห็นของลูกค้า
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            เนื้อหาจะถูกเพิ่มในภายหลัง
-          </p>
-        </div>
+      <div className="bg-card rounded-lg shadow-soft p-4 md:p-8 text-center">
+        <div className="text-4xl md:text-6xl mb-4">💬</div>
+        <h2 className="text-lg md:text-xl font-semibold text-muted-foreground mb-2">
+          เนื้อหาจะถูกเพิ่มเข้ามาในภายหลัง
+        </h2>
+        <p className="text-sm md:text-base text-muted-foreground">
+          ส่วนนี้จะแสดงข้อคิดเห็นและข้อเสนอแนะจากลูกค้า รวมถึงการวิเคราะห์ความพึงพอใจ
+        </p>
       </div>
     </div>
   );
