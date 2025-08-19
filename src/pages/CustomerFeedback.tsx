@@ -62,82 +62,24 @@ export default function CustomerFeedback() {
         </p>
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[calc(100vh-200px)]">
-        {/* Filtering Section - Left */}
-        <div className="lg:col-span-1">
-          <Card className="h-full">
-            <CardHeader>
-              <CardTitle className="text-lg">ตัวกรอง</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Region Filter */}
-              <div>
-                <label className="text-sm font-medium mb-2 block">ภาค</label>
-                <Select value={selectedRegion} onValueChange={setSelectedRegion}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="เลือกภาค" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">ทั้งหมด</SelectItem>
-                    {uniqueRegions.map(region => (
-                      <SelectItem key={region} value={region.toString()}>
-                        ภาค {region}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+      {/* Simple Dropdown Widget */}
+      <div className="mb-6">
+        <Select>
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder="เลือกตัวเลือก" />
+          </SelectTrigger>
+          <SelectContent className="bg-background border shadow-lg z-50">
+            <SelectItem value="1">ตัวเลือก 1</SelectItem>
+            <SelectItem value="2">ตัวเลือก 2</SelectItem>
+            <SelectItem value="3">ตัวเลือก 3</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
-              {/* Division Filter */}
-              <div>
-                <label className="text-sm font-medium mb-2 block">เขต</label>
-                <Select value={selectedDivision} onValueChange={setSelectedDivision}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="เลือกเขต" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">ทั้งหมด</SelectItem>
-                    {uniqueDivisions.map(division => (
-                      <SelectItem key={division} value={division.toString()}>
-                        เขต {division}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+      <div className="grid grid-cols-1 gap-6 h-[calc(100vh-200px)]">
 
-              {/* Branch Search */}
-              <div>
-                <label className="text-sm font-medium mb-2 block">สาขา</label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                  <Input
-                    placeholder="ค้นหาสาขา..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-                <Select value={selectedBranch} onValueChange={setSelectedBranch}>
-                  <SelectTrigger className="mt-2">
-                    <SelectValue placeholder="เลือกสาขา" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">ทั้งหมด</SelectItem>
-                    {filteredBranches.map(branch => (
-                      <SelectItem key={branch.branch_name} value={branch.branch_name}>
-                        {branch.branch_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Comments Section - Right */}
-        <div className="lg:col-span-3">
+        {/* Comments Section */}
+        <div className="col-span-1">
           <Card className="h-full">
             <CardHeader>
               <CardTitle className="text-lg">รายการข้อคิดเห็น</CardTitle>
