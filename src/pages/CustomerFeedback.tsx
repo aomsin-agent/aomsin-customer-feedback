@@ -4,13 +4,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-export default function CustomerFeedback() {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
   return (
     <div className="w-full p-4 md:p-6 lg:pl-2 lg:pr-4 xl:pl-3 xl:pr-6">
       <div className="mb-4 md:mb-6">
@@ -35,13 +28,11 @@ export default function CustomerFeedback() {
               side="bottom"
               align="start"
               sideOffset={6}
-              avoidCollisions
-              collisionPadding={8}
               className="
                 invisible data-[state=open]:visible
                 opacity-0 data-[state=open]:opacity-100
                 scale-95 data-[state=open]:scale-100
-                transition-[opacity,transform] duration-150 origin-top-left will-change-transform
+                transition-[opacity,transform] duration-150 origin-top-left
                 bg-background border shadow-lg z-50
               "
             >

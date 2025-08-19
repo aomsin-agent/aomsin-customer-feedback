@@ -64,7 +64,9 @@ All colors MUST be HSL.
     --shadow-strong: 0 8px 30px -8px hsl(340 60% 55% / 0.25);
 
     /* Animations */
-    --transition-smooth: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    /* จำกัดเฉพาะ opacity/transform เพื่อเลี่ยงอนิเมตตำแหน่งของ popper wrapper */
+    --transition-smooth: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                         transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-spring: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
     --radius: 0.75rem;
@@ -134,76 +136,39 @@ All colors MUST be HSL.
   }
 
   /* Custom scrollbar */
-  ::-webkit-scrollbar {
-    width: 8px;
-  }
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: hsl(var(--muted)); }
+  ::-webkit-scrollbar-thumb { background: hsl(var(--accent)); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: hsl(var(--primary-light)); }
 
-  ::-webkit-scrollbar-track {
-    background: hsl(var(--muted));
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: hsl(var(--accent));
-    border-radius: 4px;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--primary-light));
-  }
-
-  /* Smooth transitions */
-  * {
+  /* Smooth transitions (จำกัดเฉพาะ element ที่มี interactivity) */
+  /* เดิม: * { transition: var(--transition-smooth); } ทำให้ popper wrapper “วิ่ง” */
+  button, a, [role="button"], input, select, textarea, [data-animate] {
     transition: var(--transition-smooth);
   }
 
   /* Custom gradient backgrounds */
-  .bg-gradient-header {
-    background: var(--gradient-header);
-  }
-
-  .bg-gradient-primary {
-    background: var(--gradient-primary);
-  }
-
-  .bg-gradient-subtle {
-    background: var(--gradient-subtle);
-  }
+  .bg-gradient-header { background: var(--gradient-header); }
+  .bg-gradient-primary { background: var(--gradient-primary); }
+  .bg-gradient-subtle { background: var(--gradient-subtle); }
 
   /* Custom shadows */
-  .shadow-soft {
-    box-shadow: var(--shadow-soft);
-  }
-
-  .shadow-medium {
-    box-shadow: var(--shadow-medium);
-  }
-
-  .shadow-strong {
-    box-shadow: var(--shadow-strong);
-  }
+  .shadow-soft { box-shadow: var(--shadow-soft); }
+  .shadow-medium { box-shadow: var(--shadow-medium); }
+  .shadow-strong { box-shadow: var(--shadow-strong); }
 
   /* Hide scrollbar utility */
-  .scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-  
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
 
   /* Radix Popper dropdown positioning fix */
+  /* ซ่อน wrapper จนกว่าจะ open เพื่อไม่ให้เห็นเฟรมแรกที่ (0,0) */
   [data-radix-popper-content-wrapper] { 
     visibility: hidden; 
+    /* สำคัญ: ตัด transition ทั้งหมดออกจาก wrapper เพื่อไม่ให้อะไร “วิ่ง” */
+    transition: none !important;
   }
-  
   [data-radix-popper-content-wrapper][data-state="open"] { 
     visibility: visible; 
-  }
-
-  /* กัน transition-all หลุดมาชน */
-  [data-radix-popper-content-wrapper],
-  [data-radix-popper-content-wrapper] * {
-    transition-property: opacity, transform !important;
   }
 }
