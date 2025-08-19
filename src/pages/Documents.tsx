@@ -142,7 +142,7 @@ export default function Documents() {
   }
 
   return (
-    <div className="w-full space-y-4 md:space-y-6 p-4 md:p-6 lg:pl-6 lg:pr-6 xl:pl-8 xl:pr-8">
+    <div className="w-full space-y-4 md:space-y-6 p-4 md:p-6 lg:px-4 xl:px-6">
       <div className="mb-4 md:mb-6">
         <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
           เอกสารอ้างอิง
