@@ -3,8 +3,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Search } from 'lucide-react';
 
 interface BranchData {
   region: number;
@@ -18,6 +16,10 @@ export default function CustomerFeedback() {
   const [selectedDivision, setSelectedDivision] = useState<string>('all');
   const [selectedBranch, setSelectedBranch] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
+
+  // กันเฟรมแรกเพี้ยนกรณี SSR/Hydration: เรนเดอร์ Select หลัง mount
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   useEffect(() => {
     fetchBranches();
@@ -43,7 +45,7 @@ export default function CustomerFeedback() {
       .filter(b => selectedRegion === 'all' || b.region.toString() === selectedRegion)
       .map(b => b.division)
   )).filter(Boolean);
-  
+
   const filteredBranches = branches.filter(b => {
     const regionMatch = selectedRegion === 'all' || b.region.toString() === selectedRegion;
     const divisionMatch = selectedDivision === 'all' || b.division.toString() === selectedDivision;
@@ -61,29 +63,39 @@ export default function CustomerFeedback() {
           รวบรวมและวิเคราะห์ความคิดเห็นและข้อเสนอแนะจากลูกค้า
         </p>
       </div>
-      
-      {/* Simple Dropdown Widget */}
+
+      {/* Simple Dropdown Widget (แก้อาการ dropdown เด้งจากมุมซ้ายบน) */}
       <div className="mb-6">
-        <Select>
-          <SelectTrigger className="w-48">
-            <SelectValue placeholder="เลือกตัวเลือก" />
-          </SelectTrigger>
+        {mounted && (
+          <Select>
+            <SelectTrigger className="w-48">
+              <SelectValue placeholder="เลือกตัวเลือก" />
+            </SelectTrigger>
+
             <SelectContent
               position="popper"
               side="bottom"
               align="start"
-              sideOffset={4}
-              className="bg-background border shadow-lg z-50"
+              sideOffset={6}
+              avoidCollisions
+              collisionPadding={8}
+              className="
+                invisible data-[state=open]:visible
+                opacity-0 data-[state=open]:opacity-100
+                scale-95 data-[state=open]:scale-100
+                transition-[opacity,transform] duration-150 origin-top-left will-change-transform
+                bg-background border shadow-lg z-50
+              "
             >
               <SelectItem value="1">ตัวเลือก 1</SelectItem>
               <SelectItem value="2">ตัวเลือก 2</SelectItem>
               <SelectItem value="3">ตัวเลือก 3</SelectItem>
             </SelectContent>
-        </Select>
+          </Select>
+        )}
       </div>
 
       <div className="grid grid-cols-1 gap-6 h-[calc(100vh-200px)]">
-
         {/* Comments Section */}
         <div className="col-span-1">
           <Card className="h-full">
