@@ -163,7 +163,7 @@ export default function CustomerFeedback() {
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Region Filter */}
-              <div>
+              <div className="relative">
                 <label className="text-sm font-medium mb-2 block">ภาค</label>
                 <Select value={selectedRegion} onValueChange={handleRegionChange} disabled={isLoading}>
                   <SelectTrigger>
@@ -181,7 +181,7 @@ export default function CustomerFeedback() {
               </div>
 
               {/* Division Filter */}
-              <div>
+              <div className="relative">
                 <label className="text-sm font-medium mb-2 block">เขต</label>
                 <Select value={selectedDivision} onValueChange={handleDivisionChange} disabled={isLoading}>
                   <SelectTrigger>
@@ -199,7 +199,7 @@ export default function CustomerFeedback() {
               </div>
 
               {/* Branch Search */}
-              <div>
+              <div className="relative">
                 <label className="text-sm font-medium mb-2 block">สาขา</label>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
