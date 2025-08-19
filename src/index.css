@@ -191,4 +191,19 @@ All colors MUST be HSL.
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  /* Radix Popper dropdown positioning fix */
+  [data-radix-popper-content-wrapper] { 
+    visibility: hidden; 
+  }
+  
+  [data-radix-popper-content-wrapper][data-state="open"] { 
+    visibility: visible; 
+  }
+
+  /* กัน transition-all หลุดมาชน */
+  [data-radix-popper-content-wrapper],
+  [data-radix-popper-content-wrapper] * {
+    transition-property: opacity, transform !important;
+  }
 }
