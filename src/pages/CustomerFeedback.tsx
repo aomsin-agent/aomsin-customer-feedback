@@ -52,7 +52,7 @@ export default function CustomerFeedback() {
   });
 
   return (
-    <div className="w-full p-4 md:p-6 lg:px-4 xl:px-6">
+    <div className="w-full p-4 md:p-6 lg:pl-2 lg:pr-4 xl:pl-3 xl:pr-6">
       <div className="mb-4 md:mb-6">
         <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
           ข้อคิดเห็นของลูกค้า
