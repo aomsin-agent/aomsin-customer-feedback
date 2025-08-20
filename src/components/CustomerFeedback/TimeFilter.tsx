@@ -1,0 +1,207 @@
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
+import { CalendarIcon } from 'lucide-react';
+import { format } from 'date-fns';
+import { th } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
+
+export type TimeFilterType = 'monthly' | 'lookback' | 'custom';
+
+export interface TimeFilterValue {
+  type: TimeFilterType;
+  monthYear?: string;
+  lookbackDays?: number;
+  startDate?: Date;
+  endDate?: Date;
+}
+
+interface TimeFilterProps {
+  value: TimeFilterValue;
+  onChange: (value: TimeFilterValue) => void;
+}
+
+export function TimeFilter({ value, onChange }: TimeFilterProps) {
+  const [tempStartDate, setTempStartDate] = useState<Date | undefined>(value.startDate);
+  const [tempEndDate, setTempEndDate] = useState<Date | undefined>(value.endDate);
+
+  const months = [
+    'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
+    'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'
+  ];
+
+  const currentYear = new Date().getFullYear();
+  const buddhist = currentYear + 543;
+
+  const generateMonthYearOptions = () => {
+    const options = [];
+    for (let year = buddhist; year >= buddhist - 5; year--) {
+      for (let month = 0; month < 12; month++) {
+        if (year === buddhist && month > new Date().getMonth()) continue;
+        options.push({
+          value: `${month + 1}-${year - 543}`,
+          label: `${months[month]} ${String(year).slice(-2)}`
+        });
+      }
+    }
+    return options;
+  };
+
+  const lookbackOptions = [
+    { value: 1, label: '1 วัน' },
+    { value: 7, label: '7 วัน' },
+    { value: 14, label: '14 วัน' },
+    { value: 30, label: '1 เดือน' },
+    { value: 90, label: '3 เดือน' },
+    { value: 180, label: '6 เดือน' },
+    { value: 365, label: '1 ปี' }
+  ];
+
+  const handleTypeChange = (type: TimeFilterType) => {
+    let newValue: TimeFilterValue = { type };
+    
+    if (type === 'monthly') {
+      const currentMonth = new Date().getMonth() + 1;
+      const currentYear = new Date().getFullYear();
+      newValue.monthYear = `${currentMonth}-${currentYear}`;
+    } else if (type === 'lookback') {
+      newValue.lookbackDays = 7;
+    } else if (type === 'custom') {
+      newValue.startDate = new Date();
+      newValue.endDate = new Date();
+    }
+    
+    onChange(newValue);
+  };
+
+  const handleMonthYearChange = (monthYear: string) => {
+    onChange({ ...value, monthYear });
+  };
+
+  const handleLookbackChange = (days: string) => {
+    onChange({ ...value, lookbackDays: parseInt(days) });
+  };
+
+  const handleDateRangeApply = () => {
+    if (tempStartDate && tempEndDate) {
+      onChange({
+        ...value,
+        startDate: tempStartDate,
+        endDate: tempEndDate
+      });
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base">ช่วงเวลา</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-3">
+          <Select value={value.type} onValueChange={handleTypeChange}>
+            <SelectTrigger>
+              <SelectValue placeholder="เลือกประเภทช่วงเวลา" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="monthly">ข้อมูลประจำเดือน</SelectItem>
+              <SelectItem value="lookback">ช่วงเวลาย้อนหลัง</SelectItem>
+              <SelectItem value="custom">กำหนดช่วงเวลาเอง</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {value.type === 'monthly' && (
+            <Select value={value.monthYear} onValueChange={handleMonthYearChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="เลือกเดือน-ปี" />
+              </SelectTrigger>
+              <SelectContent>
+                {generateMonthYearOptions().map(option => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+
+          {value.type === 'lookback' && (
+            <Select value={value.lookbackDays?.toString()} onValueChange={handleLookbackChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="เลือกช่วงเวลาย้อนหลัง" />
+              </SelectTrigger>
+              <SelectContent>
+                {lookbackOptions.map(option => (
+                  <SelectItem key={option.value} value={option.value.toString()}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+
+          {value.type === 'custom' && (
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-2">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "justify-start text-left font-normal",
+                        !tempStartDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {tempStartDate ? format(tempStartDate, "dd/MM/yyyy", { locale: th }) : "วันเริ่มต้น"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={tempStartDate}
+                      onSelect={setTempStartDate}
+                      initialFocus
+                      className="pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "justify-start text-left font-normal",
+                        !tempEndDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {tempEndDate ? format(tempEndDate, "dd/MM/yyyy", { locale: th }) : "วันสิ้นสุด"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={tempEndDate}
+                      onSelect={setTempEndDate}
+                      initialFocus
+                      className="pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              
+              <Button onClick={handleDateRangeApply} className="w-full" size="sm">
+                ใช้ช่วงเวลานี้
+              </Button>
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
