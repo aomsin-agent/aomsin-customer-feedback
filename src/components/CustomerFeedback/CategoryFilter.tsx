@@ -5,8 +5,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { ChevronDown } from 'lucide-react';
 
 interface CategoryData {
   no: number;
@@ -22,8 +22,9 @@ interface CategoryFilterProps {
 
 export function CategoryFilter({ selectedCategories, onCategoryChange }: CategoryFilterProps) {
   const [categories, setCategories] = useState<CategoryData[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [expandedMainTopics, setExpandedMainTopics] = useState<string[]>([]);
+  const [selectedMainCategories, setSelectedMainCategories] = useState<string[]>([]);
+  const [mainCategorySearch, setMainCategorySearch] = useState('');
+  const [subCategorySearch, setSubCategorySearch] = useState('');
 
   useEffect(() => {
     fetchCategories();
@@ -45,77 +46,133 @@ export function CategoryFilter({ selectedCategories, onCategoryChange }: Categor
     setCategories(data || []);
   };
 
-  const groupedCategories = categories.reduce((acc, category) => {
-    const mainTopic = category.main_topic;
-    if (!acc[mainTopic]) {
-      acc[mainTopic] = [];
-    }
-    acc[mainTopic].push(category);
-    return acc;
-  }, {} as Record<string, CategoryData[]>);
+  // Get unique main topics
+  const mainTopics = [...new Set(categories.map(c => c.main_topic))];
+  const filteredMainTopics = mainTopics.filter(topic =>
+    topic.toLowerCase().includes(mainCategorySearch.toLowerCase())
+  );
 
-  const filteredCategories = Object.keys(groupedCategories).reduce((acc, mainTopic) => {
-    const filteredSubTopics = groupedCategories[mainTopic].filter(category =>
-      category.main_topic.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      category.sub_topic.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (category.definition && category.definition.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
+  // Get sub topics based on selected main categories
+  const availableSubTopics = categories.filter(category => 
+    selectedMainCategories.length === 0 || selectedMainCategories.includes(category.main_topic)
+  );
+  
+  const filteredSubTopics = availableSubTopics.filter(category =>
+    category.sub_topic.toLowerCase().includes(subCategorySearch.toLowerCase())
+  );
 
-    if (filteredSubTopics.length > 0) {
-      acc[mainTopic] = filteredSubTopics;
-    }
-    return acc;
-  }, {} as Record<string, CategoryData[]>);
-
-  const handleSelectAll = () => {
-    const allSubTopics = categories.map(c => c.sub_topic);
-    onCategoryChange(allSubTopics);
+  const handleMainCategoryToggle = (mainTopic: string) => {
+    const newSelected = selectedMainCategories.includes(mainTopic)
+      ? selectedMainCategories.filter(cat => cat !== mainTopic)
+      : [...selectedMainCategories, mainTopic];
+    setSelectedMainCategories(newSelected);
   };
 
-  const handleClearAll = () => {
-    onCategoryChange([]);
+  const handleMainCategorySelectAll = () => {
+    setSelectedMainCategories(mainTopics);
   };
 
-  const handleSubTopicToggle = (subTopic: string) => {
+  const handleMainCategoryClearAll = () => {
+    setSelectedMainCategories([]);
+  };
+
+  const handleSubCategoryToggle = (subTopic: string) => {
     const newSelected = selectedCategories.includes(subTopic)
       ? selectedCategories.filter(cat => cat !== subTopic)
       : [...selectedCategories, subTopic];
     onCategoryChange(newSelected);
   };
 
-  const handleMainTopicToggle = (mainTopic: string) => {
-    const subTopicsInMain = groupedCategories[mainTopic]?.map(c => c.sub_topic) || [];
-    const allSelected = subTopicsInMain.every(sub => selectedCategories.includes(sub));
-    
-    if (allSelected) {
-      // Unselect all subtopics in this main topic
-      const newSelected = selectedCategories.filter(cat => !subTopicsInMain.includes(cat));
-      onCategoryChange(newSelected);
-    } else {
-      // Select all subtopics in this main topic
-      const newSelected = [...new Set([...selectedCategories, ...subTopicsInMain])];
-      onCategoryChange(newSelected);
-    }
+  const handleSubCategorySelectAll = () => {
+    const allAvailableSubTopics = availableSubTopics.map(c => c.sub_topic);
+    onCategoryChange([...new Set([...selectedCategories, ...allAvailableSubTopics])]);
   };
 
-  const toggleMainTopic = (mainTopic: string) => {
-    setExpandedMainTopics(prev =>
-      prev.includes(mainTopic)
-        ? prev.filter(topic => topic !== mainTopic)
-        : [...prev, mainTopic]
-    );
+  const handleSubCategoryClearAll = () => {
+    const subTopicsToKeep = selectedCategories.filter(subTopic => {
+      const category = categories.find(c => c.sub_topic === subTopic);
+      return category && !availableSubTopics.some(c => c.sub_topic === subTopic);
+    });
+    onCategoryChange(subTopicsToKeep);
   };
 
-  const isMainTopicSelected = (mainTopic: string) => {
-    const subTopicsInMain = groupedCategories[mainTopic]?.map(c => c.sub_topic) || [];
-    return subTopicsInMain.length > 0 && subTopicsInMain.every(sub => selectedCategories.includes(sub));
-  };
-
-  const isMainTopicPartiallySelected = (mainTopic: string) => {
-    const subTopicsInMain = groupedCategories[mainTopic]?.map(c => c.sub_topic) || [];
-    return subTopicsInMain.some(sub => selectedCategories.includes(sub)) && 
-           !subTopicsInMain.every(sub => selectedCategories.includes(sub));
-  };
+  const renderDropdown = (
+    title: string,
+    items: any[],
+    selectedItems: string[],
+    onToggle: (item: string) => void,
+    onSelectAll: () => void,
+    onClearAll: () => void,
+    searchValue: string,
+    onSearchChange: (value: string) => void,
+    searchPlaceholder: string,
+    getItemValue: (item: any) => string,
+    getItemLabel: (item: any) => string
+  ) => (
+    <div className="space-y-2">
+      <label className="text-sm font-medium">{title}</label>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            className="w-full justify-between text-left font-normal"
+          >
+            <span className="truncate">
+              {selectedItems.length === 0
+                ? `เลือก${title}`
+                : selectedItems.length === 1
+                ? getItemLabel(items.find(item => getItemValue(item) === selectedItems[0]) || selectedItems[0])
+                : `เลือกแล้ว ${selectedItems.length} รายการ`}
+            </span>
+            <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[300px] p-0 z-50 bg-popover border" align="start" sideOffset={4}>
+          <div className="p-3 border-b">
+            <Input
+              placeholder={searchPlaceholder}
+              value={searchValue}
+              onChange={(e) => onSearchChange(e.target.value)}
+              className="h-9"
+            />
+          </div>
+          <div className="p-2 border-b">
+            <div className="flex gap-2">
+              <Button variant="ghost" size="sm" onClick={onSelectAll} className="h-7 text-xs">
+                เลือกทั้งหมด
+              </Button>
+              <Button variant="ghost" size="sm" onClick={onClearAll} className="h-7 text-xs">
+                ล้างการเลือก
+              </Button>
+            </div>
+          </div>
+          <ScrollArea className="h-64">
+            <div className="p-2 space-y-2">
+              {items.map((item, index) => {
+                const itemValue = getItemValue(item);
+                const itemLabel = getItemLabel(item);
+                return (
+                  <div key={index} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`item-${index}`}
+                      checked={selectedItems.includes(itemValue)}
+                      onCheckedChange={() => onToggle(itemValue)}
+                    />
+                    <label
+                      htmlFor={`item-${index}`}
+                      className="text-sm cursor-pointer flex-1"
+                    >
+                      {itemLabel}
+                    </label>
+                  </div>
+                );
+              })}
+            </div>
+          </ScrollArea>
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
 
   return (
     <Card>
@@ -123,72 +180,38 @@ export function CategoryFilter({ selectedCategories, onCategoryChange }: Categor
         <CardTitle className="text-base">ความคิดเห็น</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-3">
-          <Input
-            placeholder="ค้นหาหมวดหมู่..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="h-9"
-          />
-          
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={handleSelectAll}>
-              เลือกทั้งหมด
-            </Button>
-            <Button variant="outline" size="sm" onClick={handleClearAll}>
-              ล้างการเลือก
-            </Button>
-          </div>
+        <div className="space-y-4">
+          {renderDropdown(
+            "หมวดหมู่",
+            filteredMainTopics,
+            selectedMainCategories,
+            handleMainCategoryToggle,
+            handleMainCategorySelectAll,
+            handleMainCategoryClearAll,
+            mainCategorySearch,
+            setMainCategorySearch,
+            "ค้นหาหมวดหมู่...",
+            (item) => item,
+            (item) => item
+          )}
+
+          {renderDropdown(
+            "หมวดย่อย",
+            filteredSubTopics,
+            selectedCategories,
+            handleSubCategoryToggle,
+            handleSubCategorySelectAll,
+            handleSubCategoryClearAll,
+            subCategorySearch,
+            setSubCategorySearch,
+            "ค้นหาหมวดย่อย...",
+            (item) => item.sub_topic,
+            (item) => item.sub_topic
+          )}
 
           <div className="text-sm text-muted-foreground">
-            เลือกแล้ว: {selectedCategories.length} หมวดหมู่
+            เลือกแล้ว: {selectedCategories.length} หมวดย่อย
           </div>
-
-          <ScrollArea className="h-64">
-            <div className="space-y-2">
-              {Object.keys(filteredCategories).map(mainTopic => (
-                <div key={mainTopic}>
-                  <Collapsible
-                    open={expandedMainTopics.includes(mainTopic)}
-                    onOpenChange={() => toggleMainTopic(mainTopic)}
-                  >
-                    <div className="flex items-center space-x-2 p-2 hover:bg-muted rounded">
-                      <Checkbox
-                        checked={isMainTopicSelected(mainTopic)}
-                        onCheckedChange={() => handleMainTopicToggle(mainTopic)}
-                      />
-                      <CollapsibleTrigger className="flex items-center gap-2 flex-1 text-left text-sm font-medium">
-                        {expandedMainTopics.includes(mainTopic) ? (
-                          <ChevronDown className="h-4 w-4" />
-                        ) : (
-                          <ChevronRight className="h-4 w-4" />
-                        )}
-                        {mainTopic}
-                      </CollapsibleTrigger>
-                    </div>
-                    <CollapsibleContent className="pl-8">
-                      {filteredCategories[mainTopic].map(category => (
-                        <div key={category.no} className="flex items-center space-x-2 p-1">
-                          <Checkbox
-                            id={`sub-${category.no}`}
-                            checked={selectedCategories.includes(category.sub_topic)}
-                            onCheckedChange={() => handleSubTopicToggle(category.sub_topic)}
-                          />
-                          <label
-                            htmlFor={`sub-${category.no}`}
-                            className="text-sm cursor-pointer flex-1"
-                            title={category.definition}
-                          >
-                            {category.sub_topic}
-                          </label>
-                        </div>
-                      ))}
-                    </CollapsibleContent>
-                  </Collapsible>
-                </div>
-              ))}
-            </div>
-          </ScrollArea>
         </div>
       </CardContent>
     </Card>
