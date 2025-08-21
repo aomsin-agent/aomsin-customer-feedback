@@ -206,7 +206,7 @@ export function CommentsList({
                 "text-sm px-3 py-1.5",
                 sentimentFilter === 'all' 
                   ? 'bg-black text-white hover:bg-black/90'
-                  : 'bg-gray-500 text-white hover:bg-gray-600'
+                  : 'bg-gray-300 text-gray-700 hover:bg-gray-400'
               )}
             >
               ทั้งหมด
@@ -219,7 +219,7 @@ export function CommentsList({
                 "text-sm px-3 py-1.5",
                 sentimentFilter === 'positive' 
                   ? 'bg-green-600 text-white hover:bg-green-700'
-                  : 'bg-gray-500 text-white hover:bg-gray-600'
+                  : 'bg-gray-300 text-gray-700 hover:bg-gray-400'
               )}
             >
               เชิงบวก
@@ -232,7 +232,7 @@ export function CommentsList({
                 "text-sm px-3 py-1.5",
                 sentimentFilter === 'negative' 
                   ? 'bg-red-600 text-white hover:bg-red-700'
-                  : 'bg-gray-500 text-white hover:bg-gray-600'
+                  : 'bg-gray-300 text-gray-700 hover:bg-gray-400'
               )}
             >
               เชิงลบ

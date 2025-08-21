@@ -105,36 +105,55 @@ export function AreaFilter({ selectedAreas, onAreaChange }: AreaFilterProps) {
       label: b.branch_name
     }));
 
-  // Handle cascading updates
+  // Handle cascading updates - auto-select child levels when parent is selected
   useEffect(() => {
-    // Update regions when divisions change
-    const validRegions = selectedRegions.filter(region =>
-      regionOptions.some(opt => opt.value === region)
-    );
-    if (validRegions.length !== selectedRegions.length) {
-      setSelectedRegions(validRegions);
+    if (selectedDivisions.length > 0 && selectedDivisions.length < divisionOptions.length) {
+      // Auto-select all regions under selected divisions
+      const autoSelectedRegions = Array.from(new Set(
+        branches
+          .filter(b => selectedDivisions.includes(b.division?.toString() || ''))
+          .map(b => b.region?.toString())
+          .filter(Boolean)
+      ));
+      setSelectedRegions(autoSelectedRegions);
+    } else if (selectedDivisions.length === 0) {
+      setSelectedRegions([]);
     }
-  }, [selectedDivisions, regionOptions]);
+  }, [selectedDivisions, branches]);
 
   useEffect(() => {
-    // Update zones when regions change
-    const validZones = selectedZones.filter(zone =>
-      zoneOptions.some(opt => opt.value === zone)
-    );
-    if (validZones.length !== selectedZones.length) {
-      setSelectedZones(validZones);
+    if (selectedRegions.length > 0 && selectedRegions.length < regionOptions.length) {
+      // Auto-select all zones under selected regions
+      const autoSelectedZones = Array.from(new Set(
+        branches
+          .filter(b => 
+            (selectedDivisions.length === 0 || selectedDivisions.includes(b.division?.toString() || '')) &&
+            selectedRegions.includes(b.region?.toString() || '')
+          )
+          .map(b => b.resdesc)
+          .filter(Boolean)
+      ));
+      setSelectedZones(autoSelectedZones);
+    } else if (selectedRegions.length === 0) {
+      setSelectedZones([]);
     }
-  }, [selectedRegions, zoneOptions]);
+  }, [selectedRegions, branches, selectedDivisions]);
 
   useEffect(() => {
-    // Update branches when zones change
-    const validBranches = selectedAreas.filter(branch =>
-      branchOptions.some(opt => opt.value === branch)
-    );
-    if (validBranches.length !== selectedAreas.length) {
-      onAreaChange(validBranches);
+    if (selectedZones.length > 0 && selectedZones.length < zoneOptions.length) {
+      // Auto-select all branches under selected zones
+      const autoSelectedBranches = branches
+        .filter(b => 
+          (selectedDivisions.length === 0 || selectedDivisions.includes(b.division?.toString() || '')) &&
+          (selectedRegions.length === 0 || selectedRegions.includes(b.region?.toString() || '')) &&
+          selectedZones.includes(b.resdesc || '')
+        )
+        .map(b => b.branch_name);
+      onAreaChange(autoSelectedBranches);
+    } else if (selectedZones.length === 0) {
+      onAreaChange([]);
     }
-  }, [selectedZones, branchOptions]);
+  }, [selectedZones, branches, selectedDivisions, selectedRegions, onAreaChange]);
 
   const handleClearAll = () => {
     setSelectedDivisions([]);
