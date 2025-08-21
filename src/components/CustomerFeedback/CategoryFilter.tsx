@@ -18,12 +18,23 @@ interface CategoryFilterProps {
 export function CategoryFilter({ selectedCategories, onCategoryChange }: CategoryFilterProps) {
   const [categories, setCategories] = useState<CategoryData[]>([]);
   const [selectedMainCategories, setSelectedMainCategories] = useState<string[]>([]);
-  const [mainCategorySearch, setMainCategorySearch] = useState('');
-  const [subCategorySearch, setSubCategorySearch] = useState('');
+  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
     fetchCategories();
   }, []);
+
+  // Initialize with all selections when data is loaded
+  useEffect(() => {
+    if (categories.length > 0 && !initialized) {
+      const allMainCategories = [...new Set(categories.map(c => c.main_topic))];
+      const allSubCategories = categories.map(c => c.sub_topic);
+      
+      setSelectedMainCategories(allMainCategories);
+      onCategoryChange(allSubCategories);
+      setInitialized(true);
+    }
+  }, [categories, initialized, onCategoryChange]);
 
   const fetchCategories = async () => {
     const { data, error } = await supabase
@@ -105,7 +116,10 @@ export function CategoryFilter({ selectedCategories, onCategoryChange }: Categor
           </div>
 
           <div className="text-sm text-muted-foreground">
-            เลือกแล้ว: {selectedMainCategoriesCount} หมวดหมู่, {selectedSubCategoriesCount} หมวดย่อย
+            {selectedMainCategoriesCount === mainCategoryOptions.length && selectedSubCategoriesCount === subCategoryOptions.length
+              ? "เลือกทั้งหมด"
+              : `เลือกแล้ว: ${selectedMainCategoriesCount} หมวดหมู่, ${selectedSubCategoriesCount} หมวดย่อย`
+            }
           </div>
         </div>
       </CardContent>

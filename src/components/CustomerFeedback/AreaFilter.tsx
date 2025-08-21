@@ -20,10 +20,27 @@ export function AreaFilter({ selectedAreas, onAreaChange }: AreaFilterProps) {
   const [selectedDivisions, setSelectedDivisions] = useState<string[]>([]);
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
   const [selectedZones, setSelectedZones] = useState<string[]>([]);
+  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
     fetchBranches();
   }, []);
+
+  // Initialize with all selections when data is loaded
+  useEffect(() => {
+    if (branches.length > 0 && !initialized) {
+      const allDivisions = Array.from(new Set(branches.map(b => b.division?.toString()).filter(Boolean)));
+      const allRegions = Array.from(new Set(branches.map(b => b.region?.toString()).filter(Boolean)));
+      const allZones = Array.from(new Set(branches.map(b => b.resdesc).filter(Boolean)));
+      const allBranches = branches.map(b => b.branch_name);
+      
+      setSelectedDivisions(allDivisions);
+      setSelectedRegions(allRegions);
+      setSelectedZones(allZones);
+      onAreaChange(allBranches);
+      setInitialized(true);
+    }
+  }, [branches, initialized, onAreaChange]);
 
   const fetchBranches = async () => {
     const { data, error } = await supabase
@@ -182,7 +199,11 @@ export function AreaFilter({ selectedAreas, onAreaChange }: AreaFilterProps) {
           </div>
           
           <div className="text-sm text-muted-foreground">
-            เลือกแล้ว: {selectedDivisionsCount} สายกิจ, {selectedRegionsCount} ภาค, {selectedZonesCount} เขต, {selectedBranchesCount} สาขา
+            {selectedDivisionsCount === divisionOptions.length && selectedRegionsCount === regionOptions.length && 
+             selectedZonesCount === zoneOptions.length && selectedBranchesCount === branchOptions.length
+              ? "เลือกทั้งหมด"
+              : `เลือกแล้ว: ${selectedDivisionsCount} สายกิจ, ${selectedRegionsCount} ภาค, ${selectedZonesCount} เขต, ${selectedBranchesCount} สาขา`
+            }
           </div>
         </div>
       </CardContent>

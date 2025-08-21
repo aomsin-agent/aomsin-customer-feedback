@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -195,18 +195,49 @@ export function CommentsList({
   return (
     <Card className="h-full">
       <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <CardTitle className="text-lg">ความคิดเห็นลูกค้า</CardTitle>
-          <Select value={sentimentFilter} onValueChange={onSentimentFilterChange}>
-            <SelectTrigger className="w-32">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">ทั้งหมด</SelectItem>
-              <SelectItem value="positive">เชิงบวก</SelectItem>
-              <SelectItem value="negative">เชิงลบ</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex gap-2">
+            <Button
+              variant={sentimentFilter === 'all' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => onSentimentFilterChange('all')}
+              className={cn(
+                "text-sm px-3 py-1.5",
+                sentimentFilter === 'all' 
+                  ? 'bg-black text-white hover:bg-black/90'
+                  : 'bg-gray-500 text-white hover:bg-gray-600'
+              )}
+            >
+              ทั้งหมด
+            </Button>
+            <Button
+              variant={sentimentFilter === 'positive' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => onSentimentFilterChange('positive')}
+              className={cn(
+                "text-sm px-3 py-1.5",
+                sentimentFilter === 'positive' 
+                  ? 'bg-green-600 text-white hover:bg-green-700'
+                  : 'bg-gray-500 text-white hover:bg-gray-600'
+              )}
+            >
+              เชิงบวก
+            </Button>
+            <Button
+              variant={sentimentFilter === 'negative' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => onSentimentFilterChange('negative')}
+              className={cn(
+                "text-sm px-3 py-1.5",
+                sentimentFilter === 'negative' 
+                  ? 'bg-red-600 text-white hover:bg-red-700'
+                  : 'bg-gray-500 text-white hover:bg-gray-600'
+              )}
+            >
+              เชิงลบ
+            </Button>
+          </div>
         </div>
         <div className="text-sm text-muted-foreground">
           พบความคิดเห็น {totalCount.toLocaleString()} รายการ
