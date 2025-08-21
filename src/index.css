@@ -142,7 +142,7 @@ All colors MUST be HSL.
   ::-webkit-scrollbar-thumb:hover { background: hsl(var(--primary-light)); }
 
   /* Smooth transitions (จำกัดเฉพาะ element ที่มี interactivity) */
-  /* เดิม: * { transition: var(--transition-smooth); } ทำให้ popper wrapper “วิ่ง” */
+  /* เดิม: * { transition: var(--transition-smooth); } ทำให้ popper wrapper "วิ่ง" */
   button, a, [role="button"], input, select, textarea, [data-animate] {
     transition: var(--transition-smooth);
   }
@@ -161,14 +161,8 @@ All colors MUST be HSL.
   .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
   .scrollbar-hide::-webkit-scrollbar { display: none; }
 
-  /* Radix Popper dropdown positioning fix */
-  /* ซ่อน wrapper จนกว่าจะ open เพื่อไม่ให้เห็นเฟรมแรกที่ (0,0) */
-  [data-radix-popper-content-wrapper] { 
-    visibility: hidden; 
-    /* สำคัญ: ตัด transition ทั้งหมดออกจาก wrapper เพื่อไม่ให้อะไร “วิ่ง” */
-    transition: none !important;
-  }
-  [data-radix-popper-content-wrapper][data-state="open"] { 
-    visibility: visible; 
+  /* Ensure proper z-index for dropdowns */
+  [data-radix-popper-content-wrapper] {
+    z-index: 50;
   }
 }
