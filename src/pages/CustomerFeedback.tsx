@@ -43,10 +43,10 @@ export default function CustomerFeedback() {
         </div>
       </div>
 
-      {/* Two-column layout: Filters on left, Comments on right */}
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 h-[calc(100vh-200px)]">
-        {/* Left side: Filters - becomes top section on mobile */}
-        <div className="xl:col-span-4 space-y-4 xl:h-full overflow-y-auto">
+      {/* Responsive layout: Filters on top for mobile, left side for desktop */}
+      <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 h-[calc(100vh-200px)]">
+        {/* Filters section - top on mobile, left on desktop */}
+        <div className="lg:col-span-4 space-y-4 lg:h-full overflow-y-auto">
           <AreaFilter
             selectedAreas={selectedAreas}
             onAreaChange={setSelectedAreas}
@@ -63,8 +63,8 @@ export default function CustomerFeedback() {
           />
         </div>
 
-        {/* Right side: Comments List - becomes bottom section on mobile */}
-        <div className="xl:col-span-8">
+        {/* Comments section - bottom on mobile, right on desktop */}
+        <div className="lg:col-span-8 flex-1">
           <CommentsList
             selectedAreas={selectedAreas}
             selectedCategories={selectedCategories}
