@@ -1,12 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Button } from '@/components/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { ChevronDown, Check } from 'lucide-react';
+import { MultiSelectDropdown, type DropdownOption } from '@/components/ui/multi-select-dropdown';
 
 interface BranchData {
   region: string | number;
@@ -18,107 +13,6 @@ interface BranchData {
 interface AreaFilterProps {
   selectedAreas: string[];
   onAreaChange: (areas: string[]) => void;
-}
-
-interface DropdownOption {
-  value: string;
-  label: string;
-}
-
-function MultiSelectDropdown({ 
-  options, 
-  selectedValues, 
-  onValueChange, 
-  placeholder, 
-  searchPlaceholder 
-}: {
-  options: DropdownOption[];
-  selectedValues: string[];
-  onValueChange: (values: string[]) => void;
-  placeholder: string;
-  searchPlaceholder: string;
-}) {
-  const [open, setOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-
-  const filteredOptions = options.filter(option =>
-    option.label.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const handleSelectAll = () => {
-    const allValues = filteredOptions.map(option => option.value);
-    onValueChange(allValues);
-  };
-
-  const handleToggleOption = (value: string) => {
-    const newSelected = selectedValues.includes(value)
-      ? selectedValues.filter(v => v !== value)
-      : [...selectedValues, value];
-    onValueChange(newSelected);
-  };
-
-  const selectedCount = selectedValues.length;
-  const displayText = selectedCount === 0 
-    ? placeholder 
-    : selectedCount === options.length 
-      ? "เลือกทั้งหมด" 
-      : `เลือกแล้ว ${selectedCount} รายการ`;
-
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="w-full justify-between h-10"
-        >
-          <span className="truncate">{displayText}</span>
-          <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-[300px] p-0 z-50 bg-popover border" align="start" sideOffset={4}>
-        <div className="p-3 border-b">
-          <Input
-            placeholder={searchPlaceholder}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="h-8"
-          />
-        </div>
-        <div className="p-2 border-b">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleSelectAll}
-            className="w-full justify-start h-8"
-          >
-            <Check className="mr-2 h-4 w-4" />
-            เลือกทั้งหมด
-          </Button>
-        </div>
-        <ScrollArea className="h-48">
-          <div className="p-2">
-            {filteredOptions.map((option) => (
-              <div
-                key={option.value}
-                className="flex items-center space-x-2 py-1.5 px-2 hover:bg-muted rounded cursor-pointer"
-                onClick={() => handleToggleOption(option.value)}
-              >
-                <Checkbox
-                  checked={selectedValues.includes(option.value)}
-                  onChange={() => {}}
-                />
-                <label className="text-sm cursor-pointer flex-1">
-                  {option.label}
-                </label>
-              </div>
-            ))}
-          </div>
-        </ScrollArea>
-      </PopoverContent>
-    </Popover>
-  );
 }
 
 export function AreaFilter({ selectedAreas, onAreaChange }: AreaFilterProps) {
@@ -232,6 +126,12 @@ export function AreaFilter({ selectedAreas, onAreaChange }: AreaFilterProps) {
     onAreaChange([]);
   };
 
+  // Calculate summary counts
+  const selectedDivisionsCount = selectedDivisions.length;
+  const selectedRegionsCount = selectedRegions.length;
+  const selectedZonesCount = selectedZones.length;
+  const selectedBranchesCount = selectedAreas.length;
+
   return (
     <Card>
       <CardHeader className="pb-3">
@@ -246,6 +146,8 @@ export function AreaFilter({ selectedAreas, onAreaChange }: AreaFilterProps) {
               onValueChange={setSelectedDivisions}
               placeholder="เลือกสายกิจ"
               searchPlaceholder="ค้นหาสายกิจ..."
+              title="สายกิจ"
+              onClear={() => setSelectedDivisions([])}
             />
             
             <MultiSelectDropdown
@@ -254,6 +156,8 @@ export function AreaFilter({ selectedAreas, onAreaChange }: AreaFilterProps) {
               onValueChange={setSelectedRegions}
               placeholder="เลือกภาค"
               searchPlaceholder="ค้นหาภาค..."
+              title="ภาค"
+              onClear={() => setSelectedRegions([])}
             />
             
             <MultiSelectDropdown
@@ -262,6 +166,8 @@ export function AreaFilter({ selectedAreas, onAreaChange }: AreaFilterProps) {
               onValueChange={setSelectedZones}
               placeholder="เลือกเขต"
               searchPlaceholder="ค้นหาเขต..."
+              title="เขต"
+              onClear={() => setSelectedZones([])}
             />
             
             <MultiSelectDropdown
@@ -270,13 +176,13 @@ export function AreaFilter({ selectedAreas, onAreaChange }: AreaFilterProps) {
               onValueChange={onAreaChange}
               placeholder="เลือกสาขา"
               searchPlaceholder="ค้นหาสาขา..."
+              title="สาขา"
+              onClear={() => onAreaChange([])}
             />
           </div>
           
-          <div className="flex justify-end">
-            <Button variant="outline" size="sm" onClick={handleClearAll}>
-              ล้างการเลือก
-            </Button>
+          <div className="text-sm text-muted-foreground">
+            เลือกแล้ว: {selectedDivisionsCount} สายกิจ, {selectedRegionsCount} ภาค, {selectedZonesCount} เขต, {selectedBranchesCount} สาขา
           </div>
         </div>
       </CardContent>
