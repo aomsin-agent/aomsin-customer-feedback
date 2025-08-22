@@ -50,7 +50,7 @@ export function CommentsList({
     setLoading(true);
     
     try {
-      // Build base query for raw_comment
+      // Single query with nested categories to avoid very long URL from `.in` filter
       let query = supabase
         .from('raw_comment')
         .select(`
@@ -59,15 +59,16 @@ export function CommentsList({
           comment_date,
           region,
           district,
-          branch_name
+          branch_name,
+          sentence_category ( sub_category, sentiment )
         `);
 
-      // Apply area filter (ต้องอยู่ใน scope ที่เลือก)
+      // Apply area filter (AND scope)
       if (selectedAreas.length > 0) {
         query = query.in('branch_name', selectedAreas);
       }
 
-      // Apply time filter (ต้องอยู่ใน scope ที่เลือก)
+      // Apply time filter (AND scope)
       if (timeFilter.type === 'monthly' && timeFilter.monthYear) {
         const [month, year] = timeFilter.monthYear.split('-');
         const startDate = new Date(parseInt(year), parseInt(month) - 1, 1);
@@ -85,79 +86,52 @@ export function CommentsList({
                     .lte('comment_date', timeFilter.endDate.toISOString());
       }
 
-      const { data: rawComments, error: commentsError } = await query
+      const { data: rows, error } = await query
         .order('comment_date', { ascending: false })
         .limit(500);
 
-      if (commentsError) {
-        console.error('Error fetching comments:', commentsError);
-        return;
-      }
-
-      if (!rawComments?.length) {
+      if (error) {
+        console.error('Error fetching comments:', error);
         setComments([]);
         setTotalCount(0);
         return;
       }
 
-      // Get comment IDs
-      const commentIds = rawComments.map(c => c.comment_id);
-
-      // Fetch ALL sentence categories for these comments (ไม่กรองตามหมวดหมู่ตรงนี้)
-      const { data: allSentenceCategories, error: categoriesError } = await supabase
-        .from('sentence_category')
-        .select('comment_id, sub_category, sentiment')
-        .in('comment_id', commentIds);
-
-      if (categoriesError) {
-        console.error('Error fetching sentence categories:', categoriesError);
-        return;
-      }
-
-      // Group ALL categories by comment_id
-      const allCategoriesByComment = allSentenceCategories?.reduce((acc, category) => {
-        if (!acc[category.comment_id]) {
-          acc[category.comment_id] = [];
-        }
-        acc[category.comment_id].push({
-          sub_category: category.sub_category,
-          sentiment: category.sentiment
-        });
-        return acc;
-      }, {} as Record<string, { sub_category: string; sentiment: string }[]>) || {};
-
-      // หากมีการเลือกหมวดหมู่ ให้หา comment ที่มีอย่างน้อย 1 หมวดหมู่ที่ตรงกับการเลือก
-      let commentsToShow = rawComments;
-      if (selectedCategories.length > 0) {
-        commentsToShow = rawComments.filter(comment => {
-          const commentCategories = allCategoriesByComment[comment.comment_id] || [];
-          return commentCategories.some(cat => selectedCategories.includes(cat.sub_category));
-        });
-      }
-
-      // Combine comments with ALL categories and apply sentiment filter
-      const combinedComments = commentsToShow
-        .map(comment => ({
-          ...comment,
-          categories: allCategoriesByComment[comment.comment_id] || []
+      const mapped = (rows || []).map((r: any) => ({
+        comment_id: r.comment_id,
+        comment: r.comment,
+        comment_date: r.comment_date,
+        region: r.region,
+        district: r.district,
+        branch_name: r.branch_name,
+        categories: (r.sentence_category || []).map((c: any) => ({
+          sub_category: c.sub_category,
+          sentiment: c.sentiment,
         }))
-        .filter(comment => {
-          // Apply sentiment filter
-          if (sentimentFilter === 'all') return true;
-          
-          const hasPositive = comment.categories.some(cat => cat.sentiment === 'เชิงบวก');
-          const hasNegative = comment.categories.some(cat => cat.sentiment === 'เชิงลบ');
-          
-          if (sentimentFilter === 'positive') return hasPositive;
-          if (sentimentFilter === 'negative') return hasNegative;
-          
-          return true;
-        });
+      })) as CommentData[];
 
-      setComments(combinedComments);
-      setTotalCount(combinedComments.length);
-    } catch (error) {
-      console.error('Error in fetchComments:', error);
+      // If category filter is applied: include comments having at least ONE selected category,
+      // but keep ALL categories displayed for that comment
+      const byCategory = selectedCategories.length > 0
+        ? mapped.filter(cm => cm.categories.some(cat => selectedCategories.includes(cat.sub_category)))
+        : mapped;
+
+      // Apply sentiment filter
+      const filtered = byCategory.filter(comment => {
+        if (sentimentFilter === 'all') return true;
+        const hasPositive = comment.categories.some(cat => cat.sentiment === 'เชิงบวก');
+        const hasNegative = comment.categories.some(cat => cat.sentiment === 'เชิงลบ');
+        if (sentimentFilter === 'positive') return hasPositive;
+        if (sentimentFilter === 'negative') return hasNegative;
+        return true;
+      });
+
+      setComments(filtered);
+      setTotalCount(filtered.length);
+    } catch (err) {
+      console.error('Error in fetchComments:', err);
+      setComments([]);
+      setTotalCount(0);
     } finally {
       setLoading(false);
     }
