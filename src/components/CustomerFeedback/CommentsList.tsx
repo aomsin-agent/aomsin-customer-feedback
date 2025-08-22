@@ -50,6 +50,14 @@ export function CommentsList({
     setLoading(true);
     
     try {
+      // หากไม่มีการเลือกพื้นที่เลย ให้แสดงผลว่าง (scope ว่าง)
+      if (selectedAreas.length === 0) {
+        setComments([]);
+        setTotalCount(0);
+        setLoading(false);
+        return;
+      }
+
       // Single query with nested categories to avoid very long URL from `.in` filter
       let query = supabase
         .from('raw_comment')
@@ -119,8 +127,8 @@ export function CommentsList({
       // Apply sentiment filter
       const filtered = byCategory.filter(comment => {
         if (sentimentFilter === 'all') return true;
-        const hasPositive = comment.categories.some(cat => cat.sentiment === 'เชิงบวก');
-        const hasNegative = comment.categories.some(cat => cat.sentiment === 'เชิงลบ');
+        const hasPositive = comment.categories.some(cat => normalizeSentiment(cat.sentiment) === 'positive');
+        const hasNegative = comment.categories.some(cat => normalizeSentiment(cat.sentiment) === 'negative');
         if (sentimentFilter === 'positive') return hasPositive;
         if (sentimentFilter === 'negative') return hasNegative;
         return true;
@@ -137,11 +145,23 @@ export function CommentsList({
     }
   };
 
+  // Normalize sentiment to handle Thai/English variations
+  const normalizeSentiment = (s?: string) => {
+    const t = (s || '').toString().trim().toLowerCase();
+    if ([
+      'positive', 'pos', 'เชิงบวก', 'บวก'
+    ].includes(t)) return 'positive';
+    if ([
+      'negative', 'neg', 'เชิงลบ', 'ลบ'
+    ].includes(t)) return 'negative';
+    return 'neutral';
+  };
+
   const getCommentBackgroundClass = (categories: { sentiment: string }[]) => {
     if (categories.length === 0) return 'bg-background';
     
-    const hasPositive = categories.some(cat => cat.sentiment === 'เชิงบวก');
-    const hasNegative = categories.some(cat => cat.sentiment === 'เชิงลบ');
+    const hasPositive = categories.some(cat => normalizeSentiment(cat.sentiment) === 'positive');
+    const hasNegative = categories.some(cat => normalizeSentiment(cat.sentiment) === 'negative');
     
     if (hasPositive && hasNegative) return 'bg-yellow-50 dark:bg-yellow-950/20';
     if (hasPositive) return 'bg-green-50 dark:bg-green-950/20';
@@ -151,16 +171,15 @@ export function CommentsList({
   };
 
   const getSentimentBadgeClass = (sentiment: string) => {
-    switch (sentiment) {
-      case 'เชิงบวก':
+    switch (normalizeSentiment(sentiment)) {
+      case 'positive':
         return 'bg-green-600 text-white hover:bg-green-700';
-      case 'เชิงลบ':
+      case 'negative':
         return 'bg-red-600 text-white hover:bg-red-700';
       default:
         return 'bg-gray-600 text-white hover:bg-gray-700';
     }
   };
-
   return (
     <Card className="h-full">
       <CardHeader className="pb-3">
