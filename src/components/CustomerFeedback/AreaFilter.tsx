@@ -61,16 +61,14 @@ export function AreaFilter({ selectedAreas, onAreaChange }: AreaFilterProps) {
     const { data, error } = await supabase
       .from('branch_ref')
       .select('region, division, branch_name, resdesc')
-      .order('division')
-      .order('region')
-      .order('resdesc')
-      .order('branch_name');
+      .order('division, region, resdesc, branch_name');
 
     if (error) {
       console.error('Error fetching branches:', error);
       return;
     }
 
+    console.log('Total branches fetched:', data?.length);
     setBranches(data || []);
   };
 
