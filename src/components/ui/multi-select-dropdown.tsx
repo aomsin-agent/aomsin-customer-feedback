@@ -47,7 +47,16 @@ export function MultiSelectDropdown({
   return <div className="space-y-2">
       <div className="flex items-center justify-between">
         <label className="text-sm font-medium">{title}</label>
-        {selectedCount > 0 && onClear}
+        {selectedCount > 0 && onClear && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onClear}
+            className="h-6 px-2 text-xs"
+          >
+            <X className="h-3 w-3" />
+          </Button>
+        )}
       </div>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
