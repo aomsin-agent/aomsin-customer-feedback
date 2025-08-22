@@ -435,11 +435,7 @@ export function AreaFilter({ selectedAreas, onAreaChange }: AreaFilterProps) {
           </div>
           
           <div className="text-sm text-muted-foreground">
-            {selectedDivisionsCount === divisionOptions.length && selectedRegionsCount === regionOptions.length && 
-             selectedZonesCount === zoneOptions.length && selectedBranchesCount === branchOptions.length
-              ? "เลือกทั้งหมด"
-              : `เลือกแล้ว: ${selectedDivisionsCount} สายกิจ, ${selectedRegionsCount} ภาค, ${selectedZonesCount} เขต, ${selectedBranchesCount} สาขา`
-            }
+            เลือกแล้ว: {selectedDivisionsCount} สายกิจ, {selectedRegionsCount} ภาค, {selectedZonesCount} เขต, {selectedBranchesCount} สาขา
           </div>
         </div>
       </CardContent>

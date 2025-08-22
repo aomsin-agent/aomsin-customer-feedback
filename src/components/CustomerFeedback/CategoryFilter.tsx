@@ -178,10 +178,7 @@ export function CategoryFilter({ selectedCategories, onCategoryChange }: Categor
           </div>
 
           <div className="text-sm text-muted-foreground">
-            {selectedMainCategoriesCount === mainCategoryOptions.length && selectedSubCategoriesCount === subCategoryOptions.length
-              ? "เลือกทั้งหมด"
-              : `เลือกแล้ว: ${selectedMainCategoriesCount} หมวดหมู่, ${selectedSubCategoriesCount} หมวดย่อย`
-            }
+            เลือกแล้ว: {selectedMainCategoriesCount} หมวดหมู่, {selectedSubCategoriesCount} หมวดย่อย
           </div>
         </div>
       </CardContent>
