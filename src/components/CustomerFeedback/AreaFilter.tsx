@@ -58,21 +58,47 @@ export function AreaFilter({ selectedAreas, onAreaChange }: AreaFilterProps) {
   }, [branches, initialized, onAreaChange]);
 
   const fetchBranches = async () => {
-    const { data, error } = await supabase
-      .from('branch_ref')
-      .select('region, division, branch_name, resdesc')
-      .order('division, region, resdesc, branch_name')
-      .limit(2000); // เพิ่ม limit เพื่อดึงข้อมูลครบทั้งหมด
+    const pageSize = 1000;
+    let from = 0;
+    let to = pageSize - 1;
+    let all: BranchData[] = [];
+    let total = 0;
 
-    if (error) {
-      console.error('Error fetching branches:', error);
-      return;
+    try {
+      while (true) {
+        const { data, error, count } = await supabase
+          .from('branch_ref')
+          .select('region, division, branch_name, resdesc', { count: 'exact' })
+          .order('division', { ascending: true })
+          .order('region', { ascending: true })
+          .order('resdesc', { ascending: true })
+          .order('branch_name', { ascending: true })
+          .range(from, to);
+
+        if (error) {
+          console.error('Error fetching branches:', error);
+          break;
+        }
+
+        total = count ?? total;
+        if (data && data.length > 0) {
+          all = all.concat(data as BranchData[]);
+        }
+
+        if (!data || data.length < pageSize) {
+          break;
+        }
+
+        from += pageSize;
+        to += pageSize;
+      }
+
+      console.log('Total branches expected:', total, 'fetched:', all.length);
+      setBranches(all);
+    } catch (e) {
+      console.error('Unexpected error fetching branches:', e);
     }
-
-    console.log('Total branches fetched:', data?.length);
-    setBranches(data || []);
   };
-
   // Helper functions for hierarchical relationships
   const getChildrenOfParent = useCallback((parentType: string, parentValue: string) => {
     switch (parentType) {
