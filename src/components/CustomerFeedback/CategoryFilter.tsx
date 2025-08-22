@@ -54,35 +54,70 @@ export function CategoryFilter({ selectedCategories, onCategoryChange }: Categor
     setCategories(data || []);
   };
 
-  // Get unique main topics and convert to dropdown options
-  const mainTopics = [...new Set(categories.map(c => c.main_topic))];
-  const mainCategoryOptions: DropdownOption[] = mainTopics.map(topic => ({
-    value: topic,
-    label: topic
-  }));
+  // Helper functions for hierarchical relationships
+  const getSubCategoriesOfMain = (mainTopic: string) => {
+    return categories.filter(c => c.main_topic === mainTopic).map(c => c.sub_topic);
+  };
 
-  // Get sub topics based on selected main categories
-  const availableSubTopics = categories.filter(category => 
-    selectedMainCategories.length === 0 || selectedMainCategories.includes(category.main_topic)
-  );
-  
-  const subCategoryOptions: DropdownOption[] = availableSubTopics.map(category => ({
+  const getMainTopicOfSub = (subTopic: string) => {
+    const category = categories.find(c => c.sub_topic === subTopic);
+    return category?.main_topic;
+  };
+
+  // Handle main category selection with cascading
+  const handleMainCategoryChange = (values: string[]) => {
+    setSelectedMainCategories(values);
+    
+    // When selecting main categories, auto-select ALL their sub-categories
+    const allSubCategories = new Set<string>();
+    values.forEach(mainTopic => {
+      const subs = getSubCategoriesOfMain(mainTopic);
+      subs.forEach(sub => allSubCategories.add(sub));
+    });
+
+    // Keep existing sub-categories that belong to still-selected main categories
+    const keepSubCategories = selectedCategories.filter(subTopic => {
+      const mainTopic = getMainTopicOfSub(subTopic);
+      return mainTopic && values.includes(mainTopic);
+    });
+
+    const newSubCategories = [...new Set([...Array.from(allSubCategories), ...keepSubCategories])];
+    onCategoryChange(newSubCategories);
+  };
+
+  // Handle sub-category selection with parent updating
+  const handleSubCategoryChange = (values: string[]) => {
+    onCategoryChange(values);
+    
+    // Update parent main categories - only select those that have ALL their sub-categories selected
+    const allMainTopics = [...new Set(categories.map(c => c.main_topic))];
+    const newMainCategories = allMainTopics.filter(mainTopic => {
+      const mainSubCategories = getSubCategoriesOfMain(mainTopic);
+      return mainSubCategories.length > 0 && mainSubCategories.every(sub => values.includes(sub));
+    });
+
+    setSelectedMainCategories(newMainCategories);
+  };
+
+  // Get unique main topics and convert to dropdown options with indeterminate states
+  const mainTopics = [...new Set(categories.map(c => c.main_topic))];
+  const mainCategoryOptions: DropdownOption[] = mainTopics.map(topic => {
+    const topicSubCategories = getSubCategoriesOfMain(topic);
+    const selectedSubsForTopic = topicSubCategories.filter(sub => selectedCategories.includes(sub));
+    const isIndeterminate = selectedSubsForTopic.length > 0 && selectedSubsForTopic.length < topicSubCategories.length;
+    
+    return {
+      value: topic,
+      label: topic,
+      indeterminate: isIndeterminate
+    };
+  });
+
+  // Get all sub topics (not filtered by main category selection for proper hierarchy)
+  const subCategoryOptions: DropdownOption[] = categories.map(category => ({
     value: category.sub_topic,
     label: category.sub_topic
   }));
-
-  // Update selected sub-categories when main categories change
-  useEffect(() => {
-    if (selectedMainCategories.length > 0) {
-      const validSubCategories = selectedCategories.filter(subTopic => {
-        const category = categories.find(c => c.sub_topic === subTopic);
-        return category && selectedMainCategories.includes(category.main_topic);
-      });
-      if (validSubCategories.length !== selectedCategories.length) {
-        onCategoryChange(validSubCategories);
-      }
-    }
-  }, [selectedMainCategories, categories]);
 
   const handleClearAll = () => {
     setSelectedMainCategories([]);
@@ -116,21 +151,21 @@ export function CategoryFilter({ selectedCategories, onCategoryChange }: Categor
             <MultiSelectDropdown
               options={mainCategoryOptions}
               selectedValues={selectedMainCategories}
-              onValueChange={setSelectedMainCategories}
+              onValueChange={handleMainCategoryChange}
               placeholder="เลือกหมวดหมู่"
               searchPlaceholder="ค้นหาหมวดหมู่..."
               title="หมวดหมู่"
-              onClear={() => setSelectedMainCategories([])}
+              onClear={() => handleMainCategoryChange([])}
             />
 
             <MultiSelectDropdown
               options={subCategoryOptions}
               selectedValues={selectedCategories}
-              onValueChange={onCategoryChange}
+              onValueChange={handleSubCategoryChange}
               placeholder="เลือกหมวดย่อย"
               searchPlaceholder="ค้นหาหมวดย่อย..."
               title="หมวดย่อย"
-              onClear={() => onCategoryChange([])}
+              onClear={() => handleSubCategoryChange([])}
             />
           </div>
 
