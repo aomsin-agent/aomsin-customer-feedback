@@ -40,7 +40,7 @@ export function MultiSelectDropdown({
     onValueChange(newSelected);
   };
   const selectedCount = selectedValues.length;
-  const displayText = selectedCount === 0 ? placeholder : selectedCount === options.length ? "เลือกทั้งหมด" : selectedCount <= 3 ? selectedValues.slice(0, 3).map(value => {
+  const displayText = selectedCount === 0 ? placeholder : selectedCount === options.length ? "ทั้งหมด" : selectedCount <= 3 ? selectedValues.slice(0, 3).map(value => {
     const option = options.find(opt => opt.value === value);
     return option ? option.label : value;
   }).join(', ') : `เลือก ${selectedCount} รายการ`;
