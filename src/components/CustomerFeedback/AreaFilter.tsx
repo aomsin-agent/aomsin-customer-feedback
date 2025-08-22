@@ -134,20 +134,20 @@ export function AreaFilter({ selectedAreas, onAreaChange }: AreaFilterProps) {
         children.branches?.forEach(b => allBranches.add(b));
       });
 
-      // Keep existing selections that are not affected by this division change
+      // Keep existing selections that belong to divisions that are STILL selected
       const keepRegions = hierarchyState.selectedRegions.filter(region => {
         const parent = getParentsOfChild('region', region);
-        return parent.division && !values.includes(parent.division) && hierarchyState.selectedRegions.includes(region);
+        return parent.division && values.includes(parent.division);
       });
 
       const keepZones = hierarchyState.selectedZones.filter(zone => {
         const parent = getParentsOfChild('zone', zone);
-        return parent.division && !values.includes(parent.division) && hierarchyState.selectedZones.includes(zone);
+        return parent.division && values.includes(parent.division);
       });
 
       const keepBranches = hierarchyState.selectedBranches.filter(branch => {
         const parent = getParentsOfChild('branch', branch);
-        return parent.division && !values.includes(parent.division) && hierarchyState.selectedBranches.includes(branch);
+        return parent.division && values.includes(parent.division);
       });
 
       newState.selectedRegions = [...new Set([...Array.from(allRegions), ...keepRegions])];
@@ -168,15 +168,15 @@ export function AreaFilter({ selectedAreas, onAreaChange }: AreaFilterProps) {
         children.branches?.forEach(b => allBranches.add(b));
       });
 
-      // Keep existing selections not affected by this region change
+      // Keep existing selections that belong to regions that are STILL selected
       const keepZones = hierarchyState.selectedZones.filter(zone => {
         const parent = getParentsOfChild('zone', zone);
-        return parent.region && !values.includes(parent.region) && hierarchyState.selectedZones.includes(zone);
+        return parent.region && values.includes(parent.region);
       });
 
       const keepBranches = hierarchyState.selectedBranches.filter(branch => {
         const parent = getParentsOfChild('branch', branch);
-        return parent.region && !values.includes(parent.region) && hierarchyState.selectedBranches.includes(branch);
+        return parent.region && values.includes(parent.region);
       });
 
       newState.selectedZones = [...new Set([...Array.from(allZones), ...keepZones])];
@@ -210,10 +210,10 @@ export function AreaFilter({ selectedAreas, onAreaChange }: AreaFilterProps) {
         children.branches?.forEach(b => allBranches.add(b));
       });
 
-      // Keep existing selections not affected by this zone change
+      // Keep existing selections that belong to zones that are STILL selected
       const keepBranches = hierarchyState.selectedBranches.filter(branch => {
         const parent = getParentsOfChild('branch', branch);
-        return parent.zone && !values.includes(parent.zone) && hierarchyState.selectedBranches.includes(branch);
+        return parent.zone && values.includes(parent.zone);
       });
 
       newState.selectedBranches = [...new Set([...Array.from(allBranches), ...keepBranches])];

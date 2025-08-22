@@ -75,7 +75,7 @@ export function CategoryFilter({ selectedCategories, onCategoryChange }: Categor
       subs.forEach(sub => allSubCategories.add(sub));
     });
 
-    // Keep existing sub-categories that belong to still-selected main categories
+    // Only keep sub-categories that belong to main categories that are STILL selected
     const keepSubCategories = selectedCategories.filter(subTopic => {
       const mainTopic = getMainTopicOfSub(subTopic);
       return mainTopic && values.includes(mainTopic);
