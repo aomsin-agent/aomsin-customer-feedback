@@ -61,7 +61,8 @@ export function AreaFilter({ selectedAreas, onAreaChange }: AreaFilterProps) {
     const { data, error } = await supabase
       .from('branch_ref')
       .select('region, division, branch_name, resdesc')
-      .order('division, region, resdesc, branch_name');
+      .order('division, region, resdesc, branch_name')
+      .limit(2000); // เพิ่ม limit เพื่อดึงข้อมูลครบทั้งหมด
 
     if (error) {
       console.error('Error fetching branches:', error);
