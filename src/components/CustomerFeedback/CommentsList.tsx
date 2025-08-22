@@ -58,7 +58,7 @@ export function CommentsList({
         return;
       }
 
-      // Single query with nested categories to avoid very long URL from `.in` filter
+      // Step 1: Get raw comments with basic filters (avoid long URL)
       let query = supabase
         .from('raw_comment')
         .select(`
@@ -67,16 +67,10 @@ export function CommentsList({
           comment_date,
           region,
           district,
-          branch_name,
-          sentence_category ( sub_category, sentiment )
+          branch_name
         `);
 
-      // Apply area filter (AND scope)
-      if (selectedAreas.length > 0) {
-        query = query.in('branch_name', selectedAreas);
-      }
-
-      // Apply time filter (AND scope)
+      // Apply time filter first (more selective)
       if (timeFilter.type === 'monthly' && timeFilter.monthYear) {
         const [month, year] = timeFilter.monthYear.split('-');
         const startDate = new Date(parseInt(year), parseInt(month) - 1, 1);
@@ -94,32 +88,74 @@ export function CommentsList({
                     .lte('comment_date', timeFilter.endDate.toISOString());
       }
 
-      const { data: rows, error } = await query
+      const { data: rawComments, error: commentsError } = await query
         .order('comment_date', { ascending: false })
         .limit(500);
 
-      if (error) {
-        console.error('Error fetching comments:', error);
+      if (commentsError) {
+        console.error('Error fetching comments:', commentsError);
         setComments([]);
         setTotalCount(0);
         return;
       }
 
-      const mapped = (rows || []).map((r: any) => ({
-        comment_id: r.comment_id,
-        comment: r.comment,
-        comment_date: r.comment_date,
-        region: r.region,
-        district: r.district,
-        branch_name: r.branch_name,
-        categories: (r.sentence_category || []).map((c: any) => ({
-          sub_category: c.sub_category,
-          sentiment: c.sentiment,
-        }))
-      })) as CommentData[];
+      if (!rawComments?.length) {
+        setComments([]);
+        setTotalCount(0);
+        return;
+      }
 
-      // If category filter is applied: include comments having at least ONE selected category,
-      // but keep ALL categories displayed for that comment
+      // Step 2: Filter by selected areas (client-side to avoid URL length issue)
+      const filteredByArea = rawComments.filter(comment => 
+        selectedAreas.includes(comment.branch_name)
+      );
+
+      if (filteredByArea.length === 0) {
+        setComments([]);
+        setTotalCount(0);
+        return;
+      }
+
+      // Step 3: Get sentence categories in batches to avoid URL length
+      const commentIds = filteredByArea.map(c => c.comment_id);
+      let allCategories: any[] = [];
+      
+      // Process in batches of 50 to avoid URL length issues
+      for (let i = 0; i < commentIds.length; i += 50) {
+        const batch = commentIds.slice(i, i + 50);
+        const { data: batchCategories, error: categoryError } = await supabase
+          .from('sentence_category')
+          .select('comment_id, sub_category, sentiment')
+          .in('comment_id', batch);
+        
+        if (categoryError) {
+          console.error('Error fetching categories batch:', categoryError);
+          continue;
+        }
+        
+        if (batchCategories) {
+          allCategories = allCategories.concat(batchCategories);
+        }
+      }
+
+      // Step 4: Combine data
+      const categoriesByComment = allCategories.reduce((acc, category) => {
+        if (!acc[category.comment_id]) {
+          acc[category.comment_id] = [];
+        }
+        acc[category.comment_id].push({
+          sub_category: category.sub_category,
+          sentiment: category.sentiment
+        });
+        return acc;
+      }, {} as Record<string, { sub_category: string; sentiment: string }[]>);
+
+      const mapped = filteredByArea.map(comment => ({
+        ...comment,
+        categories: categoriesByComment[comment.comment_id] || []
+      }));
+
+      // Apply category filter
       const byCategory = selectedCategories.length > 0
         ? mapped.filter(cm => cm.categories.some(cat => selectedCategories.includes(cat.sub_category)))
         : mapped;
