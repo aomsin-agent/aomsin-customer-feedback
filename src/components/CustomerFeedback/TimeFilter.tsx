@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, Brush } from 'lucide-react';
 import { format } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -107,10 +107,51 @@ export function TimeFilter({ value, onChange }: TimeFilterProps) {
     }
   };
 
+  const handleClear = () => {
+    onChange({ type: 'monthly', monthYear: `${new Date().getMonth() + 1}-${new Date().getFullYear()}` });
+    setTempStartDate(undefined);
+    setTempEndDate(undefined);
+  };
+
+  const getSelectedDisplay = () => {
+    if (value.type === 'monthly' && value.monthYear) {
+      const [month, year] = value.monthYear.split('-');
+      const monthIndex = parseInt(month) - 1;
+      const buddhist = parseInt(year) + 543;
+      return `${months[monthIndex]} ${String(buddhist).slice(-2)}`;
+    }
+    if (value.type === 'lookback' && value.lookbackDays) {
+      const option = lookbackOptions.find(opt => opt.value === value.lookbackDays);
+      return option?.label;
+    }
+    if (value.type === 'custom' && value.startDate && value.endDate) {
+      return `${format(value.startDate, "dd/MM/yyyy", { locale: th })} - ${format(value.endDate, "dd/MM/yyyy", { locale: th })}`;
+    }
+    return '';
+  };
+
+  const hasSelection = () => {
+    return (value.type === 'monthly' && value.monthYear) ||
+           (value.type === 'lookback' && value.lookbackDays) ||
+           (value.type === 'custom' && value.startDate && value.endDate);
+  };
+
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-base">ช่วงเวลา</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-base">ช่วงเวลา</CardTitle>
+          {hasSelection() && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleClear}
+              className="h-8 px-2"
+            >
+              <Brush className="h-3 w-3" />
+            </Button>
+          )}
+        </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
@@ -208,6 +249,10 @@ export function TimeFilter({ value, onChange }: TimeFilterProps) {
               </div>
             </div>
           )}
+
+          <div className="text-sm text-muted-foreground mt-3">
+            {getSelectedDisplay() || "ยังไม่ได้เลือกช่วงเวลา"}
+          </div>
         </div>
       </CardContent>
     </Card>

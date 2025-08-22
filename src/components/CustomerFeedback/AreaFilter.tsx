@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MultiSelectDropdown, type DropdownOption } from '@/components/ui/multi-select-dropdown';
 import { Button } from '@/components/ui/button';
-import { PaintBucket } from 'lucide-react';
+import { Brush } from 'lucide-react';
 
 interface BranchData {
   region: string | number;
@@ -340,10 +340,9 @@ export function AreaFilter({ selectedAreas, onAreaChange }: AreaFilterProps) {
               variant="outline"
               size="sm"
               onClick={handleClearAll}
-              className="h-8 px-3 text-xs"
+              className="h-8 px-2"
             >
-              <PaintBucket className="h-3 w-3 mr-1" />
-              ล้าง
+              <Brush className="h-3 w-3" />
             </Button>
           )}
         </div>
