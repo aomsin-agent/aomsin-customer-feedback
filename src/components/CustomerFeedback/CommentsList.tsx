@@ -62,12 +62,12 @@ export function CommentsList({
           branch_name
         `);
 
-      // Apply area filter
+      // Apply area filter (ต้องอยู่ใน scope ที่เลือก)
       if (selectedAreas.length > 0) {
         query = query.in('branch_name', selectedAreas);
       }
 
-      // Apply time filter
+      // Apply time filter (ต้องอยู่ใน scope ที่เลือก)
       if (timeFilter.type === 'monthly' && timeFilter.monthYear) {
         const [month, year] = timeFilter.monthYear.split('-');
         const startDate = new Date(parseInt(year), parseInt(month) - 1, 1);
@@ -87,7 +87,7 @@ export function CommentsList({
 
       const { data: rawComments, error: commentsError } = await query
         .order('comment_date', { ascending: false })
-        .limit(100);
+        .limit(500);
 
       if (commentsError) {
         console.error('Error fetching comments:', commentsError);
@@ -103,26 +103,19 @@ export function CommentsList({
       // Get comment IDs
       const commentIds = rawComments.map(c => c.comment_id);
 
-      // Fetch sentence categories for these comments
-      let categoriesQuery = supabase
+      // Fetch ALL sentence categories for these comments (ไม่กรองตามหมวดหมู่ตรงนี้)
+      const { data: allSentenceCategories, error: categoriesError } = await supabase
         .from('sentence_category')
         .select('comment_id, sub_category, sentiment')
         .in('comment_id', commentIds);
-
-      // Apply category filter
-      if (selectedCategories.length > 0) {
-        categoriesQuery = categoriesQuery.in('sub_category', selectedCategories);
-      }
-
-      const { data: sentenceCategories, error: categoriesError } = await categoriesQuery;
 
       if (categoriesError) {
         console.error('Error fetching sentence categories:', categoriesError);
         return;
       }
 
-      // Group categories by comment_id
-      const categoriesByComment = sentenceCategories?.reduce((acc, category) => {
+      // Group ALL categories by comment_id
+      const allCategoriesByComment = allSentenceCategories?.reduce((acc, category) => {
         if (!acc[category.comment_id]) {
           acc[category.comment_id] = [];
         }
@@ -133,11 +126,20 @@ export function CommentsList({
         return acc;
       }, {} as Record<string, { sub_category: string; sentiment: string }[]>) || {};
 
-      // Combine comments with categories and apply sentiment filter
-      const combinedComments = rawComments
+      // หากมีการเลือกหมวดหมู่ ให้หา comment ที่มีอย่างน้อย 1 หมวดหมู่ที่ตรงกับการเลือก
+      let commentsToShow = rawComments;
+      if (selectedCategories.length > 0) {
+        commentsToShow = rawComments.filter(comment => {
+          const commentCategories = allCategoriesByComment[comment.comment_id] || [];
+          return commentCategories.some(cat => selectedCategories.includes(cat.sub_category));
+        });
+      }
+
+      // Combine comments with ALL categories and apply sentiment filter
+      const combinedComments = commentsToShow
         .map(comment => ({
           ...comment,
-          categories: categoriesByComment[comment.comment_id] || []
+          categories: allCategoriesByComment[comment.comment_id] || []
         }))
         .filter(comment => {
           // Apply sentiment filter
@@ -149,13 +151,6 @@ export function CommentsList({
           if (sentimentFilter === 'positive') return hasPositive;
           if (sentimentFilter === 'negative') return hasNegative;
           
-          return true;
-        })
-        .filter(comment => {
-          // If category filter is applied, only show comments that have matching categories
-          if (selectedCategories.length > 0) {
-            return comment.categories.length > 0;
-          }
           return true;
         });
 
