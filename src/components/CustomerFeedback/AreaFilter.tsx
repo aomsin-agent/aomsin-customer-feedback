@@ -182,14 +182,21 @@ export function AreaFilter({ selectedAreas, onAreaChange }: AreaFilterProps) {
       newState.selectedZones = [...new Set([...Array.from(allZones), ...keepZones])];
       newState.selectedBranches = [...new Set([...Array.from(allBranches), ...keepBranches])];
 
-      // Update parent divisions - only select those that have ALL their regions selected
-      const allDivisionOptions = Array.from(new Set(branches.map(b => b.division?.toString()).filter(Boolean)));
-      const newDivisions = allDivisionOptions.filter(division => {
+      // Keep existing divisions that still have at least one selected region
+      const existingDivisions = hierarchyState.selectedDivisions.filter(division => {
         const divisionRegions = getChildrenOfParent('division', division).regions || [];
-        return divisionRegions.length > 0 && divisionRegions.every(region => newState.selectedRegions.includes(region));
+        const selectedRegionsInDivision = divisionRegions.filter(region => values.includes(region));
+        return selectedRegionsInDivision.length > 0;
       });
 
-      newState.selectedDivisions = newDivisions;
+      // Add divisions that have ALL their regions selected
+      const allDivisionOptions = Array.from(new Set(branches.map(b => b.division?.toString()).filter(Boolean)));
+      const fullySelectedDivisions = allDivisionOptions.filter(division => {
+        const divisionRegions = getChildrenOfParent('division', division).regions || [];
+        return divisionRegions.length > 0 && divisionRegions.every(region => values.includes(region));
+      });
+
+      newState.selectedDivisions = [...new Set([...existingDivisions, ...fullySelectedDivisions])];
     }
 
     else if (type === 'zones') {
@@ -211,54 +218,89 @@ export function AreaFilter({ selectedAreas, onAreaChange }: AreaFilterProps) {
 
       newState.selectedBranches = [...new Set([...Array.from(allBranches), ...keepBranches])];
 
-      // Update parent regions - only select those that have ALL their zones selected
-      const allRegionOptions = Array.from(new Set(branches.map(b => b.region?.toString()).filter(Boolean)));
-      const newRegions = allRegionOptions.filter(region => {
+      // Keep existing regions that still have at least one selected zone
+      const existingRegions = hierarchyState.selectedRegions.filter(region => {
         const regionZones = getChildrenOfParent('region', region).zones || [];
-        return regionZones.length > 0 && regionZones.every(zone => newState.selectedZones.includes(zone));
+        const selectedZonesInRegion = regionZones.filter(zone => values.includes(zone));
+        return selectedZonesInRegion.length > 0;
       });
 
-      newState.selectedRegions = newRegions;
+      // Add regions that have ALL their zones selected
+      const allRegionOptions = Array.from(new Set(branches.map(b => b.region?.toString()).filter(Boolean)));
+      const fullySelectedRegions = allRegionOptions.filter(region => {
+        const regionZones = getChildrenOfParent('region', region).zones || [];
+        return regionZones.length > 0 && regionZones.every(zone => values.includes(zone));
+      });
 
-      // Update parent divisions - only select those that have ALL their regions selected
+      newState.selectedRegions = [...new Set([...existingRegions, ...fullySelectedRegions])];
+
+      // Keep existing divisions that still have at least one selected region
+      const existingDivisions = hierarchyState.selectedDivisions.filter(division => {
+        const divisionRegions = getChildrenOfParent('division', division).regions || [];
+        const selectedRegionsInDivision = divisionRegions.filter(region => newState.selectedRegions.includes(region));
+        return selectedRegionsInDivision.length > 0;
+      });
+
+      // Add divisions that have ALL their regions selected
       const allDivisionOptions = Array.from(new Set(branches.map(b => b.division?.toString()).filter(Boolean)));
-      const newDivisions = allDivisionOptions.filter(division => {
+      const fullySelectedDivisions = allDivisionOptions.filter(division => {
         const divisionRegions = getChildrenOfParent('division', division).regions || [];
         return divisionRegions.length > 0 && divisionRegions.every(region => newState.selectedRegions.includes(region));
       });
 
-      newState.selectedDivisions = newDivisions;
+      newState.selectedDivisions = [...new Set([...existingDivisions, ...fullySelectedDivisions])];
     }
 
     else if (type === 'branches') {
       newState.selectedBranches = values;
       
-      // Update parent zones - only select those that have ALL their branches selected
+      // Keep existing zones that still have at least one selected branch
+      const existingZones = hierarchyState.selectedZones.filter(zone => {
+        const zoneBranches = getChildrenOfParent('zone', zone).branches || [];
+        const selectedBranchesInZone = zoneBranches.filter(branch => values.includes(branch));
+        return selectedBranchesInZone.length > 0;
+      });
+
+      // Add zones that have ALL their branches selected
       const allZoneOptions = Array.from(new Set(branches.map(b => b.resdesc).filter(Boolean)));
-      const newZones = allZoneOptions.filter(zone => {
+      const fullySelectedZones = allZoneOptions.filter(zone => {
         const zoneBranches = getChildrenOfParent('zone', zone).branches || [];
         return zoneBranches.length > 0 && zoneBranches.every(branch => values.includes(branch));
       });
 
-      newState.selectedZones = newZones;
+      newState.selectedZones = [...new Set([...existingZones, ...fullySelectedZones])];
 
-      // Update parent regions - only select those that have ALL their zones selected
+      // Keep existing regions that still have at least one selected zone
+      const existingRegions = hierarchyState.selectedRegions.filter(region => {
+        const regionZones = getChildrenOfParent('region', region).zones || [];
+        const selectedZonesInRegion = regionZones.filter(zone => newState.selectedZones.includes(zone));
+        return selectedZonesInRegion.length > 0;
+      });
+
+      // Add regions that have ALL their zones selected
       const allRegionOptions = Array.from(new Set(branches.map(b => b.region?.toString()).filter(Boolean)));
-      const newRegions = allRegionOptions.filter(region => {
+      const fullySelectedRegions = allRegionOptions.filter(region => {
         const regionZones = getChildrenOfParent('region', region).zones || [];
         return regionZones.length > 0 && regionZones.every(zone => newState.selectedZones.includes(zone));
       });
 
-      newState.selectedRegions = newRegions;
+      newState.selectedRegions = [...new Set([...existingRegions, ...fullySelectedRegions])];
 
-      // Update parent divisions - only select those that have ALL their regions selected
+      // Keep existing divisions that still have at least one selected region
+      const existingDivisions = hierarchyState.selectedDivisions.filter(division => {
+        const divisionRegions = getChildrenOfParent('division', division).regions || [];
+        const selectedRegionsInDivision = divisionRegions.filter(region => newState.selectedRegions.includes(region));
+        return selectedRegionsInDivision.length > 0;
+      });
+
+      // Add divisions that have ALL their regions selected
       const allDivisionOptions = Array.from(new Set(branches.map(b => b.division?.toString()).filter(Boolean)));
-      const newDivisions = allDivisionOptions.filter(division => {
+      const fullySelectedDivisions = allDivisionOptions.filter(division => {
         const divisionRegions = getChildrenOfParent('division', division).regions || [];
         return divisionRegions.length > 0 && divisionRegions.every(region => newState.selectedRegions.includes(region));
       });
 
-      newState.selectedDivisions = newDivisions;
+      newState.selectedDivisions = [...new Set([...existingDivisions, ...fullySelectedDivisions])];
     }
 
     setHierarchyState(newState);

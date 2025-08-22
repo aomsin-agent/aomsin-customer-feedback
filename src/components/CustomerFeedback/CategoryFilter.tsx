@@ -89,13 +89,21 @@ export function CategoryFilter({ selectedCategories, onCategoryChange }: Categor
   const handleSubCategoryChange = (values: string[]) => {
     onCategoryChange(values);
     
-    // Update parent main categories - only select those that have ALL their sub-categories selected
+    // Keep existing main categories that still have at least one selected sub-category
+    const existingMainCategories = selectedMainCategories.filter(mainTopic => {
+      const mainSubCategories = getSubCategoriesOfMain(mainTopic);
+      const selectedSubsForTopic = mainSubCategories.filter(sub => values.includes(sub));
+      return selectedSubsForTopic.length > 0;
+    });
+
+    // Add main categories that have ALL their sub-categories selected
     const allMainTopics = [...new Set(categories.map(c => c.main_topic))];
-    const newMainCategories = allMainTopics.filter(mainTopic => {
+    const fullySelectedMainCategories = allMainTopics.filter(mainTopic => {
       const mainSubCategories = getSubCategoriesOfMain(mainTopic);
       return mainSubCategories.length > 0 && mainSubCategories.every(sub => values.includes(sub));
     });
 
+    const newMainCategories = [...new Set([...existingMainCategories, ...fullySelectedMainCategories])];
     setSelectedMainCategories(newMainCategories);
   };
 
