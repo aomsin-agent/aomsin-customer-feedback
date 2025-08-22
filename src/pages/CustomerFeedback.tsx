@@ -9,15 +9,14 @@ export default function CustomerFeedback() {
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [timeFilter, setTimeFilter] = useState<TimeFilterValue>({
-    type: 'lookback',
-    lookbackDays: 7
+    type: 'all'
   });
   const [sentimentFilter, setSentimentFilter] = useState<SentimentFilter>('all');
 
   const handleClearAllFilters = () => {
     setSelectedAreas([]);
     setSelectedCategories([]);
-    setTimeFilter({ type: 'lookback', lookbackDays: 7 });
+    setTimeFilter({ type: 'all' });
     setSentimentFilter('all');
   };
 

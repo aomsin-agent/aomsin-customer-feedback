@@ -9,7 +9,7 @@ import { format } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 
-export type TimeFilterType = 'monthly' | 'lookback' | 'custom';
+export type TimeFilterType = 'all' | 'monthly' | 'lookback' | 'custom';
 
 export interface TimeFilterValue {
   type: TimeFilterType;
@@ -63,7 +63,9 @@ export function TimeFilter({ value, onChange }: TimeFilterProps) {
   const handleTypeChange = (type: TimeFilterType) => {
     let newValue: TimeFilterValue = { type };
     
-    if (type === 'monthly') {
+    if (type === 'all') {
+      // No additional properties needed for "all"
+    } else if (type === 'monthly') {
       const currentMonth = new Date().getMonth() + 1;
       const currentYear = new Date().getFullYear();
       newValue.monthYear = `${currentMonth}-${currentYear}`;
@@ -108,32 +110,42 @@ export function TimeFilter({ value, onChange }: TimeFilterProps) {
   };
 
   const handleClear = () => {
-    onChange({ type: 'monthly', monthYear: `${new Date().getMonth() + 1}-${new Date().getFullYear()}` });
+    onChange({ type: 'all' });
     setTempStartDate(undefined);
     setTempEndDate(undefined);
   };
 
   const getSelectedDisplay = () => {
+    const typeLabels = {
+      'all': 'ทั้งหมด',
+      'monthly': 'ข้อมูลประจำเดือน',
+      'lookback': 'ช่วงเวลาย้อนหลัง',
+      'custom': 'กำหนดช่วงเวลาเอง'
+    };
+
+    const typeLabel = typeLabels[value.type] || '';
+    
+    if (value.type === 'all') {
+      return 'ทั้งหมด';
+    }
     if (value.type === 'monthly' && value.monthYear) {
       const [month, year] = value.monthYear.split('-');
       const monthIndex = parseInt(month) - 1;
       const buddhist = parseInt(year) + 543;
-      return `${months[monthIndex]} ${String(buddhist).slice(-2)}`;
+      return `${typeLabel}: ${months[monthIndex]} ${String(buddhist).slice(-2)}`;
     }
     if (value.type === 'lookback' && value.lookbackDays) {
       const option = lookbackOptions.find(opt => opt.value === value.lookbackDays);
-      return option?.label;
+      return `${typeLabel}: ${option?.label}`;
     }
     if (value.type === 'custom' && value.startDate && value.endDate) {
-      return `${format(value.startDate, "dd/MM/yyyy", { locale: th })} - ${format(value.endDate, "dd/MM/yyyy", { locale: th })}`;
+      return `${typeLabel}: ${format(value.startDate, "dd/MM/yyyy", { locale: th })} - ${format(value.endDate, "dd/MM/yyyy", { locale: th })}`;
     }
-    return '';
+    return typeLabel;
   };
 
   const hasSelection = () => {
-    return (value.type === 'monthly' && value.monthYear) ||
-           (value.type === 'lookback' && value.lookbackDays) ||
-           (value.type === 'custom' && value.startDate && value.endDate);
+    return value.type !== 'all';
   };
 
   return (
@@ -160,6 +172,7 @@ export function TimeFilter({ value, onChange }: TimeFilterProps) {
               <SelectValue placeholder="เลือกประเภทช่วงเวลา" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="all">ทั้งหมด</SelectItem>
               <SelectItem value="monthly">ข้อมูลประจำเดือน</SelectItem>
               <SelectItem value="lookback">ช่วงเวลาย้อนหลัง</SelectItem>
               <SelectItem value="custom">กำหนดช่วงเวลาเอง</SelectItem>
@@ -251,7 +264,7 @@ export function TimeFilter({ value, onChange }: TimeFilterProps) {
           )}
 
           <div className="text-sm text-muted-foreground mt-3">
-            {getSelectedDisplay() || "ยังไม่ได้เลือกช่วงเวลา"}
+            {getSelectedDisplay()}
           </div>
         </div>
       </CardContent>

@@ -4,7 +4,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { ChevronDown, Check, X } from 'lucide-react';
+import { ChevronDown, Check } from 'lucide-react';
 export interface DropdownOption {
   value: string;
   label: string;
@@ -47,16 +47,6 @@ export function MultiSelectDropdown({
   return <div className="space-y-2">
       <div className="flex items-center justify-between">
         <label className="text-sm font-medium">{title}</label>
-        {selectedCount > 0 && onClear && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onClear}
-            className="h-6 px-2 text-xs"
-          >
-            <X className="h-3 w-3" />
-          </Button>
-        )}
       </div>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
