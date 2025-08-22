@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MultiSelectDropdown, type DropdownOption } from '@/components/ui/multi-select-dropdown';
+import { Button } from '@/components/ui/button';
+import { PaintBucket } from 'lucide-react';
 
 interface BranchData {
   region: string | number;
@@ -331,7 +333,20 @@ export function AreaFilter({ selectedAreas, onAreaChange }: AreaFilterProps) {
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-base">พื้นที่ดูแล</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-base">พื้นที่ดูแล</CardTitle>
+          {(selectedDivisionsCount > 0 || selectedRegionsCount > 0 || selectedZonesCount > 0 || selectedBranchesCount > 0) && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleClearAll}
+              className="h-8 px-3 text-xs"
+            >
+              <PaintBucket className="h-3 w-3 mr-1" />
+              ล้าง
+            </Button>
+          )}
+        </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">

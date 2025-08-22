@@ -85,12 +85,24 @@ export function TimeFilter({ value, onChange }: TimeFilterProps) {
     onChange({ ...value, lookbackDays: parseInt(days) });
   };
 
-  const handleDateRangeApply = () => {
-    if (tempStartDate && tempEndDate) {
+  const handleStartDateChange = (date: Date | undefined) => {
+    setTempStartDate(date);
+    if (date && tempEndDate) {
+      onChange({
+        ...value,
+        startDate: date,
+        endDate: tempEndDate
+      });
+    }
+  };
+
+  const handleEndDateChange = (date: Date | undefined) => {
+    setTempEndDate(date);
+    if (tempStartDate && date) {
       onChange({
         ...value,
         startDate: tempStartDate,
-        endDate: tempEndDate
+        endDate: date
       });
     }
   };
@@ -163,7 +175,7 @@ export function TimeFilter({ value, onChange }: TimeFilterProps) {
                     <Calendar
                       mode="single"
                       selected={tempStartDate}
-                      onSelect={setTempStartDate}
+                      onSelect={handleStartDateChange}
                       initialFocus
                       className="pointer-events-auto"
                     />
@@ -187,17 +199,13 @@ export function TimeFilter({ value, onChange }: TimeFilterProps) {
                     <Calendar
                       mode="single"
                       selected={tempEndDate}
-                      onSelect={setTempEndDate}
+                      onSelect={handleEndDateChange}
                       initialFocus
                       className="pointer-events-auto"
                     />
                   </PopoverContent>
                 </Popover>
               </div>
-              
-              <Button onClick={handleDateRangeApply} className="w-full" size="sm">
-                ใช้ช่วงเวลานี้
-              </Button>
             </div>
           )}
         </div>
