@@ -9,6 +9,7 @@ import { ChevronDown, Check, X } from 'lucide-react';
 export interface DropdownOption {
   value: string;
   label: string;
+  indeterminate?: boolean;
 }
 
 interface MultiSelectDropdownProps {
@@ -118,6 +119,15 @@ export function MultiSelectDropdown({
                 >
                   <Checkbox
                     checked={selectedValues.includes(option.value)}
+                    ref={(ref) => {
+                      if (ref && option.indeterminate) {
+                        // Get the actual checkbox input element
+                        const checkbox = ref.querySelector('input[type="checkbox"]') as HTMLInputElement;
+                        if (checkbox) {
+                          checkbox.indeterminate = true;
+                        }
+                      }
+                    }}
                     onChange={() => {}}
                   />
                   <label className="text-sm cursor-pointer flex-1">
