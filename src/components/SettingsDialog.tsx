@@ -22,13 +22,22 @@ interface ConfigItem {
 export function SettingsDialog() {
   const [isOpen, setIsOpen] = useState(false);
   const [configs, setConfigs] = useState<ConfigItem[]>([
-    { id: "api_endpoint", label: "API Endpoint URL", value: "https://api.example.com/v1", isVisible: true },
-    { id: "database_url", label: "Database Connection", value: "postgresql://user:pass@localhost:5432/db", isVisible: false },
-    { id: "notification_email", label: "Notification Email", value: "admin@company.com", isVisible: true },
-    { id: "backup_interval", label: "Backup Interval (hours)", value: "24", isVisible: true },
-    { id: "max_file_size", label: "Max File Size (MB)", value: "100", isVisible: true },
-    { id: "session_timeout", label: "Session Timeout (minutes)", value: "60", isVisible: true },
+    { id: "link1", label: "Link 1", value: "https://api.example.com/v1", isVisible: true },
+    { id: "link2", label: "Link 2", value: "postgresql://user:pass@localhost:5432/db", isVisible: false },
+    { id: "link3", label: "Link 3", value: "admin@company.com", isVisible: true },
+    { id: "link4", label: "Link 4", value: "24", isVisible: true },
+    { id: "link5", label: "Link 5", value: "100", isVisible: true },
+    { id: "link6", label: "Link 6", value: "60", isVisible: true },
   ]);
+
+  const [descriptions, setDescriptions] = useState<{ [key: string]: string }>({
+    link1: "รายละเอียดสำหรับ Link 1",
+    link2: "รายละเอียดสำหรับ Link 2", 
+    link3: "รายละเอียดสำหรับ Link 3",
+    link4: "รายละเอียดสำหรับ Link 4",
+    link5: "รายละเอียดสำหรับ Link 5",
+    link6: "รายละเอียดสำหรับ Link 6",
+  });
 
   const [editingValues, setEditingValues] = useState<{ [key: string]: string }>({});
   const [notes, setNotes] = useState("");
@@ -41,6 +50,10 @@ export function SettingsDialog() {
     { label: "ติดต่อสนับสนุน", url: "https://support.example.com/contact" },
     { label: "อัพเดทระบบ", url: "https://updates.example.com" },
   ];
+
+  const handleDescriptionChange = (id: string, value: string) => {
+    setDescriptions(prev => ({ ...prev, [id]: value }));
+  };
 
   const handleSave = (id: string) => {
     const newValue = editingValues[id];
@@ -102,55 +115,71 @@ export function SettingsDialog() {
             <div className="space-y-3 sm:space-y-4">
               <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4">การตั้งค่าระบบ</h3>
               {configs.map((config) => (
-                <div key={config.id} className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-muted/30 rounded-lg border">
-                  {/* Label */}
-                  <div className="w-full sm:w-48 sm:flex-shrink-0">
-                    <label className="text-sm font-medium text-foreground">
-                      {config.label}
-                    </label>
-                  </div>
-                  
-                  {/* Input and Controls Container */}
-                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 w-full sm:flex-1">
-                    {/* Input */}
-                    <div className="flex-1">
-                      <Input
-                        type={config.isVisible || isEditing(config.id) ? "text" : "password"}
-                        value={getDisplayValue(config)}
-                        onChange={(e) => handleInputChange(config.id, e.target.value)}
-                        className="w-full"
-                        placeholder={config.label}
-                      />
+                <div key={config.id} className="flex flex-col gap-3 p-3 sm:p-4 bg-muted/30 rounded-lg border">
+                  {/* Header with Label */}
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                    <div className="w-full sm:w-48 sm:flex-shrink-0">
+                      <label className="text-sm font-medium text-foreground">
+                        {config.label}
+                      </label>
                     </div>
                     
-                    {/* Controls Container */}
-                    <div className="flex gap-2 sm:gap-4 items-center justify-end sm:justify-start">
-                      {/* Save button */}
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleSave(config.id)}
-                        disabled={!isEditing(config.id)}
-                        className="min-w-[70px] sm:min-w-[80px] text-xs sm:text-sm"
-                      >
-                        <Save className="h-3 w-3 mr-1" />
-                        บันทึก
-                      </Button>
+                    {/* Input and Controls Container */}
+                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 w-full sm:flex-1">
+                      {/* Input */}
+                      <div className="flex-1">
+                        <Input
+                          type={config.isVisible || isEditing(config.id) ? "text" : "password"}
+                          value={getDisplayValue(config)}
+                          onChange={(e) => handleInputChange(config.id, e.target.value)}
+                          className="w-full"
+                          placeholder={config.label}
+                        />
+                      </div>
                       
-                      {/* Visibility toggle */}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => toggleVisibility(config.id)}
-                        className="h-8 w-8 flex-shrink-0"
-                      >
-                        {config.isVisible ? (
-                          <Eye className="h-4 w-4" />
-                        ) : (
-                          <EyeOff className="h-4 w-4" />
-                        )}
-                      </Button>
+                      {/* Controls Container */}
+                      <div className="flex gap-2 sm:gap-4 items-center justify-end sm:justify-start">
+                        {/* Save button */}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleSave(config.id)}
+                          disabled={!isEditing(config.id)}
+                          className="min-w-[70px] sm:min-w-[80px] text-xs sm:text-sm"
+                        >
+                          <Save className="h-3 w-3 mr-1" />
+                          บันทึก
+                        </Button>
+                        
+                        {/* Visibility toggle */}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => toggleVisibility(config.id)}
+                          className="h-8 w-8 flex-shrink-0"
+                        >
+                          {config.isVisible ? (
+                            <Eye className="h-4 w-4" />
+                          ) : (
+                            <EyeOff className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
                     </div>
+                  </div>
+                  
+                  {/* Description Input */}
+                  <div className="border-t pt-3">
+                    <label className="text-xs text-muted-foreground mb-1 block">
+                      รายละเอียด
+                    </label>
+                    <Input
+                      type="text"
+                      value={descriptions[config.id] || ''}
+                      onChange={(e) => handleDescriptionChange(config.id, e.target.value)}
+                      className="w-full text-sm"
+                      placeholder="เพิ่มรายละเอียดสำหรับลิงก์นี้..."
+                    />
                   </div>
                 </div>
               ))}
