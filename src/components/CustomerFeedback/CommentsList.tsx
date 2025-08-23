@@ -217,7 +217,8 @@ export function CommentsList({
     }
   };
   return (
-    <Card className="h-full">
+    <Card className="h-full relative overflow-hidden">
+      <div className="absolute top-0 left-0 w-full h-2 bg-gradient-primary"></div>
       <CardHeader className="pb-3">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <CardTitle className="text-lg">ความคิดเห็นลูกค้า</CardTitle>

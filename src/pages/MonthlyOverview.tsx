@@ -47,7 +47,7 @@ export default function MonthlyOverview() {
       <div className="space-y-6">
         {/* การส่งแบบประเมิน */}
         <Card className="relative overflow-hidden bg-card shadow-soft">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-primary"></div>
+          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-primary"></div>
           <CardHeader className="pb-4">
             <CardTitle className="text-xl font-semibold text-foreground">
               การส่งแบบประเมิน
@@ -65,7 +65,7 @@ export default function MonthlyOverview() {
 
         {/* คะแนนความพึงพอใจ */}
         <Card className="relative overflow-hidden bg-card shadow-soft">
-          <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-primary"></div>
+          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-primary"></div>
           <CardHeader className="pb-4">
             <CardTitle className="text-xl font-semibold text-foreground">
               คะแนนความพึงพอใจ
@@ -83,7 +83,7 @@ export default function MonthlyOverview() {
 
         {/* ข้อคิดเห็น/ข้อเสนอแนะ */}
         <Card className="relative overflow-hidden bg-card shadow-soft">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-primary"></div>
+          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-primary"></div>
           <CardHeader className="pb-4">
             <CardTitle className="text-xl font-semibold text-foreground">
               ข้อคิดเห็น/ข้อเสนอแนะ
