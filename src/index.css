@@ -55,7 +55,7 @@ All colors MUST be HSL.
 
     /* Gradients - Government Savings Bank Theme */
     --gradient-header: linear-gradient(135deg, #F13596, #FD85D7, #FFA0E2);
-    --gradient-primary: linear-gradient(135deg, hsl(320 65% 52%), hsl(325 65% 65%));
+    --gradient-primary: linear-gradient(135deg, hsl(320 40% 70%), hsl(325 45% 80%));
     --gradient-subtle: linear-gradient(180deg, hsl(350 20% 98%), hsl(220 8% 96%));
 
     /* Shadows */
