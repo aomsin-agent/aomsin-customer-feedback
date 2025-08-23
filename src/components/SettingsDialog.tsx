@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Dialog,
   DialogContent,
@@ -8,7 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Settings, Save, Eye, EyeOff } from "lucide-react";
+import { Settings, Save, Eye, EyeOff, ExternalLink } from "lucide-react";
 
 interface ConfigItem {
   id: string;
@@ -29,6 +31,16 @@ export function SettingsDialog() {
   ]);
 
   const [editingValues, setEditingValues] = useState<{ [key: string]: string }>({});
+  const [notes, setNotes] = useState("");
+
+  const quickLinks = [
+    { label: "เอกสารการใช้งาน", url: "https://docs.example.com" },
+    { label: "การตั้งค่าระบบ", url: "https://settings.example.com" },
+    { label: "คู่มือการแก้ไขปัญหา", url: "https://support.example.com" },
+    { label: "API Reference", url: "https://api.example.com/docs" },
+    { label: "ติดต่อสนับสนุน", url: "https://support.example.com/contact" },
+    { label: "อัพเดทระบบ", url: "https://updates.example.com" },
+  ];
 
   const handleSave = (id: string) => {
     const newValue = editingValues[id];
@@ -77,17 +89,20 @@ export function SettingsDialog() {
           <Settings className="h-4 w-4" strokeWidth={1.5} />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-4xl w-full max-h-[85vh] sm:max-h-[80vh] overflow-hidden mx-4 sm:mx-0">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold text-foreground">
+      <DialogContent className="max-w-full w-[95vw] max-h-[90vh] h-[90vh] p-0 m-2 sm:m-6 flex flex-col">
+        <DialogHeader className="px-4 py-3 sm:px-6 sm:py-4 border-b flex-shrink-0">
+          <DialogTitle className="text-lg sm:text-xl font-bold text-foreground">
             การจัดการเครื่องมือภายนอก
           </DialogTitle>
         </DialogHeader>
-        <div className="flex flex-col h-full min-h-[300px] sm:min-h-[500px]">
-          <div className="flex-1 p-3 sm:p-6 bg-muted/30 rounded-lg overflow-auto">
+        
+        <ScrollArea className="flex-1 p-4 sm:p-6">
+          <div className="space-y-6">
+            {/* Configuration Settings */}
             <div className="space-y-3 sm:space-y-4">
+              <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4">การตั้งค่าระบบ</h3>
               {configs.map((config) => (
-                <div key={config.id} className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-background rounded-lg border">
+                <div key={config.id} className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-muted/30 rounded-lg border">
                   {/* Label */}
                   <div className="w-full sm:w-48 sm:flex-shrink-0">
                     <label className="text-sm font-medium text-foreground">
@@ -140,8 +155,49 @@ export function SettingsDialog() {
                 </div>
               ))}
             </div>
+
+            {/* Quick Links */}
+            <div className="space-y-4">
+              <h3 className="text-base sm:text-lg font-semibold text-foreground">ลิงก์ด่วน</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {quickLinks.map((link, index) => (
+                  <Button
+                    key={index}
+                    variant="outline"
+                    className="h-auto p-3 justify-start text-left"
+                    onClick={() => window.open(link.url, '_blank')}
+                  >
+                    <ExternalLink className="h-4 w-4 mr-2 flex-shrink-0" />
+                    <span className="text-sm truncate">{link.label}</span>
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {/* Notes Section */}
+            <div className="space-y-4">
+              <h3 className="text-base sm:text-lg font-semibold text-foreground">บันทึกเพิ่มเติม</h3>
+              <Textarea
+                placeholder="เพิ่มบันทึกหรือหมายเหตุเกี่ยวกับการตั้งค่าระบบ..."
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                className="min-h-[120px] resize-none"
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  // Save notes functionality here
+                  console.log('Saving notes:', notes);
+                }}
+                className="self-start"
+              >
+                <Save className="h-3 w-3 mr-1" />
+                บันทึกหมายเหตุ
+              </Button>
+            </div>
           </div>
-        </div>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
