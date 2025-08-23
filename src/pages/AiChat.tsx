@@ -74,7 +74,7 @@ export default function AiChat() {
         const data = await response.json();
         const botMessage: Message = {
           id: (Date.now() + 1).toString(),
-          content: data.response || 'ขอบคุณสำหรับข้อความของคุณ ฉันได้รับข้อมูลแล้ว',
+          content: data.output || data.response || 'ขอบคุณสำหรับข้อความของคุณ ฉันได้รับข้อมูลแล้ว',
           sender: 'bot',
           timestamp: new Date(),
         };
