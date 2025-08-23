@@ -49,16 +49,118 @@ export default function MonthlyOverview() {
         <Card className="relative overflow-hidden bg-card shadow-soft">
           <div className="absolute top-0 left-0 w-full h-2 bg-gradient-primary"></div>
           <CardHeader className="pb-4">
-            <CardTitle className="text-xl font-semibold text-foreground">
-              การส่งแบบประเมิน
-            </CardTitle>
+            <div className="bg-muted/30 rounded-lg p-4 mb-4">
+              <CardTitle className="text-xl font-semibold text-foreground">
+                การส่งแบบประเมิน
+              </CardTitle>
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-center py-8">
-              <div className="text-4xl mb-4">📝</div>
-              <p className="text-muted-foreground">
-                ข้อมูลการส่งแบบประเมินจะถูกเพิ่มเข้ามาในภายหลัง
-              </p>
+          <CardContent className="space-y-6">
+            {/* KPI Cards Grid */}
+            <div className="grid grid-cols-2 gap-4 lg:grid-cols-2 portrait:grid-cols-1">
+              <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+                <CardContent className="p-4">
+                  <div className="text-center">
+                    <div className="text-2xl mb-2">📋</div>
+                    <h3 className="font-semibold text-blue-800 mb-1">แบบฟอร์มทั้งหมด</h3>
+                    <p className="text-2xl font-bold text-blue-900">0</p>
+                    <p className="text-xs text-blue-600">รายการ</p>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+                <CardContent className="p-4">
+                  <div className="text-center">
+                    <div className="text-2xl mb-2">📞</div>
+                    <h3 className="font-semibold text-green-800 mb-1">ให้ข้อมูลติดต่อ</h3>
+                    <p className="text-2xl font-bold text-green-900">0</p>
+                    <p className="text-xs text-green-600">รายการ</p>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200">
+                <CardContent className="p-4">
+                  <div className="text-center">
+                    <div className="text-2xl mb-2">💡</div>
+                    <h3 className="font-semibold text-yellow-800 mb-1">มีข้อเสนอแนะ</h3>
+                    <p className="text-2xl font-bold text-yellow-900">0</p>
+                    <p className="text-xs text-yellow-600">รายการ</p>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-gradient-to-br from-red-50 to-red-100 border-red-200">
+                <CardContent className="p-4">
+                  <div className="text-center">
+                    <div className="text-2xl mb-2">⚠️</div>
+                    <h3 className="font-semibold text-red-800 mb-1">ข้อร้องเรียนรุนแรง</h3>
+                    <p className="text-2xl font-bold text-red-900">0</p>
+                    <p className="text-xs text-red-600">รายการ</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Additional Analysis Section */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+                <CardContent className="p-4">
+                  <div className="text-center">
+                    <div className="text-xl mb-2">🏢</div>
+                    <h3 className="font-medium text-purple-800 mb-2">ประเภทของสาขา</h3>
+                    <div className="space-y-1 text-sm text-purple-700">
+                      <div className="flex justify-between">
+                        <span>สาขาหลัก</span>
+                        <span className="font-semibold">0</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>สาขาย่อย</span>
+                        <span className="font-semibold">0</span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-br from-cyan-50 to-cyan-100 border-cyan-200">
+                <CardContent className="p-4">
+                  <div className="text-center">
+                    <div className="text-xl mb-2">💼</div>
+                    <h3 className="font-medium text-cyan-800 mb-2">ประเภทการใช้บริการ</h3>
+                    <div className="space-y-1 text-sm text-cyan-700">
+                      <div className="flex justify-between">
+                        <span>ฝาก-ถอน</span>
+                        <span className="font-semibold">0</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>สินเชื่อ</span>
+                        <span className="font-semibold">0</span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
+                <CardContent className="p-4">
+                  <div className="text-center">
+                    <div className="text-xl mb-2">📊</div>
+                    <h3 className="font-medium text-orange-800 mb-2">จำนวนแบบฟอร์มที่ถูกส่ง</h3>
+                    <div className="space-y-1 text-sm text-orange-700">
+                      <div className="flex justify-between">
+                        <span>วันนี้</span>
+                        <span className="font-semibold">0</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>เดือนนี้</span>
+                        <span className="font-semibold">0</span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </CardContent>
         </Card>
@@ -67,9 +169,11 @@ export default function MonthlyOverview() {
         <Card className="relative overflow-hidden bg-card shadow-soft">
           <div className="absolute top-0 left-0 w-full h-2 bg-gradient-primary"></div>
           <CardHeader className="pb-4">
-            <CardTitle className="text-xl font-semibold text-foreground">
-              คะแนนความพึงพอใจ
-            </CardTitle>
+            <div className="bg-muted/30 rounded-lg p-4 mb-4">
+              <CardTitle className="text-xl font-semibold text-foreground">
+                คะแนนความพึงพอใจ
+              </CardTitle>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="text-center py-8">
@@ -85,9 +189,11 @@ export default function MonthlyOverview() {
         <Card className="relative overflow-hidden bg-card shadow-soft">
           <div className="absolute top-0 left-0 w-full h-2 bg-gradient-primary"></div>
           <CardHeader className="pb-4">
-            <CardTitle className="text-xl font-semibold text-foreground">
-              ข้อคิดเห็น/ข้อเสนอแนะ
-            </CardTitle>
+            <div className="bg-muted/30 rounded-lg p-4 mb-4">
+              <CardTitle className="text-xl font-semibold text-foreground">
+                ข้อคิดเห็น/ข้อเสนอแนะ
+              </CardTitle>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="text-center py-8">
