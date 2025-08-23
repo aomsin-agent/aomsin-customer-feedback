@@ -58,11 +58,22 @@ export function SettingsDialog() {
   const handleSave = (id: string) => {
     const newValue = editingValues[id];
     if (newValue !== undefined) {
-      setConfigs(prev => 
-        prev.map(config => 
+      setConfigs(prev => {
+        const next = prev.map(config =>
           config.id === id ? { ...config, value: newValue } : config
-        )
-      );
+        );
+        // persist all links to localStorage so other pages (e.g., AiChat) can use them
+        try {
+          const stored = next.reduce((acc: Record<string, string>, c) => {
+            acc[c.id] = c.value;
+            return acc;
+          }, {} as Record<string, string>);
+          localStorage.setItem('chatbot_configs', JSON.stringify(stored));
+        } catch (e) {
+          console.error('Failed to persist chatbot configs', e);
+        }
+        return next;
+      });
       setEditingValues(prev => {
         const { [id]: _, ...rest } = prev;
         return rest;
