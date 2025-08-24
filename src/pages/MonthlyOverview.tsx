@@ -68,6 +68,14 @@ export default function MonthlyOverview() {
       label: "ไม่พอใจการให้บริการ",
       color: "hsl(0, 70%, 50%)",
     },
+    "ให้บริการ 5 วัน": {
+      label: "ให้บริการ 5 วัน",
+      color: "hsl(330, 60%, 65%)",
+    },
+    "ให้บริการ 7 วัน": {
+      label: "ให้บริการ 7 วัน", 
+      color: "hsl(200, 60%, 75%)",
+    },
   };
 
   return (
