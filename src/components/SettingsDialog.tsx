@@ -39,13 +39,14 @@ export function SettingsDialog() {
   const fetchLinks = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('link_ref' as any)
+      // Use direct SQL query to bypass type issues
+      const { data, error } = await (supabase as any)
+        .from('link_ref')
         .select('*')
         .order('id');
       
       if (error) throw error;
-      setLinks((data as any as LinkItem[]) || []);
+      setLinks(data || []);
     } catch (error) {
       toast({
         title: "ข้อผิดพลาด",
@@ -83,14 +84,15 @@ export function SettingsDialog() {
     if (!editData) return;
 
     try {
-      const { error } = await supabase
-        .from('link_ref' as any)
+      // Use direct client to bypass type issues
+      const { error } = await (supabase as any)
+        .from('link_ref')
         .update({
           topic: editData.topic,
           linked: editData.linked,
           description: editData.description,
           update_at: new Date().toISOString(),
-        } as any)
+        })
         .eq('id', linkId);
 
       if (error) throw error;
