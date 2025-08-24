@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,97 +10,124 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Settings, Save, Eye, EyeOff, ExternalLink } from "lucide-react";
+import { Settings, Save, Edit3 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
-interface ConfigItem {
-  id: string;
-  label: string;
-  value: string;
-  isVisible: boolean;
+interface LinkItem {
+  id: number;
+  topic: string;
+  linked: string;
+  description: string;
+  update_at: string;
 }
 
 export function SettingsDialog() {
   const [isOpen, setIsOpen] = useState(false);
-  const [configs, setConfigs] = useState<ConfigItem[]>([
-    { id: "link1", label: "Link 1", value: "https://api.example.com/v1", isVisible: true },
-    { id: "link2", label: "Link 2", value: "postgresql://user:pass@localhost:5432/db", isVisible: false },
-    { id: "link3", label: "Link 3", value: "admin@company.com", isVisible: true },
-    { id: "link4", label: "Link 4", value: "24", isVisible: true },
-    { id: "link5", label: "Link 5", value: "100", isVisible: true },
-    { id: "link6", label: "Link 6", value: "60", isVisible: true },
-  ]);
-
-  const [descriptions, setDescriptions] = useState<{ [key: string]: string }>({
-    link1: "รายละเอียดสำหรับ Link 1",
-    link2: "รายละเอียดสำหรับ Link 2", 
-    link3: "รายละเอียดสำหรับ Link 3",
-    link4: "รายละเอียดสำหรับ Link 4",
-    link5: "รายละเอียดสำหรับ Link 5",
-    link6: "รายละเอียดสำหรับ Link 6",
-  });
-
-  const [editingValues, setEditingValues] = useState<{ [key: string]: string }>({});
+  const [links, setLinks] = useState<LinkItem[]>([]);
+  const [editingLinks, setEditingLinks] = useState<{ [key: number]: { topic: string; linked: string; description: string } }>({});
   const [notes, setNotes] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
-  const quickLinks = [
-    { label: "เอกสารการใช้งาน", url: "https://docs.example.com" },
-    { label: "การตั้งค่าระบบ", url: "https://settings.example.com" },
-    { label: "คู่มือการแก้ไขปัญหา", url: "https://support.example.com" },
-    { label: "API Reference", url: "https://api.example.com/docs" },
-    { label: "ติดต่อสนับสนุน", url: "https://support.example.com/contact" },
-    { label: "อัพเดทระบบ", url: "https://updates.example.com" },
-  ];
+  useEffect(() => {
+    fetchLinks();
+  }, []);
 
-  const handleDescriptionChange = (id: string, value: string) => {
-    setDescriptions(prev => ({ ...prev, [id]: value }));
+  const fetchLinks = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('link_ref')
+        .select('*')
+        .order('id');
+      
+      if (error) throw error;
+      setLinks(data || []);
+    } catch (error) {
+      toast({
+        title: "ข้อผิดพลาด",
+        description: "ไม่สามารถโหลดข้อมูลลิงก์ได้",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSave = (id: string) => {
-    const newValue = editingValues[id];
-    if (newValue !== undefined) {
-      setConfigs(prev => {
-        const next = prev.map(config =>
-          config.id === id ? { ...config, value: newValue } : config
-        );
-        // persist all links to localStorage so other pages (e.g., AiChat) can use them
-        try {
-          const stored = next.reduce((acc: Record<string, string>, c) => {
-            acc[c.id] = c.value;
-            return acc;
-          }, {} as Record<string, string>);
-          localStorage.setItem('chatbot_configs', JSON.stringify(stored));
-        } catch (e) {
-          console.error('Failed to persist chatbot configs', e);
-        }
-        return next;
-      });
-      setEditingValues(prev => {
-        const { [id]: _, ...rest } = prev;
+  const startEditing = (link: LinkItem) => {
+    setEditingLinks(prev => ({
+      ...prev,
+      [link.id]: {
+        topic: link.topic,
+        linked: link.linked,
+        description: link.description,
+      }
+    }));
+  };
+
+  const handleEditChange = (linkId: number, field: keyof Pick<LinkItem, 'topic' | 'linked' | 'description'>, value: string) => {
+    setEditingLinks(prev => ({
+      ...prev,
+      [linkId]: {
+        ...prev[linkId],
+        [field]: value,
+      }
+    }));
+  };
+
+  const handleSave = async (linkId: number) => {
+    const editData = editingLinks[linkId];
+    if (!editData) return;
+
+    try {
+      const { error } = await supabase
+        .from('link_ref')
+        .update({
+          topic: editData.topic,
+          linked: editData.linked,
+          description: editData.description,
+          update_at: new Date().toISOString(),
+        })
+        .eq('id', linkId);
+
+      if (error) throw error;
+
+      // Update local state
+      setLinks(prev => prev.map(link => 
+        link.id === linkId 
+          ? { ...link, ...editData, update_at: new Date().toISOString() }
+          : link
+      ));
+
+      // Remove from editing state
+      setEditingLinks(prev => {
+        const { [linkId]: _, ...rest } = prev;
         return rest;
       });
+
+      toast({
+        title: "บันทึกสำเร็จ",
+        description: "อัพเดทข้อมูลลิงก์เรียบร้อยแล้ว",
+      });
+
+    } catch (error) {
+      toast({
+        title: "ข้อผิดพลาด",
+        description: "ไม่สามารถบันทึกข้อมูลได้",
+        variant: "destructive",
+      });
     }
   };
 
-  const handleInputChange = (id: string, value: string) => {
-    setEditingValues(prev => ({ ...prev, [id]: value }));
+  const cancelEdit = (linkId: number) => {
+    setEditingLinks(prev => {
+      const { [linkId]: _, ...rest } = prev;
+      return rest;
+    });
   };
 
-  const toggleVisibility = (id: string) => {
-    setConfigs(prev => 
-      prev.map(config => 
-        config.id === id ? { ...config, isVisible: !config.isVisible } : config
-      )
-    );
-  };
-
-  const getDisplayValue = (config: ConfigItem) => {
-    if (editingValues[config.id] !== undefined) {
-      return editingValues[config.id];
-    }
-    return config.isVisible ? config.value : "••••••••••••";
-  };
-
-  const isEditing = (id: string) => editingValues[id] !== undefined;
+  const isEditing = (linkId: number) => linkId in editingLinks;
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -113,105 +140,118 @@ export function SettingsDialog() {
           <Settings className="h-4 w-4" strokeWidth={1.5} />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-full w-[95vw] max-h-[90vh] h-[90vh] p-0 m-2 sm:m-6 flex flex-col">
+      <DialogContent className="max-w-4xl w-[90vw] max-h-[85vh] h-[85vh] p-0 mx-auto flex flex-col">
         <DialogHeader className="px-4 py-3 sm:px-6 sm:py-4 border-b flex-shrink-0">
           <DialogTitle className="text-lg sm:text-xl font-bold text-foreground">
             การจัดการเครื่องมือภายนอก
           </DialogTitle>
         </DialogHeader>
         
-        <ScrollArea className="flex-1 p-4 sm:p-6">
+        <ScrollArea className="flex-1 p-4 sm:p-6 touch-pan-y">
           <div className="space-y-6">
-            {/* Configuration Settings */}
+            {/* Links Management */}
             <div className="space-y-3 sm:space-y-4">
-              <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4">การตั้งค่าระบบ</h3>
-              {configs.map((config) => (
-                <div key={config.id} className="flex flex-col gap-3 p-3 sm:p-4 bg-muted/30 rounded-lg border">
-                  {/* Header with Label */}
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-                    <div className="w-full sm:w-48 sm:flex-shrink-0">
-                      <label className="text-sm font-medium text-foreground">
-                        {config.label}
-                      </label>
-                    </div>
-                    
-                    {/* Input and Controls Container */}
-                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 w-full sm:flex-1">
-                      {/* Input */}
-                      <div className="flex-1">
-                        <Input
-                          type={config.isVisible || isEditing(config.id) ? "text" : "password"}
-                          value={getDisplayValue(config)}
-                          onChange={(e) => handleInputChange(config.id, e.target.value)}
-                          className="w-full"
-                          placeholder={config.label}
-                        />
+              <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4">ลิงก์ภายนอก</h3>
+              {loading ? (
+                <div className="text-center py-8 text-muted-foreground">กำลังโหลด...</div>
+              ) : (
+                links.map((link) => (
+                  <div key={link.id} className="p-3 sm:p-4 bg-muted/30 rounded-lg border">
+                    {isEditing(link.id) ? (
+                      // Edit mode
+                      <div className="space-y-3">
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 lg:gap-4">
+                          <div>
+                            <label className="text-xs text-muted-foreground mb-1 block">หัวข้อ</label>
+                            <Input
+                              value={editingLinks[link.id]?.topic || ''}
+                              onChange={(e) => handleEditChange(link.id, 'topic', e.target.value)}
+                              className="w-full"
+                              placeholder="หัวข้อ"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-xs text-muted-foreground mb-1 block">ลิงก์</label>
+                            <Input
+                              value={editingLinks[link.id]?.linked || ''}
+                              onChange={(e) => handleEditChange(link.id, 'linked', e.target.value)}
+                              className="w-full"
+                              placeholder="URL"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-xs text-muted-foreground mb-1 block">รายละเอียด</label>
+                            <Input
+                              value={editingLinks[link.id]?.description || ''}
+                              onChange={(e) => handleEditChange(link.id, 'description', e.target.value)}
+                              className="w-full"
+                              placeholder="รายละเอียด"
+                            />
+                          </div>
+                        </div>
+                        <div className="flex gap-2 justify-end">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => cancelEdit(link.id)}
+                            className="text-xs sm:text-sm"
+                          >
+                            ยกเลิก
+                          </Button>
+                          <Button
+                            variant="default"
+                            size="sm"
+                            onClick={() => handleSave(link.id)}
+                            className="text-xs sm:text-sm"
+                          >
+                            <Save className="h-3 w-3 mr-1" />
+                            บันทึก
+                          </Button>
+                        </div>
                       </div>
-                      
-                      {/* Controls Container */}
-                      <div className="flex gap-2 sm:gap-4 items-center justify-end sm:justify-start">
-                        {/* Save button */}
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleSave(config.id)}
-                          disabled={!isEditing(config.id)}
-                          className="min-w-[70px] sm:min-w-[80px] text-xs sm:text-sm"
-                        >
-                          <Save className="h-3 w-3 mr-1" />
-                          บันทึก
-                        </Button>
-                        
-                        {/* Visibility toggle */}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => toggleVisibility(config.id)}
-                          className="h-8 w-8 flex-shrink-0"
-                        >
-                          {config.isVisible ? (
-                            <Eye className="h-4 w-4" />
-                          ) : (
-                            <EyeOff className="h-4 w-4" />
-                          )}
-                        </Button>
+                    ) : (
+                      // Display mode
+                      <div className="space-y-3">
+                        <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 lg:gap-4 lg:items-center">
+                          <div>
+                            <div className="text-xs text-muted-foreground mb-1">หัวข้อ</div>
+                            <div className="font-medium text-sm">{link.topic}</div>
+                          </div>
+                          <div>
+                            <div className="text-xs text-muted-foreground mb-1">ลิงก์</div>
+                            <div className="text-sm truncate text-blue-600 hover:text-blue-800">
+                              <a href={link.linked} target="_blank" rel="noopener noreferrer" className="underline">
+                                {link.linked}
+                              </a>
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-xs text-muted-foreground mb-1">รายละเอียด</div>
+                            <div className="text-sm text-muted-foreground">{link.description}</div>
+                          </div>
+                          <div className="flex items-center justify-between lg:justify-end gap-2">
+                            <div className="lg:hidden">
+                              <div className="text-xs text-muted-foreground">อัพเดท: {new Date(link.update_at).toLocaleDateString('th-TH')}</div>
+                            </div>
+                            <div className="hidden lg:block text-xs text-muted-foreground">
+                              อัพเดท: {new Date(link.update_at).toLocaleDateString('th-TH')}
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => startEditing(link)}
+                              className="h-8 px-3 text-xs"
+                            >
+                              <Edit3 className="h-3 w-3 mr-1" />
+                              แก้ไข
+                            </Button>
+                          </div>
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
-                  
-                  {/* Description Input */}
-                  <div className="border-t pt-3">
-                    <label className="text-xs text-muted-foreground mb-1 block">
-                      รายละเอียด
-                    </label>
-                    <Input
-                      type="text"
-                      value={descriptions[config.id] || ''}
-                      onChange={(e) => handleDescriptionChange(config.id, e.target.value)}
-                      className="w-full text-sm"
-                      placeholder="เพิ่มรายละเอียดสำหรับลิงก์นี้..."
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Quick Links */}
-            <div className="space-y-4">
-              <h3 className="text-base sm:text-lg font-semibold text-foreground">ลิงก์ด่วน</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {quickLinks.map((link, index) => (
-                  <Button
-                    key={index}
-                    variant="outline"
-                    className="h-auto p-3 justify-start text-left"
-                    onClick={() => window.open(link.url, '_blank')}
-                  >
-                    <ExternalLink className="h-4 w-4 mr-2 flex-shrink-0" />
-                    <span className="text-sm truncate">{link.label}</span>
-                  </Button>
-                ))}
-              </div>
+                ))
+              )}
             </div>
 
             {/* Notes Section */}
@@ -227,7 +267,6 @@ export function SettingsDialog() {
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  // Save notes functionality here
                   console.log('Saving notes:', notes);
                 }}
                 className="self-start"
