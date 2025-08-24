@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
+import { PieChart, Pie, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Cell } from "recharts";
+import { FileText, Phone, Lightbulb, AlertTriangle, ArrowUp, ArrowDown } from "lucide-react";
 
 export default function MonthlyOverview() {
   const [selectedMonth, setSelectedMonth] = useState("มกราคม 2567");
@@ -13,6 +16,59 @@ export default function MonthlyOverview() {
     "มกราคม 2568", "กุมภาพันธ์ 2568", "มีนาคม 2568", "เมษายน 2568", 
     "พฤษภาคม 2568", "มิถุนายน 2568"
   ];
+
+  // Mock data for KPI cards
+  const kpiData = [
+    { icon: FileText, title: "แบบฟอร์มทั้งหมด", value: 1247, change: 12.5, isPositive: true, lastMonth: 1109 },
+    { icon: Phone, title: "ให้ข้อมูลติดต่อ", value: 892, change: -5.3, isPositive: false, lastMonth: 941 },
+    { icon: Lightbulb, title: "มีข้อเสนอแนะ", value: 456, change: 18.7, isPositive: true, lastMonth: 384 },
+    { icon: AlertTriangle, title: "ข้อร้องเรียนรุนแรง", value: 23, change: -34.2, isPositive: false, lastMonth: 35 }
+  ];
+
+  // Mock data for branch type donut chart
+  const branchTypeData = [
+    { name: "ให้บริการ 5 วัน", value: 68, fill: "hsl(var(--primary))" },
+    { name: "ให้บริการ 7 วัน", value: 32, fill: "hsl(var(--secondary))" }
+  ];
+
+  // Mock data for service type bar chart
+  const serviceTypeData = [
+    { category: "ฝาก/ถอน", lastMonth: 320, currentMonth: 380 },
+    { category: "ชำระเงิน", lastMonth: 250, currentMonth: 290 },
+    { category: "สมัครบริการ", lastMonth: 180, currentMonth: 220 },
+    { category: "สอบถาม", lastMonth: 150, currentMonth: 170 },
+    { category: "อื่นๆ", lastMonth: 90, currentMonth: 110 }
+  ];
+
+  // Mock data for form submission line chart
+  const formSubmissionData = [
+    { day: "1", blue: 45, red: 38 },
+    { day: "5", blue: 52, red: 42 },
+    { day: "10", blue: 48, red: 35 },
+    { day: "15", blue: 61, red: 48 },
+    { day: "20", blue: 58, red: 44 },
+    { day: "25", blue: 65, red: 52 },
+    { day: "30", blue: 72, red: 58 }
+  ];
+
+  const chartConfig = {
+    lastMonth: {
+      label: "เดือนที่แล้ว",
+      color: "hsl(var(--muted-foreground))",
+    },
+    currentMonth: {
+      label: "เดือนปัจจุบัน",
+      color: "hsl(var(--primary))",
+    },
+    blue: {
+      label: "เป้าหมาย",
+      color: "hsl(220, 70%, 50%)",
+    },
+    red: {
+      label: "ผลงาน",
+      color: "hsl(0, 70%, 50%)",
+    },
+  };
 
   return (
     <div className="w-full p-4 md:p-6 lg:pl-2 lg:pr-4 xl:pl-3 xl:pr-6">
@@ -57,108 +113,148 @@ export default function MonthlyOverview() {
           </CardHeader>
           <CardContent className="space-y-6">
             {/* KPI Cards Grid */}
-            <div className="grid grid-cols-2 gap-4 lg:grid-cols-2 portrait:grid-cols-1">
-              <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-                <CardContent className="p-4">
-                  <div className="text-center">
-                    <div className="text-2xl mb-2">📋</div>
-                    <h3 className="font-semibold text-blue-800 mb-1">แบบฟอร์มทั้งหมด</h3>
-                    <p className="text-2xl font-bold text-blue-900">0</p>
-                    <p className="text-xs text-blue-600">รายการ</p>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-                <CardContent className="p-4">
-                  <div className="text-center">
-                    <div className="text-2xl mb-2">📞</div>
-                    <h3 className="font-semibold text-green-800 mb-1">ให้ข้อมูลติดต่อ</h3>
-                    <p className="text-2xl font-bold text-green-900">0</p>
-                    <p className="text-xs text-green-600">รายการ</p>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200">
-                <CardContent className="p-4">
-                  <div className="text-center">
-                    <div className="text-2xl mb-2">💡</div>
-                    <h3 className="font-semibold text-yellow-800 mb-1">มีข้อเสนอแนะ</h3>
-                    <p className="text-2xl font-bold text-yellow-900">0</p>
-                    <p className="text-xs text-yellow-600">รายการ</p>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-gradient-to-br from-red-50 to-red-100 border-red-200">
-                <CardContent className="p-4">
-                  <div className="text-center">
-                    <div className="text-2xl mb-2">⚠️</div>
-                    <h3 className="font-semibold text-red-800 mb-1">ข้อร้องเรียนรุนแรง</h3>
-                    <p className="text-2xl font-bold text-red-900">0</p>
-                    <p className="text-xs text-red-600">รายการ</p>
-                  </div>
-                </CardContent>
-              </Card>
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+              {kpiData.map((kpi, index) => {
+                const colors = [
+                  { bg: "from-blue-50 to-blue-100", border: "border-blue-200", text: "text-blue-800", number: "text-blue-900", desc: "text-blue-600" },
+                  { bg: "from-green-50 to-green-100", border: "border-green-200", text: "text-green-800", number: "text-green-900", desc: "text-green-600" },
+                  { bg: "from-yellow-50 to-yellow-100", border: "border-yellow-200", text: "text-yellow-800", number: "text-yellow-900", desc: "text-yellow-600" },
+                  { bg: "from-red-50 to-red-100", border: "border-red-200", text: "text-red-800", number: "text-red-900", desc: "text-red-600" }
+                ];
+                const colorSet = colors[index];
+                
+                return (
+                  <Card key={index} className={`bg-gradient-to-br ${colorSet.bg} ${colorSet.border}`}>
+                    <CardContent className="p-4">
+                      <div className="text-center">
+                        <div className="flex justify-center mb-2">
+                          <kpi.icon className={`w-6 h-6 ${colorSet.text}`} />
+                        </div>
+                        <h3 className={`font-semibold ${colorSet.text} mb-1 text-sm`}>{kpi.title}</h3>
+                        <p className={`text-2xl font-bold ${colorSet.number} mb-1`}>
+                          {kpi.value.toLocaleString()} ครั้ง
+                        </p>
+                        <div className={`flex items-center justify-center gap-1 text-xs ${colorSet.desc}`}>
+                          {kpi.isPositive ? (
+                            <ArrowUp className="w-3 h-3 text-green-600" />
+                          ) : (
+                            <ArrowDown className="w-3 h-3 text-red-600" />
+                          )}
+                          <span className={kpi.isPositive ? "text-green-600" : "text-red-600"}>
+                            {Math.abs(kpi.change).toFixed(1)}%
+                          </span>
+                          <span>(จากเดือนที่แล้ว {kpi.lastMonth} ครั้ง)</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
 
-            {/* Additional Analysis Section */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Charts Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              {/* Branch Type Donut Chart */}
               <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
                 <CardContent className="p-4">
-                  <div className="text-center">
-                    <div className="text-xl mb-2">🏢</div>
-                    <h3 className="font-medium text-purple-800 mb-2">ประเภทของสาขา</h3>
-                    <div className="space-y-1 text-sm text-purple-700">
-                      <div className="flex justify-between">
-                        <span>สาขาหลัก</span>
-                        <span className="font-semibold">0</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>สาขาย่อย</span>
-                        <span className="font-semibold">0</span>
-                      </div>
-                    </div>
-                  </div>
+                  <h3 className="font-medium text-purple-800 mb-4 text-center">ประเภทของสาขา</h3>
+                  <ChartContainer config={chartConfig} className="h-[200px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={branchTypeData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={40}
+                          outerRadius={70}
+                          paddingAngle={5}
+                          dataKey="value"
+                        >
+                          {branchTypeData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.fill} />
+                          ))}
+                        </Pie>
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <ChartLegend content={<ChartLegendContent />} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
                 </CardContent>
               </Card>
 
+              {/* Service Type Bar Chart */}
               <Card className="bg-gradient-to-br from-cyan-50 to-cyan-100 border-cyan-200">
                 <CardContent className="p-4">
-                  <div className="text-center">
-                    <div className="text-xl mb-2">💼</div>
-                    <h3 className="font-medium text-cyan-800 mb-2">ประเภทการใช้บริการ</h3>
-                    <div className="space-y-1 text-sm text-cyan-700">
-                      <div className="flex justify-between">
-                        <span>ฝาก-ถอน</span>
-                        <span className="font-semibold">0</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>สินเชื่อ</span>
-                        <span className="font-semibold">0</span>
-                      </div>
-                    </div>
-                  </div>
+                  <h3 className="font-medium text-cyan-800 mb-4 text-center">ประเภทการใช้บริการ</h3>
+                  <ChartContainer config={chartConfig} className="h-[200px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={serviceTypeData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" />
+                        <XAxis 
+                          dataKey="category" 
+                          tick={{ fontSize: 10 }}
+                          stroke="hsl(var(--muted-foreground))"
+                        />
+                        <YAxis 
+                          tick={{ fontSize: 10 }}
+                          stroke="hsl(var(--muted-foreground))"
+                        />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Bar 
+                          dataKey="lastMonth" 
+                          fill="hsl(var(--muted-foreground))" 
+                          name="เดือนที่แล้ว"
+                          radius={[2, 2, 0, 0]}
+                        />
+                        <Bar 
+                          dataKey="currentMonth" 
+                          fill="hsl(var(--primary))" 
+                          name="เดือนปัจจุบัน"
+                          radius={[2, 2, 0, 0]}
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
                 </CardContent>
               </Card>
 
+              {/* Form Submission Line Chart */}
               <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
                 <CardContent className="p-4">
-                  <div className="text-center">
-                    <div className="text-xl mb-2">📊</div>
-                    <h3 className="font-medium text-orange-800 mb-2">จำนวนแบบฟอร์มที่ถูกส่ง</h3>
-                    <div className="space-y-1 text-sm text-orange-700">
-                      <div className="flex justify-between">
-                        <span>วันนี้</span>
-                        <span className="font-semibold">0</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>เดือนนี้</span>
-                        <span className="font-semibold">0</span>
-                      </div>
-                    </div>
-                  </div>
+                  <h3 className="font-medium text-orange-800 mb-4 text-center">จำนวนแบบฟอร์มที่ถูกส่ง</h3>
+                  <ChartContainer config={chartConfig} className="h-[200px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={formSubmissionData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" />
+                        <XAxis 
+                          dataKey="day" 
+                          tick={{ fontSize: 10 }}
+                          stroke="hsl(var(--muted-foreground))"
+                        />
+                        <YAxis 
+                          tick={{ fontSize: 10 }}
+                          stroke="hsl(var(--muted-foreground))"
+                        />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Line 
+                          type="monotone" 
+                          dataKey="blue" 
+                          stroke="hsl(220, 70%, 50%)" 
+                          strokeWidth={2}
+                          dot={{ fill: "hsl(220, 70%, 50%)", strokeWidth: 2, r: 4 }}
+                          name="เป้าหมาย"
+                        />
+                        <Line 
+                          type="monotone" 
+                          dataKey="red" 
+                          stroke="hsl(0, 70%, 50%)" 
+                          strokeWidth={2}
+                          dot={{ fill: "hsl(0, 70%, 50%)", strokeWidth: 2, r: 4 }}
+                          name="ผลงาน"
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
                 </CardContent>
               </Card>
             </div>
