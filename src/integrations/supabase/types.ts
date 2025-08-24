@@ -98,6 +98,30 @@ export type Database = {
         }
         Relationships: []
       }
+      link_ref: {
+        Row: {
+          description: string
+          id: number
+          linked: string
+          topic: string
+          update_at: string
+        }
+        Insert: {
+          description: string
+          id?: number
+          linked: string
+          topic: string
+          update_at?: string
+        }
+        Update: {
+          description?: string
+          id?: number
+          linked?: string
+          topic?: string
+          update_at?: string
+        }
+        Relationships: []
+      }
       raw_comment: {
         Row: {
           branch_name: string
@@ -129,7 +153,7 @@ export type Database = {
           branch_name: string
           comment: string
           comment_date: string
-          comment_id?: string
+          comment_id: string
           comment_meaning?: string
           contact?: string | null
           create_at?: string
@@ -190,7 +214,7 @@ export type Database = {
           sub_category: string
         }
         Insert: {
-          comment_id?: string
+          comment_id: string
           created_at?: string
           main_category: string
           sentence?: string | null
@@ -207,15 +231,7 @@ export type Database = {
           sentiment?: string
           sub_category?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "sentence_category_comment_id_fkey"
-            columns: ["comment_id"]
-            isOneToOne: false
-            referencedRelation: "raw_comment"
-            referencedColumns: ["comment_id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Views: {

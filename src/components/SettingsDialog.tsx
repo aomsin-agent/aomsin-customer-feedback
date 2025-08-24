@@ -22,6 +22,8 @@ interface LinkItem {
   update_at: string;
 }
 
+type EditableField = 'topic' | 'linked' | 'description';
+
 export function SettingsDialog() {
   const [isOpen, setIsOpen] = useState(false);
   const [links, setLinks] = useState<LinkItem[]>([]);
@@ -38,12 +40,12 @@ export function SettingsDialog() {
     setLoading(true);
     try {
       const { data, error } = await supabase
-        .from('link_ref')
+        .from('link_ref' as any)
         .select('*')
         .order('id');
       
       if (error) throw error;
-      setLinks(data || []);
+      setLinks((data as any as LinkItem[]) || []);
     } catch (error) {
       toast({
         title: "ข้อผิดพลาด",
@@ -66,7 +68,7 @@ export function SettingsDialog() {
     }));
   };
 
-  const handleEditChange = (linkId: number, field: keyof Pick<LinkItem, 'topic' | 'linked' | 'description'>, value: string) => {
+  const handleEditChange = (linkId: number, field: EditableField, value: string) => {
     setEditingLinks(prev => ({
       ...prev,
       [linkId]: {
@@ -82,13 +84,13 @@ export function SettingsDialog() {
 
     try {
       const { error } = await supabase
-        .from('link_ref')
+        .from('link_ref' as any)
         .update({
           topic: editData.topic,
           linked: editData.linked,
           description: editData.description,
           update_at: new Date().toISOString(),
-        })
+        } as any)
         .eq('id', linkId);
 
       if (error) throw error;
@@ -147,7 +149,7 @@ export function SettingsDialog() {
           </DialogTitle>
         </DialogHeader>
         
-        <ScrollArea className="flex-1 p-4 sm:p-6 touch-pan-y">
+        <ScrollArea className="flex-1 p-4 sm:p-6 touch-pan-y overscroll-contain">
           <div className="space-y-6">
             {/* Links Management */}
             <div className="space-y-3 sm:space-y-4">
@@ -159,35 +161,33 @@ export function SettingsDialog() {
                   <div key={link.id} className="p-3 sm:p-4 bg-muted/30 rounded-lg border">
                     {isEditing(link.id) ? (
                       // Edit mode
-                      <div className="space-y-3">
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 lg:gap-4">
-                          <div>
-                            <label className="text-xs text-muted-foreground mb-1 block">หัวข้อ</label>
-                            <Input
-                              value={editingLinks[link.id]?.topic || ''}
-                              onChange={(e) => handleEditChange(link.id, 'topic', e.target.value)}
-                              className="w-full"
-                              placeholder="หัวข้อ"
-                            />
-                          </div>
-                          <div>
-                            <label className="text-xs text-muted-foreground mb-1 block">ลิงก์</label>
-                            <Input
-                              value={editingLinks[link.id]?.linked || ''}
-                              onChange={(e) => handleEditChange(link.id, 'linked', e.target.value)}
-                              className="w-full"
-                              placeholder="URL"
-                            />
-                          </div>
-                          <div>
-                            <label className="text-xs text-muted-foreground mb-1 block">รายละเอียด</label>
-                            <Input
-                              value={editingLinks[link.id]?.description || ''}
-                              onChange={(e) => handleEditChange(link.id, 'description', e.target.value)}
-                              className="w-full"
-                              placeholder="รายละเอียด"
-                            />
-                          </div>
+                      <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 lg:gap-4 lg:items-center">
+                        <div>
+                          <label className="text-xs text-muted-foreground mb-1 block">หัวข้อ</label>
+                          <Input
+                            value={editingLinks[link.id]?.topic || ''}
+                            onChange={(e) => handleEditChange(link.id, 'topic', e.target.value)}
+                            className="w-full"
+                            placeholder="หัวข้อ"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs text-muted-foreground mb-1 block">ลิงก์</label>
+                          <Input
+                            value={editingLinks[link.id]?.linked || ''}
+                            onChange={(e) => handleEditChange(link.id, 'linked', e.target.value)}
+                            className="w-full"
+                            placeholder="URL"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs text-muted-foreground mb-1 block">รายละเอียด</label>
+                          <Input
+                            value={editingLinks[link.id]?.description || ''}
+                            onChange={(e) => handleEditChange(link.id, 'description', e.target.value)}
+                            className="w-full"
+                            placeholder="รายละเอียด"
+                          />
                         </div>
                         <div className="flex gap-2 justify-end">
                           <Button
@@ -219,8 +219,8 @@ export function SettingsDialog() {
                           </div>
                           <div>
                             <div className="text-xs text-muted-foreground mb-1">ลิงก์</div>
-                            <div className="text-sm truncate text-blue-600 hover:text-blue-800">
-                              <a href={link.linked} target="_blank" rel="noopener noreferrer" className="underline">
+                            <div className="text-sm truncate">
+                              <a href={link.linked} target="_blank" rel="noopener noreferrer" className="text-primary underline-offset-4 hover:underline">
                                 {link.linked}
                               </a>
                             </div>
