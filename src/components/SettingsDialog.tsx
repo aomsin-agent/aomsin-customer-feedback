@@ -158,101 +158,112 @@ export function SettingsDialog() {
               <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4">ลิงก์ภายนอก</h3>
               {loading ? (
                 <div className="text-center py-8 text-muted-foreground">กำลังโหลด...</div>
+              ) : links.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">ไม่พบข้อมูลลิงก์</div>
               ) : (
-                links.map((link) => (
-                  <div key={link.id} className="p-3 sm:p-4 bg-muted/30 rounded-lg border">
-                    {isEditing(link.id) ? (
-                      // Edit mode
-                      <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 lg:gap-4 lg:items-center">
-                        <div>
-                          <label className="text-xs text-muted-foreground mb-1 block">หัวข้อ</label>
-                          <Input
-                            value={editingLinks[link.id]?.topic || ''}
-                            onChange={(e) => handleEditChange(link.id, 'topic', e.target.value)}
-                            className="w-full"
-                            placeholder="หัวข้อ"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-xs text-muted-foreground mb-1 block">ลิงก์</label>
-                          <Input
-                            value={editingLinks[link.id]?.linked || ''}
-                            onChange={(e) => handleEditChange(link.id, 'linked', e.target.value)}
-                            className="w-full"
-                            placeholder="URL"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-xs text-muted-foreground mb-1 block">รายละเอียด</label>
-                          <Input
-                            value={editingLinks[link.id]?.description || ''}
-                            onChange={(e) => handleEditChange(link.id, 'description', e.target.value)}
-                            className="w-full"
-                            placeholder="รายละเอียด"
-                          />
-                        </div>
-                        <div className="flex gap-2 justify-end">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => cancelEdit(link.id)}
-                            className="text-xs sm:text-sm"
-                          >
-                            ยกเลิก
-                          </Button>
-                          <Button
-                            variant="default"
-                            size="sm"
-                            onClick={() => handleSave(link.id)}
-                            className="text-xs sm:text-sm"
-                          >
-                            <Save className="h-3 w-3 mr-1" />
-                            บันทึก
-                          </Button>
-                        </div>
-                      </div>
-                    ) : (
-                      // Display mode
-                      <div className="space-y-3">
-                        <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 lg:gap-4 lg:items-center">
-                          <div>
-                            <div className="text-xs text-muted-foreground mb-1">หัวข้อ</div>
-                            <div className="font-medium text-sm">{link.topic}</div>
-                          </div>
-                          <div>
-                            <div className="text-xs text-muted-foreground mb-1">ลิงก์</div>
-                            <div className="text-sm truncate">
-                              <a href={link.linked} target="_blank" rel="noopener noreferrer" className="text-primary underline-offset-4 hover:underline">
-                                {link.linked}
-                              </a>
+                <div className="grid grid-cols-1 gap-3 sm:gap-4">
+                  {links.map((link) => (
+                    <div key={link.id} className="p-3 sm:p-4 bg-muted/30 rounded-lg border">
+                      {isEditing(link.id) ? (
+                        // Edit mode
+                        <div className="space-y-3">
+                          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-4">
+                            <div className="md:col-span-1">
+                              <label className="text-xs text-muted-foreground mb-1 block">หัวข้อ</label>
+                              <Input
+                                value={editingLinks[link.id]?.topic || ''}
+                                onChange={(e) => handleEditChange(link.id, 'topic', e.target.value)}
+                                className="w-full"
+                                placeholder="หัวข้อ"
+                              />
+                            </div>
+                            <div className="md:col-span-1">
+                              <label className="text-xs text-muted-foreground mb-1 block">ลิงก์</label>
+                              <Input
+                                value={editingLinks[link.id]?.linked || ''}
+                                onChange={(e) => handleEditChange(link.id, 'linked', e.target.value)}
+                                className="w-full"
+                                placeholder="URL"
+                              />
+                            </div>
+                            <div className="md:col-span-1">
+                              <label className="text-xs text-muted-foreground mb-1 block">รายละเอียด</label>
+                              <Input
+                                value={editingLinks[link.id]?.description || ''}
+                                onChange={(e) => handleEditChange(link.id, 'description', e.target.value)}
+                                className="w-full"
+                                placeholder="รายละเอียด"
+                              />
+                            </div>
+                            <div className="md:col-span-3 lg:col-span-1 flex gap-2 justify-end lg:justify-center lg:items-center">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => cancelEdit(link.id)}
+                                className="text-xs"
+                              >
+                                ยกเลิก
+                              </Button>
+                              <Button
+                                variant="default"
+                                size="sm"
+                                onClick={() => handleSave(link.id)}
+                                className="text-xs"
+                              >
+                                <Save className="h-3 w-3 mr-1" />
+                                บันทึก
+                              </Button>
                             </div>
                           </div>
-                          <div>
-                            <div className="text-xs text-muted-foreground mb-1">รายละเอียด</div>
-                            <div className="text-sm text-muted-foreground">{link.description}</div>
-                          </div>
-                          <div className="flex items-center justify-between lg:justify-end gap-2">
-                            <div className="lg:hidden">
-                              <div className="text-xs text-muted-foreground">อัพเดท: {new Date(link.update_at).toLocaleDateString('th-TH')}</div>
+                        </div>
+                      ) : (
+                        // Display mode
+                        <div className="space-y-3">
+                          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-4 lg:items-center">
+                            <div className="md:col-span-1">
+                              <div className="text-xs text-muted-foreground mb-1">หัวข้อ</div>
+                              <div className="font-medium text-sm">
+                                {link.topic && link.topic !== '-' ? link.topic : `ลิงก์ ${link.id}`}
+                              </div>
                             </div>
-                            <div className="hidden lg:block text-xs text-muted-foreground">
-                              อัพเดท: {new Date(link.update_at).toLocaleDateString('th-TH')}
+                            <div className="md:col-span-1">
+                              <div className="text-xs text-muted-foreground mb-1">ลิงก์</div>
+                              <div className="text-sm truncate">
+                                {link.linked && link.linked !== '-' ? (
+                                  <a href={link.linked} target="_blank" rel="noopener noreferrer" className="text-primary underline-offset-4 hover:underline">
+                                    {link.linked}
+                                  </a>
+                                ) : (
+                                  <span className="text-muted-foreground italic">ยังไม่ได้ตั้งค่า</span>
+                                )}
+                              </div>
                             </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => startEditing(link)}
-                              className="h-8 px-3 text-xs"
-                            >
-                              <Edit3 className="h-3 w-3 mr-1" />
-                              แก้ไข
-                            </Button>
+                            <div className="md:col-span-1">
+                              <div className="text-xs text-muted-foreground mb-1">รายละเอียด</div>
+                              <div className="text-sm text-muted-foreground">
+                                {link.description && link.description !== '-' ? link.description : 'ไม่มีรายละเอียด'}
+                              </div>
+                            </div>
+                            <div className="md:col-span-3 lg:col-span-1 flex items-center justify-between lg:justify-center gap-2">
+                              <div className="text-xs text-muted-foreground">
+                                อัพเดท: {new Date(link.update_at).toLocaleDateString('th-TH')}
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => startEditing(link)}
+                                className="h-8 px-3 text-xs flex-shrink-0"
+                              >
+                                <Edit3 className="h-3 w-3 mr-1" />
+                                แก้ไข
+                              </Button>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
-                ))
+                      )}
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
 
