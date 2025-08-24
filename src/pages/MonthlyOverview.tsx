@@ -207,7 +207,7 @@ export default function MonthlyOverview() {
                   <div className="flex justify-center">
                     <ChartContainer config={chartConfig} className="h-[200px] w-full">
                       <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={serviceTypeData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+                        <BarChart data={serviceTypeData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
                           <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" />
                           <XAxis 
                             dataKey="category" 
@@ -217,6 +217,7 @@ export default function MonthlyOverview() {
                           <YAxis 
                             tick={{ fontSize: 10 }}
                             stroke="hsl(var(--muted-foreground))"
+                            width={40}
                           />
                           <ChartTooltip content={<ChartTooltipContent />} />
                           <Bar 
