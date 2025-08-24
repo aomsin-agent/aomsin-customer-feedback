@@ -161,11 +161,12 @@ export function SettingsDialog() {
               <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4">ลิงก์ภายนอก</h3>
               {loading ? (
                 <div className="text-center py-8 text-muted-foreground">กำลังโหลด...</div>
-              ) : links.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">ไม่พบข้อมูลลิงก์</div>
               ) : (
                 <div className="grid grid-cols-1 gap-3 sm:gap-4">
-                  {links.map((link) => (
+                  {links.length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground">ไม่พบข้อมูลลิงก์</div>
+                  ) : (
+                    links.map((link) => (
                     <div key={link.id} className="p-3 sm:p-4 bg-muted/30 rounded-lg border">
                       {isEditing(link.id) ? (
                         // Edit mode
@@ -176,7 +177,7 @@ export function SettingsDialog() {
                               <Input
                                 value={editingLinks[link.id]?.topic || ''}
                                 onChange={(e) => handleEditChange(link.id, 'topic', e.target.value)}
-                                className="w-full border-0 bg-muted/50 focus-visible:ring-1 focus-visible:ring-muted-foreground/20"
+                                className="w-full border-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
                                 placeholder="หัวข้อ"
                               />
                             </div>
@@ -185,7 +186,7 @@ export function SettingsDialog() {
                               <Input
                                 value={editingLinks[link.id]?.linked || ''}
                                 onChange={(e) => handleEditChange(link.id, 'linked', e.target.value)}
-                                className="w-full border-0 bg-muted/50 focus-visible:ring-1 focus-visible:ring-muted-foreground/20"
+                                className="w-full border-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
                                 placeholder="URL"
                               />
                             </div>
@@ -194,7 +195,7 @@ export function SettingsDialog() {
                               <Input
                                 value={editingLinks[link.id]?.description || ''}
                                 onChange={(e) => handleEditChange(link.id, 'description', e.target.value)}
-                                className="w-full border-0 bg-muted/50 focus-visible:ring-1 focus-visible:ring-muted-foreground/20"
+                                className="w-full border-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
                                 placeholder="รายละเอียด"
                               />
                             </div>
@@ -274,7 +275,8 @@ export function SettingsDialog() {
                         </div>
                       )}
                     </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               )}
             </div>
