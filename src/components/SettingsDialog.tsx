@@ -178,7 +178,7 @@ export function SettingsDialog() {
                               <Input
                                 value={editingLinks[link.id]?.topic || ''}
                                 onChange={(e) => handleEditChange(link.id, 'topic', e.target.value)}
-                                className="w-full border-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-2 py-1"
+                                className="w-full border-none bg-white focus-visible:ring-0 focus-visible:ring-offset-0 px-2 py-1"
                                 placeholder="หัวข้อ"
                               />
                             </div>
@@ -187,7 +187,7 @@ export function SettingsDialog() {
                               <Input
                                 value={editingLinks[link.id]?.description || ''}
                                 onChange={(e) => handleEditChange(link.id, 'description', e.target.value)}
-                                className="w-full border-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-2 py-1"
+                                className="w-full border-none bg-white focus-visible:ring-0 focus-visible:ring-offset-0 px-2 py-1"
                                 placeholder="รายละเอียด"
                               />
                             </div>
@@ -199,7 +199,7 @@ export function SettingsDialog() {
                             <Input
                               value={editingLinks[link.id]?.linked || ''}
                               onChange={(e) => handleEditChange(link.id, 'linked', e.target.value)}
-                              className="w-full border-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-2 py-1"
+                              className="w-full border-none bg-white focus-visible:ring-0 focus-visible:ring-offset-0 px-2 py-1"
                               placeholder="URL"
                             />
                           </div>
