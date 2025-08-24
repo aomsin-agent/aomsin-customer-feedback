@@ -27,8 +27,8 @@ export default function MonthlyOverview() {
 
   // Mock data for branch type donut chart
   const branchTypeData = [
-    { name: "ให้บริการ 5 วัน", value: 68, fill: "hsl(var(--primary))" },
-    { name: "ให้บริการ 7 วัน", value: 32, fill: "hsl(var(--secondary))" }
+    { name: "ให้บริการ 5 วัน", value: 68, fill: "hsl(330, 60%, 65%)" }, // Medium pink
+    { name: "ให้บริการ 7 วัน", value: 32, fill: "hsl(200, 60%, 75%)" }  // Light blue
   ];
 
   // Mock data for service type bar chart
@@ -54,18 +54,18 @@ export default function MonthlyOverview() {
   const chartConfig = {
     lastMonth: {
       label: "เดือนที่แล้ว",
-      color: "hsl(var(--muted-foreground))",
+      color: "hsl(220, 5%, 65%)", // Light gray
     },
     currentMonth: {
       label: "เดือนปัจจุบัน",
       color: "hsl(var(--primary))",
     },
     blue: {
-      label: "เป้าหมาย",
+      label: "แบบฟอร์มทั้งหมด",
       color: "hsl(220, 70%, 50%)",
     },
     red: {
-      label: "ผลงาน",
+      label: "ไม่พอใจการให้บริการ",
       color: "hsl(0, 70%, 50%)",
     },
   };
@@ -155,106 +155,112 @@ export default function MonthlyOverview() {
             {/* Charts Section */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               {/* Branch Type Donut Chart */}
-              <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+              <Card className="bg-card border">
                 <CardContent className="p-4">
-                  <h3 className="font-medium text-purple-800 mb-4 text-center">ประเภทของสาขา</h3>
-                  <ChartContainer config={chartConfig} className="h-[200px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={branchTypeData}
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={40}
-                          outerRadius={70}
-                          paddingAngle={5}
-                          dataKey="value"
-                        >
-                          {branchTypeData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.fill} />
-                          ))}
-                        </Pie>
-                        <ChartTooltip content={<ChartTooltipContent />} />
-                        <ChartLegend content={<ChartLegendContent />} />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </ChartContainer>
+                  <h3 className="font-medium text-foreground mb-4 text-center">ประเภทของสาขา</h3>
+                  <div className="flex justify-center">
+                    <ChartContainer config={chartConfig} className="h-[200px] w-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={branchTypeData}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={40}
+                            outerRadius={70}
+                            paddingAngle={5}
+                            dataKey="value"
+                          >
+                            {branchTypeData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.fill} />
+                            ))}
+                          </Pie>
+                          <ChartTooltip content={<ChartTooltipContent />} />
+                          <ChartLegend content={<ChartLegendContent />} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </ChartContainer>
+                  </div>
                 </CardContent>
               </Card>
 
               {/* Service Type Bar Chart */}
-              <Card className="bg-gradient-to-br from-cyan-50 to-cyan-100 border-cyan-200">
+              <Card className="bg-card border">
                 <CardContent className="p-4">
-                  <h3 className="font-medium text-cyan-800 mb-4 text-center">ประเภทการใช้บริการ</h3>
-                  <ChartContainer config={chartConfig} className="h-[200px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={serviceTypeData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" />
-                        <XAxis 
-                          dataKey="category" 
-                          tick={{ fontSize: 10 }}
-                          stroke="hsl(var(--muted-foreground))"
-                        />
-                        <YAxis 
-                          tick={{ fontSize: 10 }}
-                          stroke="hsl(var(--muted-foreground))"
-                        />
-                        <ChartTooltip content={<ChartTooltipContent />} />
-                        <Bar 
-                          dataKey="lastMonth" 
-                          fill="hsl(var(--muted-foreground))" 
-                          name="เดือนที่แล้ว"
-                          radius={[2, 2, 0, 0]}
-                        />
-                        <Bar 
-                          dataKey="currentMonth" 
-                          fill="hsl(var(--primary))" 
-                          name="เดือนปัจจุบัน"
-                          radius={[2, 2, 0, 0]}
-                        />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </ChartContainer>
+                  <h3 className="font-medium text-foreground mb-4 text-center">ประเภทการใช้บริการ</h3>
+                  <div className="flex justify-center">
+                    <ChartContainer config={chartConfig} className="h-[200px] w-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={serviceTypeData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" />
+                          <XAxis 
+                            dataKey="category" 
+                            tick={{ fontSize: 10 }}
+                            stroke="hsl(var(--muted-foreground))"
+                          />
+                          <YAxis 
+                            tick={{ fontSize: 10 }}
+                            stroke="hsl(var(--muted-foreground))"
+                          />
+                          <ChartTooltip content={<ChartTooltipContent />} />
+                          <Bar 
+                            dataKey="lastMonth" 
+                            fill="hsl(220, 5%, 65%)" 
+                            name="เดือนที่แล้ว"
+                            radius={[2, 2, 0, 0]}
+                          />
+                          <Bar 
+                            dataKey="currentMonth" 
+                            fill="hsl(var(--primary))" 
+                            name="เดือนปัจจุบัน"
+                            radius={[2, 2, 0, 0]}
+                          />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </ChartContainer>
+                  </div>
                 </CardContent>
               </Card>
 
               {/* Form Submission Line Chart */}
-              <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
+              <Card className="bg-card border">
                 <CardContent className="p-4">
-                  <h3 className="font-medium text-orange-800 mb-4 text-center">จำนวนแบบฟอร์มที่ถูกส่ง</h3>
-                  <ChartContainer config={chartConfig} className="h-[200px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={formSubmissionData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" />
-                        <XAxis 
-                          dataKey="day" 
-                          tick={{ fontSize: 10 }}
-                          stroke="hsl(var(--muted-foreground))"
-                        />
-                        <YAxis 
-                          tick={{ fontSize: 10 }}
-                          stroke="hsl(var(--muted-foreground))"
-                        />
-                        <ChartTooltip content={<ChartTooltipContent />} />
-                        <Line 
-                          type="monotone" 
-                          dataKey="blue" 
-                          stroke="hsl(220, 70%, 50%)" 
-                          strokeWidth={2}
-                          dot={{ fill: "hsl(220, 70%, 50%)", strokeWidth: 2, r: 4 }}
-                          name="เป้าหมาย"
-                        />
-                        <Line 
-                          type="monotone" 
-                          dataKey="red" 
-                          stroke="hsl(0, 70%, 50%)" 
-                          strokeWidth={2}
-                          dot={{ fill: "hsl(0, 70%, 50%)", strokeWidth: 2, r: 4 }}
-                          name="ผลงาน"
-                        />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </ChartContainer>
+                  <h3 className="font-medium text-foreground mb-4 text-center">จำนวนแบบฟอร์มที่ถูกส่ง</h3>
+                  <div className="flex justify-center">
+                    <ChartContainer config={chartConfig} className="h-[200px] w-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={formSubmissionData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" />
+                          <XAxis 
+                            dataKey="day" 
+                            tick={{ fontSize: 10 }}
+                            stroke="hsl(var(--muted-foreground))"
+                          />
+                          <YAxis 
+                            tick={{ fontSize: 10 }}
+                            stroke="hsl(var(--muted-foreground))"
+                          />
+                          <ChartTooltip content={<ChartTooltipContent />} />
+                          <Line 
+                            type="monotone" 
+                            dataKey="blue" 
+                            stroke="hsl(220, 70%, 50%)" 
+                            strokeWidth={2}
+                            dot={{ fill: "hsl(220, 70%, 50%)", strokeWidth: 2, r: 4 }}
+                            name="แบบฟอร์มทั้งหมด"
+                          />
+                          <Line 
+                            type="monotone" 
+                            dataKey="red" 
+                            stroke="hsl(0, 70%, 50%)" 
+                            strokeWidth={2}
+                            dot={{ fill: "hsl(0, 70%, 50%)", strokeWidth: 2, r: 4 }}
+                            name="ไม่พอใจการให้บริการ"
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </ChartContainer>
+                  </div>
                 </CardContent>
               </Card>
             </div>
