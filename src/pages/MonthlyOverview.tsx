@@ -159,24 +159,32 @@ export default function MonthlyOverview() {
                 <CardContent className="p-4">
                   <h3 className="font-medium text-foreground mb-4 text-center">ประเภทของสาขา</h3>
                   <div className="flex justify-center">
-                    <ChartContainer config={chartConfig} className="h-[200px] w-full">
+                    <ChartContainer config={chartConfig} className="h-[250px] w-full">
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                           <Pie
                             data={branchTypeData}
                             cx="50%"
-                            cy="50%"
+                            cy="45%"
                             innerRadius={40}
                             outerRadius={70}
                             paddingAngle={5}
+                            startAngle={90}
+                            endAngle={450}
                             dataKey="value"
+                            label={({ name, value }) => `${name}: ${value}%`}
+                            labelLine={false}
                           >
                             {branchTypeData.map((entry, index) => (
                               <Cell key={`cell-${index}`} fill={entry.fill} />
                             ))}
                           </Pie>
                           <ChartTooltip content={<ChartTooltipContent />} />
-                          <ChartLegend content={<ChartLegendContent />} />
+                          <ChartLegend 
+                            content={<ChartLegendContent />}
+                            verticalAlign="bottom"
+                            height={36}
+                          />
                         </PieChart>
                       </ResponsiveContainer>
                     </ChartContainer>
