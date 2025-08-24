@@ -46,8 +46,11 @@ export function SettingsDialog() {
         .order('id');
       
       if (error) throw error;
+      
+      console.log('Fetched links data:', data);
       setLinks(data || []);
     } catch (error) {
+      console.error('Error fetching links:', error);
       toast({
         title: "ข้อผิดพลาด",
         description: "ไม่สามารถโหลดข้อมูลลิงก์ได้",
@@ -173,7 +176,7 @@ export function SettingsDialog() {
                               <Input
                                 value={editingLinks[link.id]?.topic || ''}
                                 onChange={(e) => handleEditChange(link.id, 'topic', e.target.value)}
-                                className="w-full"
+                                className="w-full border-0 bg-muted/50 focus-visible:ring-1 focus-visible:ring-muted-foreground/20"
                                 placeholder="หัวข้อ"
                               />
                             </div>
@@ -182,7 +185,7 @@ export function SettingsDialog() {
                               <Input
                                 value={editingLinks[link.id]?.linked || ''}
                                 onChange={(e) => handleEditChange(link.id, 'linked', e.target.value)}
-                                className="w-full"
+                                className="w-full border-0 bg-muted/50 focus-visible:ring-1 focus-visible:ring-muted-foreground/20"
                                 placeholder="URL"
                               />
                             </div>
@@ -191,7 +194,7 @@ export function SettingsDialog() {
                               <Input
                                 value={editingLinks[link.id]?.description || ''}
                                 onChange={(e) => handleEditChange(link.id, 'description', e.target.value)}
-                                className="w-full"
+                                className="w-full border-0 bg-muted/50 focus-visible:ring-1 focus-visible:ring-muted-foreground/20"
                                 placeholder="รายละเอียด"
                               />
                             </div>
@@ -222,15 +225,22 @@ export function SettingsDialog() {
                           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-4 lg:items-center">
                             <div className="md:col-span-1">
                               <div className="text-xs text-muted-foreground mb-1">หัวข้อ</div>
-                              <div className="font-medium text-sm">
-                                {link.topic && link.topic !== '-' ? link.topic : `ลิงก์ ${link.id}`}
+                              <div className="font-medium text-sm break-words">
+                                {link.topic && link.topic.trim() !== '' && link.topic !== '-' 
+                                  ? link.topic 
+                                  : `ลิงก์ ${link.id}`}
                               </div>
                             </div>
                             <div className="md:col-span-1">
                               <div className="text-xs text-muted-foreground mb-1">ลิงก์</div>
-                              <div className="text-sm truncate">
-                                {link.linked && link.linked !== '-' ? (
-                                  <a href={link.linked} target="_blank" rel="noopener noreferrer" className="text-primary underline-offset-4 hover:underline">
+                              <div className="text-sm break-all">
+                                {link.linked && link.linked.trim() !== '' && link.linked !== '-' ? (
+                                  <a 
+                                    href={link.linked.startsWith('http') ? link.linked : `https://${link.linked}`} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer" 
+                                    className="text-primary underline-offset-4 hover:underline"
+                                  >
                                     {link.linked}
                                   </a>
                                 ) : (
@@ -240,8 +250,10 @@ export function SettingsDialog() {
                             </div>
                             <div className="md:col-span-1">
                               <div className="text-xs text-muted-foreground mb-1">รายละเอียด</div>
-                              <div className="text-sm text-muted-foreground">
-                                {link.description && link.description !== '-' ? link.description : 'ไม่มีรายละเอียด'}
+                              <div className="text-sm text-muted-foreground break-words">
+                                {link.description && link.description.trim() !== '' && link.description !== '-' 
+                                  ? link.description 
+                                  : 'ไม่มีรายละเอียด'}
                               </div>
                             </div>
                             <div className="md:col-span-3 lg:col-span-1 flex items-center justify-between lg:justify-center gap-2">
