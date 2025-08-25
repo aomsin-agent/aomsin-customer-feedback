@@ -350,7 +350,7 @@ export default function MonthlyOverview() {
               {/* Left Side - Spider/Radar Chart */}
               <div className="lg:col-span-1">
                 <Card className="bg-card border">
-                  <CardContent className="p-4">
+                  <CardContent className="p-4 flex flex-col min-h-[360px]">
                     <div className="flex justify-between items-center mb-2">
                       <h3 className="font-medium text-foreground text-center flex-1">
                         คะแนนเฉลี่ยตามเกณฑ์
@@ -368,8 +368,8 @@ export default function MonthlyOverview() {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="flex justify-center items-center">
-                      <ChartContainer config={chartConfig} className="h-[220px] w-full">
+                    <div className="flex-1 flex items-center justify-center relative">
+                      <ChartContainer config={chartConfig} className="h-[260px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
                           <RadarChart data={satisfactionRadarData}>
                             <defs>
@@ -414,13 +414,15 @@ export default function MonthlyOverview() {
                           </RadarChart>
                         </ResponsiveContainer>
                       </ChartContainer>
-                    </div>
-                    {/* Average Score in Center */}
-                    <div className="text-center mt-1">
-                      <div className="text-xl font-bold text-primary">
-                        {averageScore.toFixed(1)}
+                      {/* Average Score Overlay */}
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div className="text-center bg-card/80 rounded-lg px-2 py-1 backdrop-blur-sm">
+                          <div className="text-lg font-bold text-primary">
+                            {averageScore.toFixed(1)}
+                          </div>
+                          <div className="text-xs text-muted-foreground">คะแนนเฉลี่ย</div>
+                        </div>
                       </div>
-                      <div className="text-xs text-muted-foreground">คะแนนเฉลี่ย</div>
                     </div>
                   </CardContent>
                 </Card>
@@ -429,7 +431,7 @@ export default function MonthlyOverview() {
               {/* Right Side - Regional Comparison Bar Chart */}
               <div className="lg:col-span-2">
                 <Card className="bg-card border">
-                  <CardContent className="p-4">
+                  <CardContent className="p-4 flex flex-col min-h-[360px]">
                     <div className="flex justify-between items-center mb-2">
                       <h3 className="font-medium text-foreground text-center flex-1">
                         เปรียบเทียบคะแนนรายภาค
@@ -447,8 +449,8 @@ export default function MonthlyOverview() {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="flex justify-center items-center h-full">
-                      <ChartContainer config={chartConfig} className="h-[300px] w-full">
+                    <div className="flex-1 flex items-center justify-center">
+                      <ChartContainer config={chartConfig} className="h-[260px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
                           <BarChart data={regionalComparisonData} margin={{ top: 10, right: 15, left: 0, bottom: 30 }}>
                             <defs>
