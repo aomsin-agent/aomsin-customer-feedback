@@ -15,7 +15,7 @@ export default function MonthlyOverview() {
   const [selectedSentiment, setSelectedSentiment] = useState<"positive" | "negative" | null>(null);
   const [selectedMainTopics, setSelectedMainTopics] = useState<string[]>([]);
   const [mainTopics, setMainTopics] = useState<string[]>([]);
-  const [sortBy, setSortBy] = useState<"positive" | "negative" | null>(null);
+  const [sortBy, setSortBy] = useState<"positive" | "negative" | null>("positive");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   
   const leftContainerRef = useRef<HTMLDivElement>(null);
@@ -215,13 +215,11 @@ export default function MonthlyOverview() {
 
   // Filter topics based on selected main topics
   const filteredTopicsData = allTopicsData.filter(topic => 
-    selectedMainTopics.length === 0 || selectedMainTopics.includes(topic.mainTopic)
+    selectedMainTopics.includes(topic.mainTopic)
   );
 
   // Sort topics based on selected sort criteria
   const sortedTopicsData = [...filteredTopicsData].sort((a, b) => {
-    if (!sortBy) return 0;
-    
     const aValue = sortBy === "positive" ? a.positive : a.negative;
     const bValue = sortBy === "positive" ? b.positive : b.negative;
     
@@ -957,7 +955,7 @@ export default function MonthlyOverview() {
                           </div>
                           
                           {/* Smaller Multi-select dropdown */}
-                          <div className="w-32">
+                          <div className="w-28">
                             <MultiSelectDropdown
                               options={mainTopics.map(topic => ({ value: topic, label: topic }))}
                               selectedValues={selectedMainTopics}
