@@ -5,6 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Send, Bot, User, Settings } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Message {
   id: string;
@@ -24,18 +25,41 @@ export default function AiChat() {
   ]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [webhookUrl, setWebhookUrl] = useState(() => getInitialWebhookUrl());
+  const [webhookUrl, setWebhookUrl] = useState("");
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  function getInitialWebhookUrl() {
-    const savedConfigs = localStorage.getItem('chatbot_configs');
-    if (savedConfigs) {
-      const configs = JSON.parse(savedConfigs);
-      return configs.link5 || 'https://webhook.example.com/chat';
+  // Fetch webhook URL from Supabase on component mount
+  useEffect(() => {
+    fetchWebhookFromSupabase();
+  }, []);
+
+  const fetchWebhookFromSupabase = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('link_ref')
+        .select('*')
+        .eq('topic', 'webhook chatbot')
+        .single();
+
+      if (error) {
+        console.error('Error fetching webhook:', error);
+        // Fallback to default URL
+        setWebhookUrl('https://webhook.example.com/chat');
+        return;
+      }
+
+      if (data && data.linked) {
+        setWebhookUrl(data.linked);
+        console.log('Webhook URL loaded from Supabase:', data.linked);
+      } else {
+        setWebhookUrl('https://webhook.example.com/chat');
+      }
+    } catch (error) {
+      console.error('Error fetching webhook URL:', error);
+      setWebhookUrl('https://webhook.example.com/chat');
     }
-    return 'https://webhook.example.com/chat';
-  }
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -45,13 +69,29 @@ export default function AiChat() {
     scrollToBottom();
   }, [messages]);
 
-  const saveWebhookConfig = (newUrl: string) => {
-    const savedConfigs = localStorage.getItem('chatbot_configs');
-    const configs = savedConfigs ? JSON.parse(savedConfigs) : {};
-    configs.link5 = newUrl;
-    localStorage.setItem('chatbot_configs', JSON.stringify(configs));
-    setWebhookUrl(newUrl);
-    toast.success("บันทึกการตั้งค่า Webhook สำเร็จ");
+  const saveWebhookConfig = async (newUrl: string) => {
+    try {
+      const { error } = await supabase
+        .from('link_ref')
+        .update({ 
+          linked: newUrl,
+          description: 'webhook chatbot',
+          update_at: new Date().toISOString()
+        })
+        .eq('topic', 'webhook chatbot');
+
+      if (error) {
+        console.error('Error updating webhook:', error);
+        toast.error("ไม่สามารถบันทึกการตั้งค่าได้");
+        return;
+      }
+
+      setWebhookUrl(newUrl);
+      toast.success("บันทึกการตั้งค่า Webhook สำเร็จ");
+    } catch (error) {
+      console.error('Error saving webhook config:', error);
+      toast.error("เกิดข้อผิดพลาดในการบันทึก");
+    }
   };
 
   const handleWebhookUrlChange = (newUrl: string) => {
@@ -166,7 +206,7 @@ export default function AiChat() {
                 </DialogHeader>
                 <div className="space-y-4">
                   <div>
-                    <label className="text-sm font-medium">Webhook URL (Link 5)</label>
+                    <label className="text-sm font-medium">Webhook URL (จาก Supabase)</label>
                     <Input
                       placeholder="https://your-webhook-url.com/chat"
                       defaultValue={webhookUrl}
@@ -179,7 +219,7 @@ export default function AiChat() {
                     />
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    <p>• URL นี้จะถูกใช้เป็น Webhook สำหรับส่งข้อความไปยัง AI</p>
+                    <p>• URL นี้จะถูกบันทึกใน Supabase table: link_ref</p>
                     <p>• กด Enter เพื่อบันทึกการตั้งค่า</p>
                     <p className="mt-2 font-medium">URL ปัจจุบัน: <span className="text-primary">{webhookUrl}</span></p>
                   </div>
@@ -274,7 +314,7 @@ export default function AiChat() {
             </Button>
           </div>
           <p className="text-xs text-pink-600 dark:text-pink-400 mt-2 text-center">
-            กด Enter เพื่อส่งข้อความ • Webhook: {webhookUrl.length > 50 ? `${webhookUrl.substring(0, 50)}...` : webhookUrl}
+            กด Enter เพื่อส่งข้อความ • Webhook จาก Supabase: {webhookUrl.length > 50 ? `${webhookUrl.substring(0, 50)}...` : webhookUrl}
           </p>
         </div>
       </div>
