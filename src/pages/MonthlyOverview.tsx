@@ -204,10 +204,16 @@ export default function MonthlyOverview() {
               <Card className="bg-card border">
                 <CardContent className="p-4">
                   <h3 className="font-medium text-foreground mb-4 text-center">ประเภทการใช้บริการ</h3>
-                  <div className="flex justify-center">
-                    <ChartContainer config={chartConfig} className="h-[200px] w-full">
+                  <div className="flex justify-center items-center h-full">
+                    <ChartContainer config={chartConfig} className="h-[220px] w-full">
                       <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={serviceTypeData} margin={{ top: 5, right: 15, left: 0, bottom: 15 }}>
+                        <BarChart data={serviceTypeData} margin={{ top: 10, right: 15, left: 0, bottom: 10 }}>
+                          <defs>
+                            <linearGradient id="currentMonthGradient" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="hsl(var(--primary))" />
+                              <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0.8" />
+                            </linearGradient>
+                          </defs>
                           <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" />
                           <XAxis 
                             dataKey="category" 
@@ -222,13 +228,13 @@ export default function MonthlyOverview() {
                           <ChartTooltip content={<ChartTooltipContent />} />
                           <Bar 
                             dataKey="lastMonth" 
-                            fill="hsl(220, 5%, 65%)" 
+                            fill="hsl(220, 5%, 80%)" 
                             name="เดือนที่แล้ว"
                             radius={[2, 2, 0, 0]}
                           />
                           <Bar 
                             dataKey="currentMonth" 
-                            fill="hsl(var(--primary))" 
+                            fill="url(#currentMonthGradient)" 
                             name="เดือนปัจจุบัน"
                             radius={[2, 2, 0, 0]}
                           />
