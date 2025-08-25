@@ -27,7 +27,7 @@ export default function MonthlyOverview() {
 
   // Mock data for branch type donut chart
   const branchTypeData = [
-    { name: "ให้บริการ 5 วัน", value: 68, fill: "hsl(330, 60%, 65%)" }, // Medium pink
+    { name: "ให้บริการ 5 วัน", value: 68, fill: "url(#branchGradient)" },
     { name: "ให้บริการ 7 วัน", value: 32, fill: "hsl(200, 60%, 75%)" }  // Light blue
   ];
 
@@ -165,11 +165,17 @@ export default function MonthlyOverview() {
               {/* Branch Type Donut Chart */}
               <Card className="bg-card border">
                 <CardContent className="p-4">
-                  <h3 className="font-medium text-foreground mb-4 text-center">ประเภทของสาขา</h3>
+                  <h3 className="font-medium text-foreground mb-2 text-center">ประเภทของสาขา</h3>
                   <div className="flex justify-center">
                     <ChartContainer config={chartConfig} className="h-[250px] w-full">
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
+                          <defs>
+                            <linearGradient id="branchGradient" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="hsl(var(--primary))" />
+                              <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0.8" />
+                            </linearGradient>
+                          </defs>
                           <Pie
                             data={branchTypeData}
                             cx="50%"
@@ -203,7 +209,7 @@ export default function MonthlyOverview() {
               {/* Service Type Bar Chart */}
               <Card className="bg-card border">
                 <CardContent className="p-4">
-                  <h3 className="font-medium text-foreground mb-4 text-center">ประเภทการใช้บริการ</h3>
+                  <h3 className="font-medium text-foreground mb-2 text-center">ประเภทการใช้บริการ</h3>
                   <div className="flex justify-center items-center h-full">
                     <ChartContainer config={chartConfig} className="h-[220px] w-full">
                       <ResponsiveContainer width="100%" height="100%">
@@ -248,9 +254,9 @@ export default function MonthlyOverview() {
               {/* Form Submission Line Chart */}
               <Card className="bg-card border">
                 <CardContent className="p-4">
-                  <h3 className="font-medium text-foreground mb-4 text-center">จำนวนแบบฟอร์มที่ถูกส่ง</h3>
-                  <div className="flex justify-center">
-                    <ChartContainer config={chartConfig} className="h-[200px] w-full">
+                  <h3 className="font-medium text-foreground mb-2 text-center">จำนวนแบบฟอร์มที่ถูกส่ง</h3>
+                  <div className="flex justify-center items-center h-full">
+                    <ChartContainer config={chartConfig} className="h-[220px] w-full">
                       <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={formSubmissionData} margin={{ top: 5, right: 15, left: 0, bottom: 15 }}>
                           <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" />
