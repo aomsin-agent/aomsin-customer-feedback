@@ -369,7 +369,7 @@ export default function MonthlyOverview() {
                       </Select>
                     </div>
                     <div className="flex justify-center items-center">
-                      <ChartContainer config={chartConfig} className="h-[300px] w-full">
+                      <ChartContainer config={chartConfig} className="h-[220px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
                           <RadarChart data={satisfactionRadarData}>
                             <defs>
@@ -416,8 +416,8 @@ export default function MonthlyOverview() {
                       </ChartContainer>
                     </div>
                     {/* Average Score in Center */}
-                    <div className="text-center mt-2">
-                      <div className="text-2xl font-bold text-primary">
+                    <div className="text-center mt-1">
+                      <div className="text-xl font-bold text-primary">
                         {averageScore.toFixed(1)}
                       </div>
                       <div className="text-xs text-muted-foreground">คะแนนเฉลี่ย</div>
