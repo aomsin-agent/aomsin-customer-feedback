@@ -9,6 +9,7 @@ export default function MonthlyOverview() {
   const [selectedMonth, setSelectedMonth] = useState("มกราคม 2567");
   const [selectedRegion, setSelectedRegion] = useState("เลือกทั้งหมด");
   const [selectedCriteria, setSelectedCriteria] = useState("เลือกทั้งหมด");
+  const [selectedSentiment, setSelectedSentiment] = useState<"positive" | "negative" | null>(null);
 
   // Generate months from January 2024 to June 2025
   const months = [
@@ -125,6 +126,37 @@ export default function MonthlyOverview() {
     { day: "30", blue: 72, red: 58 }
   ];
 
+  // Mock data for comments/suggestions section
+  
+  // Sentiment distribution for donut chart
+  const sentimentData = [
+    { name: "เชิงบวก", value: 72.3, count: 892, fill: "hsl(142, 76%, 36%)" }, // Green
+    { name: "เชิงลบ", value: 27.7, count: 342, fill: "hsl(0, 84%, 60%)" }     // Red
+  ];
+
+  // Top 10 topics mentioned (butterfly chart data)
+  const topicsData = [
+    { topic: "ความรวดเร็วในการให้บริการ", positive: 156, negative: 89 },
+    { topic: "การดูแลเอาใจใส่", positive: 134, negative: 67 },
+    { topic: "ความถูกต้องของธุรกรรม", positive: 128, negative: 45 },
+    { topic: "สภาพแวดล้อมสาขา", positive: 112, negative: 78 },
+    { topic: "ความพร้อมของเครื่องมือ", positive: 98, negative: 92 },
+    { topic: "ความน่าเชื่อถือ", positive: 87, negative: 43 },
+    { topic: "การตอบคำถามและแนะนำ", positive: 76, negative: 56 },
+    { topic: "ช่วงเวลาให้บริการ", positive: 68, negative: 71 },
+    { topic: "ความสะดวกในการเข้าถึง", positive: 59, negative: 38 },
+    { topic: "ระบบจองคิว", positive: 54, negative: 47 }
+  ];
+
+  // Regional sentiment data for bar chart (18 regions)
+  const regionalSentimentData = Array.from({ length: 18 }, (_, i) => ({
+    region: `ภาค ${i + 1}`,
+    currentMonthPositive: Math.floor(Math.random() * 100) + 50,
+    currentMonthNegative: Math.floor(Math.random() * 60) + 20,
+    lastMonthPositive: Math.floor(Math.random() * 90) + 40,
+    lastMonthNegative: Math.floor(Math.random() * 50) + 15
+  }));
+
   const chartConfig = {
     lastMonth: {
       label: "เดือนที่แล้ว",
@@ -149,6 +181,14 @@ export default function MonthlyOverview() {
     "ให้บริการ 7 วัน": {
       label: "ให้บริการ 7 วัน", 
       color: "hsl(200, 60%, 75%)",
+    },
+    positive: {
+      label: "เชิงบวก",
+      color: "hsl(142, 76%, 36%)",
+    },
+    negative: {
+      label: "เชิงลบ", 
+      color: "hsl(0, 84%, 60%)",
     },
   };
 
@@ -719,13 +759,335 @@ export default function MonthlyOverview() {
               </CardTitle>
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-center py-8">
-              <div className="text-4xl mb-4">💬</div>
-              <p className="text-muted-foreground">
-                ข้อมูลข้อคิดเห็นและข้อเสนอแนะจะถูกเพิ่มเข้ามาในภายหลัง
-              </p>
+          <CardContent className="space-y-6">
+            {/* Container บน - ทัศนคติข้อคิดเห็น และ ประเด็นที่ถูกกล่าวถึง */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* ทัศนคติข้อคิดเห็น - Donut Chart */}
+              <div className="lg:col-span-1">
+                <Card className="bg-card border">
+                  <CardContent className="p-4">
+                    <h3 className="font-medium text-foreground mb-4 text-center">
+                      ทัศนคติข้อคิดเห็น
+                    </h3>
+                    <div className="flex justify-center">
+                      <ChartContainer config={chartConfig} className="h-[280px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={sentimentData}
+                              cx="50%"
+                              cy="45%"
+                              innerRadius={60}
+                              outerRadius={90}
+                              paddingAngle={5}
+                              dataKey="value"
+                              label={({ name, value, count }) => 
+                                `${value.toFixed(1)}% (จาก ${count.toLocaleString()} ความคิดเห็น)`
+                              }
+                              labelLine={false}
+                            >
+                              {sentimentData.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={entry.fill} />
+                              ))}
+                            </Pie>
+                            <ChartTooltip 
+                              content={({ active, payload }) => {
+                                if (active && payload && payload.length) {
+                                  return (
+                                    <div className="bg-card border rounded-lg p-3 shadow-md">
+                                      <p className="text-sm font-medium">{payload[0].payload.name}</p>
+                                      <p className="text-xs text-muted-foreground">
+                                        {payload[0].payload.value.toFixed(1)}% (จาก {payload[0].payload.count.toLocaleString()} ความคิดเห็น)
+                                      </p>
+                                    </div>
+                                  );
+                                }
+                                return null;
+                              }}
+                            />
+                          </PieChart>
+                        </ResponsiveContainer>
+                      </ChartContainer>
+                    </div>
+                    {/* Legend */}
+                    <div className="flex justify-center space-x-4 mt-2">
+                      <div className="flex items-center">
+                        <div className="w-3 h-3 bg-green-600 rounded mr-2"></div>
+                        <span className="text-xs text-muted-foreground">เชิงบวก</span>
+                      </div>
+                      <div className="flex items-center">
+                        <div className="w-3 h-3 bg-red-600 rounded mr-2"></div>
+                        <span className="text-xs text-muted-foreground">เชิงลบ</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* ประเด็นที่ถูกกล่าวถึง - Butterfly Chart */}
+              <div className="lg:col-span-2">
+                <Card className="bg-card border">
+                  <CardContent className="p-4">
+                    <h3 className="font-medium text-foreground mb-4 text-center">
+                      ประเด็นที่ถูกกล่าวถึง
+                    </h3>
+                    <div className="space-y-2">
+                      {topicsData.map((item, index) => (
+                        <div key={index} className="flex items-center justify-between">
+                          {/* Negative bar (left) */}
+                          <div className="flex-1 flex justify-end">
+                            <div className="w-full max-w-[100px] h-6 bg-gray-100 rounded-l relative">
+                              <div 
+                                className="h-full bg-red-500 rounded-l flex items-center justify-end pr-1"
+                                style={{ width: `${(item.negative / Math.max(...topicsData.map(d => Math.max(d.positive, d.negative)))) * 100}%` }}
+                              >
+                                <span className="text-xs text-white font-medium">{item.negative}</span>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Topic name (center) */}
+                          <div className="px-4 min-w-0 flex-shrink-0 w-48">
+                            <p className="text-xs text-center text-foreground truncate" title={item.topic}>
+                              {item.topic}
+                            </p>
+                          </div>
+                          
+                          {/* Positive bar (right) */}
+                          <div className="flex-1">
+                            <div className="w-full max-w-[100px] h-6 bg-gray-100 rounded-r relative">
+                              <div 
+                                className="h-full bg-green-500 rounded-r flex items-center justify-start pl-1"
+                                style={{ width: `${(item.positive / Math.max(...topicsData.map(d => Math.max(d.positive, d.negative)))) * 100}%` }}
+                              >
+                                <span className="text-xs text-white font-medium">{item.positive}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    {/* Legend */}
+                    <div className="flex justify-center space-x-8 mt-4">
+                      <div className="flex items-center">
+                        <div className="w-3 h-3 bg-red-500 rounded mr-2"></div>
+                        <span className="text-xs text-muted-foreground">เชิงลบ (ครั้ง)</span>
+                      </div>
+                      <div className="flex items-center">
+                        <div className="w-3 h-3 bg-green-500 rounded mr-2"></div>
+                        <span className="text-xs text-muted-foreground">เชิงบวก (ครั้ง)</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
+
+            {/* Container ล่าง - ทัศนคติความคิดเห็นรายพื้นที่ */}
+            <Card className="bg-card border">
+              <CardContent className="p-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+                  <h3 className="font-medium text-foreground mb-2 sm:mb-0">
+                    ทัศนคติความคิดเห็นรายพื้นที่
+                  </h3>
+                  
+                  {/* Sentiment Filter Buttons */}
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => setSelectedSentiment(selectedSentiment === "positive" ? null : "positive")}
+                      className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                        selectedSentiment === "positive" 
+                          ? "bg-green-600 text-white" 
+                          : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                      }`}
+                    >
+                      เชิงบวก
+                    </button>
+                    <button
+                      onClick={() => setSelectedSentiment(selectedSentiment === "negative" ? null : "negative")}
+                      className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                        selectedSentiment === "negative" 
+                          ? "bg-red-600 text-white" 
+                          : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                      }`}
+                    >
+                      เชิงลบ
+                    </button>
+                  </div>
+                </div>
+
+                {/* Desktop Chart - Show comparison */}
+                <div className="hidden md:block">
+                  <ChartContainer config={chartConfig} className="h-[400px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={regionalSentimentData} margin={{ top: 20, right: 30, left: 20, bottom: 50 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" />
+                        <XAxis 
+                          dataKey="region" 
+                          tick={{ fontSize: 10 }}
+                          stroke="hsl(var(--muted-foreground))"
+                          angle={-45}
+                          textAnchor="end"
+                          height={80}
+                        />
+                        <YAxis 
+                          tick={{ fontSize: 10 }}
+                          stroke="hsl(var(--muted-foreground))"
+                          label={{ value: 'จำนวนครั้ง', angle: -90, position: 'insideLeft' }}
+                        />
+                        <ChartTooltip 
+                          content={({ active, payload, label }) => {
+                            if (active && payload && payload.length) {
+                              return (
+                                <div className="bg-card border rounded-lg p-3 shadow-md">
+                                  <p className="text-sm font-medium">{label}</p>
+                                  {payload.map((entry, index) => (
+                                    <p key={index} className="text-xs" style={{ color: entry.color }}>
+                                      {entry.name}: {entry.value} ครั้ง
+                                    </p>
+                                  ))}
+                                </div>
+                              );
+                            }
+                            return null;
+                          }}
+                        />
+                        
+                        {/* Show bars based on selected sentiment */}
+                        {!selectedSentiment && (
+                          <>
+                            <Bar 
+                              dataKey="lastMonthPositive" 
+                              fill="hsl(220, 5%, 65%)" 
+                              name="เดือนที่แล้ว (เชิงบวก)"
+                              radius={[2, 2, 0, 0]}
+                            />
+                            <Bar 
+                              dataKey="currentMonthPositive" 
+                              fill="hsl(142, 76%, 36%)"
+                              name="เดือนปัจจุบัน (เชิงบวก)"
+                              radius={[2, 2, 0, 0]}
+                            />
+                          </>
+                        )}
+                        
+                        {selectedSentiment === "positive" && (
+                          <>
+                            <Bar 
+                              dataKey="lastMonthPositive" 
+                              fill="hsl(220, 5%, 65%)" 
+                              name="เดือนที่แล้ว"
+                              radius={[2, 2, 0, 0]}
+                            />
+                            <Bar 
+                              dataKey="currentMonthPositive" 
+                              fill="hsl(142, 76%, 36%)"
+                              name="เดือนปัจจุบัน"
+                              radius={[2, 2, 0, 0]}
+                            />
+                          </>
+                        )}
+                        
+                        {selectedSentiment === "negative" && (
+                          <>
+                            <Bar 
+                              dataKey="lastMonthNegative" 
+                              fill="hsl(220, 5%, 65%)" 
+                              name="เดือนที่แล้ว"
+                              radius={[2, 2, 0, 0]}
+                            />
+                            <Bar 
+                              dataKey="currentMonthNegative" 
+                              fill="hsl(0, 84%, 60%)"
+                              name="เดือนปัจจุบัน"
+                              radius={[2, 2, 0, 0]}
+                            />
+                          </>
+                        )}
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                </div>
+
+                {/* Mobile Chart - Show current month only */}
+                <div className="md:hidden">
+                  <ChartContainer config={chartConfig} className="h-[300px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={regionalSentimentData} margin={{ top: 20, right: 15, left: 20, bottom: 50 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" />
+                        <XAxis 
+                          dataKey="region" 
+                          tick={{ fontSize: 8 }}
+                          stroke="hsl(var(--muted-foreground))"
+                          angle={-45}
+                          textAnchor="end"
+                          height={60}
+                        />
+                        <YAxis 
+                          tick={{ fontSize: 9 }}
+                          stroke="hsl(var(--muted-foreground))"
+                          width={35}
+                        />
+                        <ChartTooltip 
+                          content={({ active, payload, label }) => {
+                            if (active && payload && payload.length) {
+                              return (
+                                <div className="bg-card border rounded-lg p-2 shadow-md">
+                                  <p className="text-sm font-medium">{label}</p>
+                                  <p className="text-xs" style={{ color: payload[0].color }}>
+                                    {payload[0].name}: {payload[0].value} ครั้ง
+                                  </p>
+                                </div>
+                              );
+                            }
+                            return null;
+                          }}
+                        />
+                        
+                        {/* Mobile shows current month only */}
+                        {(!selectedSentiment || selectedSentiment === "positive") && (
+                          <Bar 
+                            dataKey="currentMonthPositive" 
+                            fill="hsl(142, 76%, 36%)"
+                            name="เชิงบวก (เดือนปัจจุบัน)"
+                            radius={[2, 2, 0, 0]}
+                          />
+                        )}
+                        
+                        {(!selectedSentiment || selectedSentiment === "negative") && (
+                          <Bar 
+                            dataKey="currentMonthNegative" 
+                            fill="hsl(0, 84%, 60%)"
+                            name="เชิงลบ (เดือนปัจจุบัน)"
+                            radius={[2, 2, 0, 0]}
+                          />
+                        )}
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                </div>
+
+                {/* Legend */}
+                <div className="flex justify-center space-x-6 mt-4 flex-wrap">
+                  <div className="flex items-center">
+                    <div className="w-3 h-3 bg-gray-400 rounded mr-2"></div>
+                    <span className="text-xs text-muted-foreground">เดือนที่แล้ว</span>
+                  </div>
+                  {(!selectedSentiment || selectedSentiment === "positive") && (
+                    <div className="flex items-center">
+                      <div className="w-3 h-3 bg-green-600 rounded mr-2"></div>
+                      <span className="text-xs text-muted-foreground">เชิงบวก</span>
+                    </div>
+                  )}
+                  {(!selectedSentiment || selectedSentiment === "negative") && (
+                    <div className="flex items-center">
+                      <div className="w-3 h-3 bg-red-600 rounded mr-2"></div>
+                      <span className="text-xs text-muted-foreground">เชิงลบ</span>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           </CardContent>
         </Card>
       </div>
