@@ -33,16 +33,53 @@ export default function MonthlyOverview() {
     "สภาพแวดล้อมของสาขา", "ความประทับใจในการให้บริการ"
   ];
 
-  // Mock data for spider/radar chart
-  const satisfactionRadarData = [
-    { criteria: "การดูแล ความเอาใจใส่", score: 4.2 },
-    { criteria: "ความน่าเชื่อถือฯ", score: 4.5 },
-    { criteria: "ความรวดเร็วฯ", score: 3.8 },
-    { criteria: "ความถูกต้องฯ", score: 4.7 },
-    { criteria: "ความพร้อมฯ", score: 3.9 },
-    { criteria: "สภาพแวดล้อมฯ", score: 4.1 },
-    { criteria: "ความประทับใจฯ", score: 4.3 }
-  ];
+  // Mock data for spider/radar chart by region
+  const satisfactionDataByRegion = {
+    "เลือกทั้งหมด": [
+      { criteria: "การดูแล ความเอาใจใส่", score: 4.2 },
+      { criteria: "ความน่าเชื่อถือฯ", score: 4.5 },
+      { criteria: "ความรวดเร็วฯ", score: 3.8 },
+      { criteria: "ความถูกต้องฯ", score: 4.7 },
+      { criteria: "ความพร้อมฯ", score: 3.9 },
+      { criteria: "สภาพแวดล้อมฯ", score: 4.1 },
+      { criteria: "ความประทับใจฯ", score: 4.3 }
+    ],
+    "ภาค 1": [
+      { criteria: "การดูแล ความเอาใจใส่", score: 4.5 },
+      { criteria: "ความน่าเชื่อถือฯ", score: 4.2 },
+      { criteria: "ความรวดเร็วฯ", score: 4.0 },
+      { criteria: "ความถูกต้องฯ", score: 4.8 },
+      { criteria: "ความพร้อมฯ", score: 4.1 },
+      { criteria: "สภาพแวดล้อมฯ", score: 4.3 },
+      { criteria: "ความประทับใจฯ", score: 4.4 }
+    ],
+    "ภาค 2": [
+      { criteria: "การดูแล ความเอาใจใส่", score: 3.9 },
+      { criteria: "ความน่าเชื่อถือฯ", score: 4.3 },
+      { criteria: "ความรวดเร็วฯ", score: 3.6 },
+      { criteria: "ความถูกต้องฯ", score: 4.5 },
+      { criteria: "ความพร้อมฯ", score: 3.7 },
+      { criteria: "สภาพแวดล้อมฯ", score: 3.8 },
+      { criteria: "ความประทับใจฯ", score: 4.0 }
+    ]
+  };
+
+  // Generate mock data for other regions
+  const allRegionsData = { ...satisfactionDataByRegion };
+  for (let i = 3; i <= 18; i++) {
+    const regionKey = `ภาค ${i}`;
+    allRegionsData[regionKey] = [
+      { criteria: "การดูแล ความเอาใจใส่", score: +(Math.random() * 1.5 + 3.5).toFixed(1) },
+      { criteria: "ความน่าเชื่อถือฯ", score: +(Math.random() * 1.5 + 3.5).toFixed(1) },
+      { criteria: "ความรวดเร็วฯ", score: +(Math.random() * 1.5 + 3.5).toFixed(1) },
+      { criteria: "ความถูกต้องฯ", score: +(Math.random() * 1.5 + 3.5).toFixed(1) },
+      { criteria: "ความพร้อมฯ", score: +(Math.random() * 1.5 + 3.5).toFixed(1) },
+      { criteria: "สภาพแวดล้อมฯ", score: +(Math.random() * 1.5 + 3.5).toFixed(1) },
+      { criteria: "ความประทับใจฯ", score: +(Math.random() * 1.5 + 3.5).toFixed(1) }
+    ];
+  }
+
+  const satisfactionRadarData = allRegionsData[selectedRegion] || allRegionsData["เลือกทั้งหมด"];
 
   // Calculate average score
   const averageScore = satisfactionRadarData.reduce((sum, item) => sum + item.score, 0) / satisfactionRadarData.length;
