@@ -1,15 +1,76 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
 import { PieChart, Pie, BarChart, Bar, LineChart, Line, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Cell } from "recharts";
-import { FileText, Phone, Lightbulb, AlertTriangle, ArrowUp, ArrowDown } from "lucide-react";
+import { FileText, Phone, Lightbulb, AlertTriangle, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import { MultiSelectDropdown } from "@/components/ui/multi-select-dropdown";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
 
 export default function MonthlyOverview() {
   const [selectedMonth, setSelectedMonth] = useState("มกราคม 2567");
   const [selectedRegion, setSelectedRegion] = useState("เลือกทั้งหมด");
   const [selectedCriteria, setSelectedCriteria] = useState("เลือกทั้งหมด");
   const [selectedSentiment, setSelectedSentiment] = useState<"positive" | "negative" | null>(null);
+  const [selectedMainTopics, setSelectedMainTopics] = useState<string[]>([]);
+  const [mainTopics, setMainTopics] = useState<string[]>([]);
+  const [sortBy, setSortBy] = useState<"positive" | "negative" | null>(null);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  
+  const leftContainerRef = useRef<HTMLDivElement>(null);
+  const [leftContainerHeight, setLeftContainerHeight] = useState<number>(0);
+
+  // Fetch main topics from Supabase
+  useEffect(() => {
+    const fetchMainTopics = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('category_ref')
+          .select('main_topic')
+          .order('main_topic');
+        
+        if (error) {
+          console.error('Error fetching main topics:', error);
+          return;
+        }
+        
+        const uniqueTopics = [...new Set(data?.map(item => item.main_topic) || [])];
+        setMainTopics(uniqueTopics);
+        setSelectedMainTopics(uniqueTopics); // Default to all selected
+      } catch (error) {
+        console.error('Error fetching main topics:', error);
+      }
+    };
+
+    fetchMainTopics();
+  }, []);
+
+  // Monitor left container height for dynamic height matching
+  useEffect(() => {
+    const updateHeight = () => {
+      if (leftContainerRef.current) {
+        setLeftContainerHeight(leftContainerRef.current.offsetHeight);
+      }
+    };
+
+    updateHeight();
+    window.addEventListener('resize', updateHeight);
+    return () => window.removeEventListener('resize', updateHeight);
+  }, []);
+
+  const handleMainTopicChange = (topics: string[]) => {
+    setSelectedMainTopics(topics);
+  };
+
+  const handleSortChange = (type: "positive" | "negative") => {
+    if (sortBy === type) {
+      setSortOrder(sortOrder === "desc" ? "asc" : "desc");
+    } else {
+      setSortBy(type);
+      setSortOrder("desc");
+    }
+  };
 
   // Generate months from January 2024 to June 2025
   const months = [
@@ -135,18 +196,40 @@ export default function MonthlyOverview() {
   ];
 
   // Top 10 topics mentioned (butterfly chart data)
-  const topicsData = [
-    { topic: "ความรวดเร็วในการให้บริการ", positive: 156, negative: 89 },
-    { topic: "การดูแลเอาใจใส่", positive: 134, negative: 67 },
-    { topic: "ความถูกต้องของธุรกรรม", positive: 128, negative: 45 },
-    { topic: "สภาพแวดล้อมสาขา", positive: 112, negative: 78 },
-    { topic: "ความพร้อมของเครื่องมือ", positive: 98, negative: 92 },
-    { topic: "ความน่าเชื่อถือ", positive: 87, negative: 43 },
-    { topic: "การตอบคำถามและแนะนำ", positive: 76, negative: 56 },
-    { topic: "ช่วงเวลาให้บริการ", positive: 68, negative: 71 },
-    { topic: "ความสะดวกในการเข้าถึง", positive: 59, negative: 38 },
-    { topic: "ระบบจองคิว", positive: 54, negative: 47 }
+  const allTopicsData = [
+    { topic: "ความรวดเร็วในการให้บริการ", positive: 345, negative: 123, mainTopic: "การให้บริการ" },
+    { topic: "ระยะเวลารอคอย", positive: 298, negative: 156, mainTopic: "การให้บริการ" },
+    { topic: "การปรับปรุงระบบ", positive: 267, negative: 89, mainTopic: "เทคโนโลยี" },
+    { topic: "ความสะดวกของระบบออนไลน์", positive: 234, negative: 67, mainTopic: "เทคโนโลยี" },
+    { topic: "ทักษะและความรู้ของเจ้าหน้าที่", positive: 198, negative: 134, mainTopic: "บุคลากร" },
+    { topic: "การดูแลเอาใจใส่", positive: 134, negative: 67, mainTopic: "บุคลากร" },
+    { topic: "ความถูกต้องของธุรกรรม", positive: 128, negative: 45, mainTopic: "การให้บริการ" },
+    { topic: "สภาพแวดล้อมสาขา", positive: 112, negative: 78, mainTopic: "สิ่งแวดล้อม" },
+    { topic: "ความพร้อมของเครื่องมือ", positive: 98, negative: 92, mainTopic: "เทคโนโลยี" },
+    { topic: "ความน่าเชื่อถือ", positive: 87, negative: 43, mainTopic: "บุคลากร" },
+    { topic: "การตอบคำถามและแนะนำ", positive: 76, negative: 56, mainTopic: "บุคลากร" },
+    { topic: "ช่วงเวลาให้บริการ", positive: 68, negative: 71, mainTopic: "การให้บริการ" },
+    { topic: "ความสะดวกในการเข้าถึง", positive: 59, negative: 38, mainTopic: "สิ่งแวดล้อม" },
+    { topic: "ระบบจองคิว", positive: 54, negative: 47, mainTopic: "เทคโนโลยี" }
   ];
+
+  // Filter topics based on selected main topics
+  const filteredTopicsData = allTopicsData.filter(topic => 
+    selectedMainTopics.length === 0 || selectedMainTopics.includes(topic.mainTopic)
+  );
+
+  // Sort topics based on selected sort criteria
+  const sortedTopicsData = [...filteredTopicsData].sort((a, b) => {
+    if (!sortBy) return 0;
+    
+    const aValue = sortBy === "positive" ? a.positive : a.negative;
+    const bValue = sortBy === "positive" ? b.positive : b.negative;
+    
+    return sortOrder === "desc" ? bValue - aValue : aValue - bValue;
+  });
+
+  // Take top 10 topics
+  const topicsData = sortedTopicsData.slice(0, 10);
 
   // Regional sentiment data for bar chart (18 regions)
   const regionalSentimentData = Array.from({ length: 18 }, (_, i) => ({
@@ -763,7 +846,7 @@ export default function MonthlyOverview() {
             {/* Container บน - ทัศนคติข้อคิดเห็น และ ประเด็นที่ถูกกล่าวถึง */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* ทัศนคติข้อคิดเห็น - Donut Chart */}
-              <div className="lg:col-span-1">
+              <div className="lg:col-span-1" ref={leftContainerRef}>
                 <Card className="bg-card border">
                   <CardContent className="p-4">
                     <h3 className="font-medium text-foreground mb-4 text-center">
@@ -826,19 +909,73 @@ export default function MonthlyOverview() {
 
               {/* ประเด็นที่ถูกกล่าวถึง - Butterfly Chart */}
               <div className="lg:col-span-2">
-                <Card className="bg-card border">
-                  <CardContent className="p-4">
-                    <h3 className="font-medium text-foreground mb-4 text-center">
-                      ประเด็นที่ถูกกล่าวถึง
-                    </h3>
-                    <div className="space-y-2">
+                <Card className="bg-card border" style={{ minHeight: leftContainerHeight > 0 ? `${leftContainerHeight}px` : 'auto' }}>
+                  <CardContent className="p-4 h-full flex flex-col">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+                      <h3 className="font-medium text-foreground mb-2 sm:mb-0 text-sm">
+                        ประเด็นที่ถูกกล่าวถึง
+                      </h3>
+                      
+                      {/* Controls container */}
+                      <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
+                        {/* Sort buttons */}
+                        <div className="flex space-x-1">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleSortChange("positive")}
+                            className={`h-7 px-2 text-xs ${
+                              sortBy === "positive" 
+                                ? "bg-green-100 border-green-300 text-green-700" 
+                                : "bg-background"
+                            }`}
+                          >
+                            <ArrowUpDown className="w-3 h-3 mr-1" />
+                            บวก
+                            {sortBy === "positive" && (
+                              sortOrder === "desc" ? <ArrowDown className="w-3 h-3 ml-1" /> : <ArrowUp className="w-3 h-3 ml-1" />
+                            )}
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleSortChange("negative")}
+                            className={`h-7 px-2 text-xs ${
+                              sortBy === "negative" 
+                                ? "bg-red-100 border-red-300 text-red-700" 
+                                : "bg-background"
+                            }`}
+                          >
+                            <ArrowUpDown className="w-3 h-3 mr-1" />
+                            ลบ
+                            {sortBy === "negative" && (
+                              sortOrder === "desc" ? <ArrowDown className="w-3 h-3 ml-1" /> : <ArrowUp className="w-3 h-3 ml-1" />
+                            )}
+                          </Button>
+                        </div>
+                        
+                        {/* Multi-select dropdown */}
+                        <div className="w-48">
+                          <MultiSelectDropdown
+                            options={mainTopics.map(topic => ({ value: topic, label: topic }))}
+                            selectedValues={selectedMainTopics}
+                            onValueChange={handleMainTopicChange}
+                            placeholder="เลือกหัวข้อหลัก"
+                            searchPlaceholder="ค้นหาหัวข้อ..."
+                            title=""
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex-1 space-y-1 sm:space-y-2">
                       {topicsData.map((item, index) => (
                         <div key={index} className="flex items-center justify-between">
-                          {/* Negative bar (left) */}
+                          {/* Negative bar (left) - now starts from center and extends left */}
                           <div className="flex-1 flex justify-end">
-                            <div className="w-full max-w-[100px] h-6 bg-gray-100 rounded-l relative">
+                            <div className="w-full max-w-[120px] sm:max-w-[150px] h-5 sm:h-6 bg-gray-100 relative">
                               <div 
-                                className="h-full bg-red-500 rounded-l flex items-center justify-end pr-1"
+                                className="h-full bg-red-500 flex items-center justify-start pl-1 absolute right-0"
                                 style={{ width: `${(item.negative / Math.max(...topicsData.map(d => Math.max(d.positive, d.negative)))) * 100}%` }}
                               >
                                 <span className="text-xs text-white font-medium">{item.negative}</span>
@@ -847,17 +984,17 @@ export default function MonthlyOverview() {
                           </div>
                           
                           {/* Topic name (center) */}
-                          <div className="px-4 min-w-0 flex-shrink-0 w-48">
+                          <div className="px-2 sm:px-4 min-w-0 flex-shrink-0 w-32 sm:w-48">
                             <p className="text-xs text-center text-foreground truncate" title={item.topic}>
                               {item.topic}
                             </p>
                           </div>
                           
-                          {/* Positive bar (right) */}
+                          {/* Positive bar (right) - extended */}
                           <div className="flex-1">
-                            <div className="w-full max-w-[100px] h-6 bg-gray-100 rounded-r relative">
+                            <div className="w-full max-w-[120px] sm:max-w-[150px] h-5 sm:h-6 bg-gray-100 relative">
                               <div 
-                                className="h-full bg-green-500 rounded-r flex items-center justify-start pl-1"
+                                className="h-full bg-green-500 flex items-center justify-end pr-1"
                                 style={{ width: `${(item.positive / Math.max(...topicsData.map(d => Math.max(d.positive, d.negative)))) * 100}%` }}
                               >
                                 <span className="text-xs text-white font-medium">{item.positive}</span>
@@ -867,8 +1004,9 @@ export default function MonthlyOverview() {
                         </div>
                       ))}
                     </div>
+                    
                     {/* Legend */}
-                    <div className="flex justify-center space-x-8 mt-4">
+                    <div className="flex justify-center space-x-4 sm:space-x-8 mt-4">
                       <div className="flex items-center">
                         <div className="w-3 h-3 bg-red-500 rounded mr-2"></div>
                         <span className="text-xs text-muted-foreground">เชิงลบ (ครั้ง)</span>
