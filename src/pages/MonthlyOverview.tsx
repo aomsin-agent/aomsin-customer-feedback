@@ -911,72 +911,75 @@ export default function MonthlyOverview() {
               <div className="lg:col-span-2">
                 <Card className="bg-card border" style={{ minHeight: leftContainerHeight > 0 ? `${leftContainerHeight}px` : 'auto' }}>
                   <CardContent className="p-4 h-full flex flex-col">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
-                      <h3 className="font-medium text-foreground mb-2 sm:mb-0 text-sm">
+                    {/* Header with centered title and right-aligned controls */}
+                    <div className="relative mb-4">
+                      <h3 className="font-medium text-foreground text-center absolute inset-0 flex items-center justify-center text-sm">
                         ประเด็นที่ถูกกล่าวถึง
                       </h3>
                       
-                      {/* Controls container */}
-                      <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
-                        {/* Sort buttons */}
-                        <div className="flex space-x-1">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleSortChange("positive")}
-                            className={`h-7 px-2 text-xs ${
-                              sortBy === "positive" 
-                                ? "bg-green-100 border-green-300 text-green-700" 
-                                : "bg-background"
-                            }`}
-                          >
-                            <ArrowUpDown className="w-3 h-3 mr-1" />
-                            บวก
-                            {sortBy === "positive" && (
-                              sortOrder === "desc" ? <ArrowDown className="w-3 h-3 ml-1" /> : <ArrowUp className="w-3 h-3 ml-1" />
-                            )}
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleSortChange("negative")}
-                            className={`h-7 px-2 text-xs ${
-                              sortBy === "negative" 
-                                ? "bg-red-100 border-red-300 text-red-700" 
-                                : "bg-background"
-                            }`}
-                          >
-                            <ArrowUpDown className="w-3 h-3 mr-1" />
-                            ลบ
-                            {sortBy === "negative" && (
-                              sortOrder === "desc" ? <ArrowDown className="w-3 h-3 ml-1" /> : <ArrowUp className="w-3 h-3 ml-1" />
-                            )}
-                          </Button>
-                        </div>
-                        
-                        {/* Multi-select dropdown */}
-                        <div className="w-48">
-                          <MultiSelectDropdown
-                            options={mainTopics.map(topic => ({ value: topic, label: topic }))}
-                            selectedValues={selectedMainTopics}
-                            onValueChange={handleMainTopicChange}
-                            placeholder="เลือกหัวข้อหลัก"
-                            searchPlaceholder="ค้นหาหัวข้อ..."
-                            title=""
-                          />
+                      {/* Controls positioned absolutely to the right */}
+                      <div className="flex justify-end">
+                        <div className="flex gap-2 items-center">
+                          {/* Sort buttons */}
+                          <div className="flex space-x-1">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleSortChange("positive")}
+                              className={`h-7 px-2 text-xs ${
+                                sortBy === "positive" 
+                                  ? "bg-green-100 border-green-300 text-green-700" 
+                                  : "bg-background"
+                              }`}
+                            >
+                              <ArrowUpDown className="w-3 h-3 mr-1" />
+                              บวก
+                              {sortBy === "positive" && (
+                                sortOrder === "desc" ? <ArrowDown className="w-3 h-3 ml-1" /> : <ArrowUp className="w-3 h-3 ml-1" />
+                              )}
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleSortChange("negative")}
+                              className={`h-7 px-2 text-xs ${
+                                sortBy === "negative" 
+                                  ? "bg-red-100 border-red-300 text-red-700" 
+                                  : "bg-background"
+                              }`}
+                            >
+                              <ArrowUpDown className="w-3 h-3 mr-1" />
+                              ลบ
+                              {sortBy === "negative" && (
+                                sortOrder === "desc" ? <ArrowDown className="w-3 h-3 ml-1" /> : <ArrowUp className="w-3 h-3 ml-1" />
+                              )}
+                            </Button>
+                          </div>
+                          
+                          {/* Smaller Multi-select dropdown */}
+                          <div className="w-32">
+                            <MultiSelectDropdown
+                              options={mainTopics.map(topic => ({ value: topic, label: topic }))}
+                              selectedValues={selectedMainTopics}
+                              onValueChange={handleMainTopicChange}
+                              placeholder="หัวข้อหลัก"
+                              searchPlaceholder="ค้นหา..."
+                              title=""
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
                     
                     <div className="flex-1 space-y-1 sm:space-y-2">
-                      {topicsData.map((item, index) => (
+                      {topicsData.length > 0 ? topicsData.map((item, index) => (
                         <div key={index} className="flex items-center justify-between">
                           {/* Negative bar (left) - now starts from center and extends left */}
                           <div className="flex-1 flex justify-end">
                             <div className="w-full max-w-[120px] sm:max-w-[150px] h-5 sm:h-6 bg-gray-100 relative">
                               <div 
                                 className="h-full bg-red-500 flex items-center justify-start pl-1 absolute right-0"
-                                style={{ width: `${(item.negative / Math.max(...topicsData.map(d => Math.max(d.positive, d.negative)))) * 100}%` }}
+                                style={{ width: `${Math.min(100, (item.negative / Math.max(...allTopicsData.map(d => Math.max(d.positive, d.negative)))) * 100)}%` }}
                               >
                                 <span className="text-xs text-white font-medium">{item.negative}</span>
                               </div>
@@ -995,14 +998,18 @@ export default function MonthlyOverview() {
                             <div className="w-full max-w-[120px] sm:max-w-[150px] h-5 sm:h-6 bg-gray-100 relative">
                               <div 
                                 className="h-full bg-green-500 flex items-center justify-end pr-1"
-                                style={{ width: `${(item.positive / Math.max(...topicsData.map(d => Math.max(d.positive, d.negative)))) * 100}%` }}
+                                style={{ width: `${Math.min(100, (item.positive / Math.max(...allTopicsData.map(d => Math.max(d.positive, d.negative)))) * 100)}%` }}
                               >
                                 <span className="text-xs text-white font-medium">{item.positive}</span>
                               </div>
                             </div>
                           </div>
                         </div>
-                      ))}
+                      )) : (
+                        <div className="flex items-center justify-center h-32">
+                          <p className="text-sm text-muted-foreground">ไม่มีข้อมูลที่ตรงกับเงื่อนไข</p>
+                        </div>
+                      )}
                     </div>
                     
                     {/* Legend */}
