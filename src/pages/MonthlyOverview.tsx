@@ -346,11 +346,11 @@ export default function MonthlyOverview() {
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Desktop Layout - Side by Side */}
-            <div className="hidden lg:grid lg:grid-cols-3 gap-6 items-start">
+            <div className="hidden lg:grid lg:grid-cols-3 gap-6">
               {/* Left Side - Spider/Radar Chart */}
               <div className="lg:col-span-1">
-                <Card className="bg-card border h-[420px]">
-                  <CardContent className="p-4 h-full flex flex-col">
+                <Card className="bg-card border">
+                  <CardContent className="p-4">
                     <div className="flex justify-between items-center mb-2">
                       <h3 className="font-medium text-foreground text-center flex-1">
                         คะแนนเฉลี่ยตามเกณฑ์
@@ -368,7 +368,7 @@ export default function MonthlyOverview() {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="flex justify-center items-center flex-1">
+                    <div className="flex justify-center items-center">
                       <ChartContainer config={chartConfig} className="h-[300px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
                           <RadarChart data={satisfactionRadarData}>
@@ -428,9 +428,9 @@ export default function MonthlyOverview() {
 
               {/* Right Side - Regional Comparison Bar Chart */}
               <div className="lg:col-span-2">
-                <Card className="bg-card border h-[320px]">
-                  <CardContent className="p-4 h-full flex flex-col">
-                    <div className="flex justify-between items-center mb-3">
+                <Card className="bg-card border">
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-center mb-2">
                       <h3 className="font-medium text-foreground text-center flex-1">
                         เปรียบเทียบคะแนนรายภาค
                       </h3>
@@ -447,8 +447,8 @@ export default function MonthlyOverview() {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="flex justify-center items-center flex-1">
-                      <ChartContainer config={chartConfig} className="h-full w-full">
+                    <div className="flex justify-center items-center h-full">
+                      <ChartContainer config={chartConfig} className="h-[300px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
                           <BarChart data={regionalComparisonData} margin={{ top: 10, right: 15, left: 0, bottom: 30 }}>
                             <defs>
@@ -492,7 +492,7 @@ export default function MonthlyOverview() {
                             />
                             <Bar 
                               dataKey="lastMonth" 
-                              fill="hsl(220, 5%, 85%)" 
+                              fill="hsl(220, 5%, 80%)" 
                               name="เดือนที่แล้ว"
                               radius={[2, 2, 0, 0]}
                             />
