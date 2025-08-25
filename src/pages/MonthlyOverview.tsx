@@ -2,11 +2,13 @@ import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
-import { PieChart, Pie, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Cell } from "recharts";
+import { PieChart, Pie, BarChart, Bar, LineChart, Line, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Cell } from "recharts";
 import { FileText, Phone, Lightbulb, AlertTriangle, ArrowUp, ArrowDown } from "lucide-react";
 
 export default function MonthlyOverview() {
   const [selectedMonth, setSelectedMonth] = useState("มกราคม 2567");
+  const [selectedRegion, setSelectedRegion] = useState("เลือกทั้งหมด");
+  const [selectedCriteria, setSelectedCriteria] = useState("เลือกทั้งหมด");
 
   // Generate months from January 2024 to June 2025
   const months = [
@@ -16,6 +18,41 @@ export default function MonthlyOverview() {
     "มกราคม 2568", "กุมภาพันธ์ 2568", "มีนาคม 2568", "เมษายน 2568", 
     "พฤษภาคม 2568", "มิถุนายน 2568"
   ];
+
+  // Regions for satisfaction score dropdown
+  const regions = [
+    "เลือกทั้งหมด", "ภาค 1", "ภาค 2", "ภาค 3", "ภาค 4", "ภาค 5", "ภาค 6",
+    "ภาค 7", "ภาค 8", "ภาค 9", "ภาค 10", "ภาค 11", "ภาค 12", "ภาค 13",
+    "ภาค 14", "ภาค 15", "ภาค 16", "ภาค 17", "ภาค 18"
+  ];
+
+  // Criteria for satisfaction comparison
+  const criteria = [
+    "เลือกทั้งหมด", "การดูแล ความเอาใจใส่", "ความน่าเชื่อถือการตอบคำถามและแนะนำ",
+    "ความรวดเร็วในการให้บริการ", "ความถูกต้องในการทำธุรกรรม", "ความพร้อมของเครื่องมือ",
+    "สภาพแวดล้อมของสาขา", "ความประทับใจในการให้บริการ"
+  ];
+
+  // Mock data for spider/radar chart
+  const satisfactionRadarData = [
+    { criteria: "การดูแล ความเอาใจใส่", score: 4.2 },
+    { criteria: "ความน่าเชื่อถือฯ", score: 4.5 },
+    { criteria: "ความรวดเร็วฯ", score: 3.8 },
+    { criteria: "ความถูกต้องฯ", score: 4.7 },
+    { criteria: "ความพร้อมฯ", score: 3.9 },
+    { criteria: "สภาพแวดล้อมฯ", score: 4.1 },
+    { criteria: "ความประทับใจฯ", score: 4.3 }
+  ];
+
+  // Calculate average score
+  const averageScore = satisfactionRadarData.reduce((sum, item) => sum + item.score, 0) / satisfactionRadarData.length;
+
+  // Mock data for regional comparison bar chart
+  const regionalComparisonData = Array.from({ length: 18 }, (_, i) => ({
+    region: `ภาค ${i + 1}`,
+    lastMonth: +(Math.random() * 2 + 3).toFixed(1), // 3.0-5.0
+    currentMonth: +(Math.random() * 2 + 3).toFixed(1) // 3.0-5.0
+  }));
 
   // Mock data for KPI cards
   const kpiData = [
@@ -307,12 +344,324 @@ export default function MonthlyOverview() {
               </CardTitle>
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-center py-8">
-              <div className="text-4xl mb-4">⭐</div>
-              <p className="text-muted-foreground">
-                ข้อมูลคะแนนความพึงพอใจจะถูกเพิ่มเข้ามาในภายหลัง
-              </p>
+          <CardContent className="space-y-6">
+            {/* Desktop Layout - Side by Side */}
+            <div className="hidden lg:grid lg:grid-cols-3 gap-6">
+              {/* Left Side - Spider/Radar Chart */}
+              <div className="lg:col-span-1">
+                <Card className="bg-card border">
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-center mb-2">
+                      <h3 className="font-medium text-foreground text-center flex-1">
+                        คะแนนเฉลี่ยตามเกณฑ์
+                      </h3>
+                      <Select value={selectedRegion} onValueChange={setSelectedRegion}>
+                        <SelectTrigger className="w-32 bg-card text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {regions.map((region) => (
+                            <SelectItem key={region} value={region}>
+                              {region}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex justify-center items-center">
+                      <ChartContainer config={chartConfig} className="h-[300px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <RadarChart data={satisfactionRadarData}>
+                            <defs>
+                              <linearGradient id="radarGradient" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.8" />
+                                <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0.2" />
+                              </linearGradient>
+                            </defs>
+                            <PolarGrid gridType="polygon" />
+                            <PolarAngleAxis 
+                              dataKey="criteria" 
+                              tick={{ fontSize: 10, fill: "hsl(var(--foreground))" }}
+                            />
+                            <PolarRadiusAxis 
+                              angle={90} 
+                              domain={[0, 5]} 
+                              tick={{ fontSize: 8, fill: "hsl(var(--muted-foreground))" }}
+                              tickCount={6}
+                            />
+                            <Radar
+                              name="คะแนน"
+                              dataKey="score"
+                              stroke="hsl(var(--primary))"
+                              fill="url(#radarGradient)"
+                              strokeWidth={2}
+                            />
+                            <ChartTooltip 
+                              content={({ active, payload }) => {
+                                if (active && payload && payload.length) {
+                                  return (
+                                    <div className="bg-card border rounded-lg p-2 shadow-md">
+                                      <p className="text-sm font-medium">{payload[0].payload.criteria}</p>
+                                      <p className="text-xs text-primary">
+                                       คะแนน: {typeof payload[0].value === 'number' ? payload[0].value.toFixed(1) : payload[0].value}
+                                      </p>
+                                    </div>
+                                  );
+                                }
+                                return null;
+                              }}
+                            />
+                          </RadarChart>
+                        </ResponsiveContainer>
+                      </ChartContainer>
+                    </div>
+                    {/* Average Score in Center */}
+                    <div className="text-center mt-2">
+                      <div className="text-2xl font-bold text-primary">
+                        {averageScore.toFixed(1)}
+                      </div>
+                      <div className="text-xs text-muted-foreground">คะแนนเฉลี่ย</div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Right Side - Regional Comparison Bar Chart */}
+              <div className="lg:col-span-2">
+                <Card className="bg-card border">
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-center mb-2">
+                      <h3 className="font-medium text-foreground text-center flex-1">
+                        เปรียบเทียบคะแนนรายภาค
+                      </h3>
+                      <Select value={selectedCriteria} onValueChange={setSelectedCriteria}>
+                        <SelectTrigger className="w-40 bg-card text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {criteria.map((criterion) => (
+                            <SelectItem key={criterion} value={criterion}>
+                              {criterion}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex justify-center items-center h-full">
+                      <ChartContainer config={chartConfig} className="h-[300px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart data={regionalComparisonData} margin={{ top: 10, right: 15, left: 0, bottom: 30 }}>
+                            <defs>
+                              <linearGradient id="regionalCurrentGradient" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="#F13596" />
+                                <stop offset="50%" stopColor="#FD85D7" />
+                                <stop offset="100%" stopColor="#FFA0E2" />
+                              </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" />
+                            <XAxis 
+                              dataKey="region" 
+                              tick={{ fontSize: 9 }}
+                              stroke="hsl(var(--muted-foreground))"
+                              angle={-45}
+                              textAnchor="end"
+                              height={60}
+                            />
+                            <YAxis 
+                              domain={[0, 5]}
+                              tick={{ fontSize: 10 }}
+                              stroke="hsl(var(--muted-foreground))"
+                              width={35}
+                            />
+                            <ChartTooltip 
+                              content={({ active, payload, label }) => {
+                                if (active && payload && payload.length) {
+                                  return (
+                                    <div className="bg-card border rounded-lg p-2 shadow-md">
+                                      <p className="text-sm font-medium">{label}</p>
+                                      {payload.map((entry, index) => (
+                                        <p key={index} className="text-xs" style={{ color: entry.color }}>
+                                          {entry.name}: {entry.value}
+                                        </p>
+                                      ))}
+                                    </div>
+                                  );
+                                }
+                                return null;
+                              }}
+                            />
+                            <Bar 
+                              dataKey="lastMonth" 
+                              fill="hsl(220, 5%, 80%)" 
+                              name="เดือนที่แล้ว"
+                              radius={[2, 2, 0, 0]}
+                            />
+                            <Bar 
+                              dataKey="currentMonth" 
+                              fill="url(#regionalCurrentGradient)" 
+                              name="เดือนปัจจุบัน"
+                              radius={[2, 2, 0, 0]}
+                            />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </ChartContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+
+            {/* Mobile/Tablet Layout - Stacked */}
+            <div className="lg:hidden space-y-6">
+              {/* Spider/Radar Chart */}
+              <Card className="bg-card border">
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <h3 className="font-medium text-foreground text-center flex-1">
+                      คะแนนเฉลี่ยตามเกณฑ์
+                    </h3>
+                    <Select value={selectedRegion} onValueChange={setSelectedRegion}>
+                      <SelectTrigger className="w-32 bg-card text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {regions.map((region) => (
+                          <SelectItem key={region} value={region}>
+                            {region}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex justify-center items-center">
+                    <ChartContainer config={chartConfig} className="h-[250px] w-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <RadarChart data={satisfactionRadarData}>
+                          <defs>
+                            <linearGradient id="radarGradientMobile" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.8" />
+                              <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0.2" />
+                            </linearGradient>
+                          </defs>
+                          <PolarGrid gridType="polygon" />
+                          <PolarAngleAxis 
+                            dataKey="criteria" 
+                            tick={{ fontSize: 8, fill: "hsl(var(--foreground))" }}
+                          />
+                          <PolarRadiusAxis 
+                            angle={90} 
+                            domain={[0, 5]} 
+                            tick={{ fontSize: 7, fill: "hsl(var(--muted-foreground))" }}
+                            tickCount={6}
+                          />
+                          <Radar
+                            name="คะแนน"
+                            dataKey="score"
+                            stroke="hsl(var(--primary))"
+                            fill="url(#radarGradientMobile)"
+                            strokeWidth={2}
+                          />
+                          <ChartTooltip 
+                            content={({ active, payload }) => {
+                              if (active && payload && payload.length) {
+                                return (
+                                  <div className="bg-card border rounded-lg p-2 shadow-md">
+                                    <p className="text-sm font-medium">{payload[0].payload.criteria}</p>
+                                    <p className="text-xs text-primary">
+                                      คะแนน: {typeof payload[0].value === 'number' ? payload[0].value.toFixed(1) : payload[0].value}
+                                    </p>
+                                  </div>
+                                );
+                              }
+                              return null;
+                            }}
+                          />
+                        </RadarChart>
+                      </ResponsiveContainer>
+                    </ChartContainer>
+                  </div>
+                  <div className="text-center mt-2">
+                    <div className="text-xl font-bold text-primary">
+                      {averageScore.toFixed(1)}
+                    </div>
+                    <div className="text-xs text-muted-foreground">คะแนนเฉลี่ย</div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Regional Comparison - Mobile shows current month only */}
+              <Card className="bg-card border">
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <h3 className="font-medium text-foreground text-center flex-1">
+                      คะแนนรายภาค (เดือนปัจจุบัน)
+                    </h3>
+                    <Select value={selectedCriteria} onValueChange={setSelectedCriteria}>
+                      <SelectTrigger className="w-40 bg-card text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {criteria.map((criterion) => (
+                          <SelectItem key={criterion} value={criterion}>
+                            {criterion}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex justify-center items-center h-full">
+                    <ChartContainer config={chartConfig} className="h-[250px] w-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={regionalComparisonData} margin={{ top: 10, right: 15, left: 0, bottom: 30 }}>
+                          <defs>
+                            <linearGradient id="regionalCurrentGradientMobile" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="#F13596" />
+                              <stop offset="50%" stopColor="#FD85D7" />
+                              <stop offset="100%" stopColor="#FFA0E2" />
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" />
+                          <XAxis 
+                            dataKey="region" 
+                            tick={{ fontSize: 8 }}
+                            stroke="hsl(var(--muted-foreground))"
+                            angle={-45}
+                            textAnchor="end"
+                            height={50}
+                          />
+                          <YAxis 
+                            domain={[0, 5]}
+                            tick={{ fontSize: 9 }}
+                            stroke="hsl(var(--muted-foreground))"
+                            width={30}
+                          />
+                          <ChartTooltip 
+                            content={({ active, payload, label }) => {
+                              if (active && payload && payload.length) {
+                                return (
+                                  <div className="bg-card border rounded-lg p-2 shadow-md">
+                                    <p className="text-sm font-medium">{label}</p>
+                                    <p className="text-xs text-primary">
+                                      เดือนปัจจุบัน: {payload[0].value}
+                                    </p>
+                                  </div>
+                                );
+                              }
+                              return null;
+                            }}
+                          />
+                          <Bar 
+                            dataKey="currentMonth" 
+                            fill="url(#regionalCurrentGradientMobile)" 
+                            name="เดือนปัจจุบัน"
+                            radius={[2, 2, 0, 0]}
+                          />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </ChartContainer>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </CardContent>
         </Card>
