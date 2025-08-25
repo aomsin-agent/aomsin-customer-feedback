@@ -2,7 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Bot, User } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Send, Bot, User, Settings } from "lucide-react";
 import { toast } from "sonner";
 
 interface Message {
@@ -23,7 +24,18 @@ export default function AiChat() {
   ]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [webhookUrl, setWebhookUrl] = useState(() => getInitialWebhookUrl());
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  function getInitialWebhookUrl() {
+    const savedConfigs = localStorage.getItem('chatbot_configs');
+    if (savedConfigs) {
+      const configs = JSON.parse(savedConfigs);
+      return configs.link5 || 'https://webhook.example.com/chat';
+    }
+    return 'https://webhook.example.com/chat';
+  }
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -33,14 +45,20 @@ export default function AiChat() {
     scrollToBottom();
   }, [messages]);
 
-  const getWebhookUrl = () => {
-    // Get Link 5 webhook URL from localStorage or use default
+  const saveWebhookConfig = (newUrl: string) => {
     const savedConfigs = localStorage.getItem('chatbot_configs');
-    if (savedConfigs) {
-      const configs = JSON.parse(savedConfigs);
-      return configs.link5 || 'https://webhook.example.com/chat';
+    const configs = savedConfigs ? JSON.parse(savedConfigs) : {};
+    configs.link5 = newUrl;
+    localStorage.setItem('chatbot_configs', JSON.stringify(configs));
+    setWebhookUrl(newUrl);
+    toast.success("บันทึกการตั้งค่า Webhook สำเร็จ");
+  };
+
+  const handleWebhookUrlChange = (newUrl: string) => {
+    if (newUrl.trim()) {
+      saveWebhookConfig(newUrl.trim());
+      setIsSettingsOpen(false);
     }
-    return 'https://webhook.example.com/chat';
   };
 
   const sendMessage = async () => {
@@ -58,7 +76,6 @@ export default function AiChat() {
     setIsLoading(true);
 
     try {
-      const webhookUrl = getWebhookUrl();
       const response = await fetch(webhookUrl, {
         method: 'POST',
         headers: {
@@ -121,14 +138,54 @@ export default function AiChat() {
       <div className="bg-card rounded-lg shadow-soft overflow-hidden">
         {/* Header with pink gradient */}
         <div className="bg-gradient-to-r from-pink-100 to-pink-200 dark:from-pink-900/30 dark:to-pink-800/30 border-b border-pink-200 dark:border-pink-800/50 p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-pink-200 dark:bg-pink-800/50 rounded-full flex items-center justify-center">
-              <Bot className="w-5 h-5 text-pink-600 dark:text-pink-400" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-pink-200 dark:bg-pink-800/50 rounded-full flex items-center justify-center">
+                <Bot className="w-5 h-5 text-pink-600 dark:text-pink-400" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-pink-900 dark:text-pink-100">AI Assistant</h3>
+                <p className="text-sm text-pink-700 dark:text-pink-300">พร้อมช่วยวิเคราะห์ข้อมูลของคุณ</p>
+              </div>
             </div>
-            <div>
-              <h3 className="font-semibold text-pink-900 dark:text-pink-100">AI Assistant</h3>
-              <p className="text-sm text-pink-700 dark:text-pink-300">พร้อมช่วยวิเคราะห์ข้อมูลของคุณ</p>
-            </div>
+            
+            {/* Settings Button */}
+            <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+              <DialogTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="text-pink-600 dark:text-pink-400 hover:bg-pink-200 dark:hover:bg-pink-800/50"
+                >
+                  <Settings className="w-4 h-4" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>ตั้งค่า Webhook URL</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium">Webhook URL (Link 5)</label>
+                    <Input
+                      placeholder="https://your-webhook-url.com/chat"
+                      defaultValue={webhookUrl}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          handleWebhookUrlChange(e.currentTarget.value);
+                        }
+                      }}
+                      className="mt-1"
+                    />
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    <p>• URL นี้จะถูกใช้เป็น Webhook สำหรับส่งข้อความไปยัง AI</p>
+                    <p>• กด Enter เพื่อบันทึกการตั้งค่า</p>
+                    <p className="mt-2 font-medium">URL ปัจจุบัน: <span className="text-primary">{webhookUrl}</span></p>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
 
@@ -217,7 +274,7 @@ export default function AiChat() {
             </Button>
           </div>
           <p className="text-xs text-pink-600 dark:text-pink-400 mt-2 text-center">
-            กด Enter เพื่อส่งข้อความ • ใช้ Webhook จาก Link 5 ในการตั้งค่า
+            กด Enter เพื่อส่งข้อความ • Webhook: {webhookUrl.length > 50 ? `${webhookUrl.substring(0, 50)}...` : webhookUrl}
           </p>
         </div>
       </div>
