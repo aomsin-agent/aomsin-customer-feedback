@@ -382,6 +382,10 @@ export default function MonthlyOverview() {
                             <PolarAngleAxis 
                               dataKey="criteria" 
                               tick={{ fontSize: 10, fill: "hsl(var(--foreground))" }}
+                              tickFormatter={(value, index) => {
+                                const dataPoint = satisfactionRadarData[index];
+                                return `${value}\n(${dataPoint?.score?.toFixed(1) || '0'})`;
+                              }}
                             />
                             <PolarRadiusAxis 
                               angle={90} 
