@@ -1,23 +1,77 @@
+import React, { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { AreaFilter } from '@/components/CustomerFeedback/AreaFilter';
+import { TimeFilter, TimeFilterValue } from '@/components/CustomerFeedback/TimeFilter';
+import { CategoryFilter } from '@/components/CustomerFeedback/CategoryFilter';
+import { CommentsList, SentimentFilter } from '@/components/CustomerFeedback/CommentsList';
+
 export default function SevereComplaints() {
+  const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [timeFilter, setTimeFilter] = useState<TimeFilterValue>({
+    type: 'all'
+  });
+  const [sentimentFilter, setSentimentFilter] = useState<SentimentFilter>('all');
+
+  const handleClearAllFilters = () => {
+    setSelectedAreas([]);
+    setSelectedCategories([]);
+    setTimeFilter({ type: 'all' });
+    setSentimentFilter('all');
+  };
+
+  const hasAnyFilters = selectedAreas.length > 0 || selectedCategories.length > 0 || sentimentFilter !== 'all';
+
   return (
     <div className="w-full p-4 md:p-6 lg:pl-2 lg:pr-4 xl:pl-3 xl:pr-6">
       <div className="mb-4 md:mb-6">
-        <h1 className="text-3xl font-bold text-foreground mb-2">
-          ข้อร้องเรียนที่รุนแรง
-        </h1>
-        <p className="text-muted-foreground">
-          ติดตามและจัดการข้อร้องเรียนที่มีความรุนแรงสูงและต้องการความสนใจเป็นพิเศษ
-        </p>
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+              ข้อร้องเรียนที่รุนแรง
+            </h1>
+            <p className="text-sm md:text-base text-muted-foreground">
+              ติดตามและจัดการข้อร้องเรียนที่มีความรุนแรงสูงและต้องการความสนใจเป็นพิเศษ
+            </p>
+          </div>
+          {hasAnyFilters && (
+            <Button variant="outline" onClick={handleClearAllFilters}>
+              ล้างตัวกรองทั้งหมด
+            </Button>
+          )}
+        </div>
       </div>
-      
-      <div className="bg-card rounded-lg shadow-soft p-8 text-center">
-        <div className="text-6xl mb-4">⚠️</div>
-        <h2 className="text-xl font-semibold text-muted-foreground mb-2">
-          เนื้อหาจะถูกเพิ่มเข้ามาในภายหลัง
-        </h2>
-        <p className="text-muted-foreground">
-          ส่วนนี้จะแสดงรายการข้อร้องเรียนที่รุนแรง สถานะการดำเนินการ และมาตรการแก้ไข
-        </p>
+
+      {/* Responsive layout: Filters on top for mobile, left side for desktop */}
+      <div className="flex flex-col md:grid md:grid-cols-12 gap-6 min-h-[calc(100vh-200px)]">
+        {/* Filters section - top on mobile, left on desktop */}
+        <div className="md:col-span-4 space-y-4 md:h-full md:overflow-y-auto order-1 md:order-none">
+          <AreaFilter
+            selectedAreas={selectedAreas}
+            onAreaChange={setSelectedAreas}
+          />
+          
+          <TimeFilter
+            value={timeFilter}
+            onChange={setTimeFilter}
+          />
+          
+          <CategoryFilter
+            selectedCategories={selectedCategories}
+            onCategoryChange={setSelectedCategories}
+          />
+        </div>
+
+        {/* Comments section - bottom on mobile, right on desktop */}
+        <div className="md:col-span-8 flex-1 order-2 md:order-none">
+          <CommentsList
+            selectedAreas={selectedAreas}
+            selectedCategories={selectedCategories}
+            timeFilter={timeFilter}
+            sentimentFilter={sentimentFilter}
+            onSentimentFilterChange={setSentimentFilter}
+          />
+        </div>
       </div>
     </div>
   );
