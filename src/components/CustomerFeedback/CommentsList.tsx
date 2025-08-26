@@ -155,8 +155,14 @@ export function CommentsList({
         categories: categoriesByComment[comment.comment_id] || []
       }));
 
-      // Apply category filter
-      const byCategory = selectedCategories.length > 0
+      // Determine if the selected categories effectively mean "all" for the current dataset
+      const uniqueSubcategoriesInData = new Set<string>();
+      mapped.forEach(cm => cm.categories.forEach(cat => uniqueSubcategoriesInData.add(cat.sub_category)));
+      const isAllSubcategoriesSelectedInData =
+        uniqueSubcategoriesInData.size > 0 &&
+        Array.from(uniqueSubcategoriesInData).every(sc => selectedCategories.includes(sc));
+
+      const byCategory = selectedCategories.length > 0 && !isAllSubcategoriesSelectedInData
         ? mapped.filter(cm => cm.categories.some(cat => selectedCategories.includes(cat.sub_category)))
         : mapped;
 
