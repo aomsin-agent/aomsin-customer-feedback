@@ -3,10 +3,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
 import { PieChart, Pie, BarChart, Bar, LineChart, Line, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Cell } from "recharts";
-import { FileText, Phone, Lightbulb, AlertTriangle, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import { FileText, Phone, Lightbulb, AlertTriangle, ArrowUp, ArrowDown, ArrowUpDown, Filter } from "lucide-react";
 import { MultiSelectDropdown } from "@/components/ui/multi-select-dropdown";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function MonthlyOverview() {
   const [selectedMonth, setSelectedMonth] = useState("มกราคม 2567");
@@ -952,54 +954,88 @@ export default function MonthlyOverview() {
                       
                       {/* Right column with controls */}
                       <div className="flex justify-end">
-                        <div className="flex gap-2 items-center">
-                          {/* Sort buttons */}
-                          <div className="flex space-x-1">
+                        <div className="flex gap-1 items-center">
+                          {/* Sort buttons - extra small */}
+                          <div className="flex gap-0.5">
                             <Button
                               variant="outline"
                               size="sm"
                               onClick={() => handleSortChange("positive")}
-                              className={`h-7 px-2 text-xs ${
+                              className={`h-6 w-6 p-0 text-xs ${
                                 sortBy === "positive" 
                                   ? "bg-green-100 border-green-300 text-green-700" 
                                   : "bg-background"
                               }`}
+                              title="เรียงตามเชิงบวก"
                             >
-                              <ArrowUpDown className="w-3 h-3 mr-1" />
-                              บวก
-                              {sortBy === "positive" && (
-                                sortOrder === "desc" ? <ArrowDown className="w-3 h-3 ml-1" /> : <ArrowUp className="w-3 h-3 ml-1" />
-                              )}
+                              <ArrowUp className="w-3 h-3" />
                             </Button>
                             <Button
                               variant="outline"
                               size="sm"
                               onClick={() => handleSortChange("negative")}
-                              className={`h-7 px-2 text-xs ${
+                              className={`h-6 w-6 p-0 text-xs ${
                                 sortBy === "negative" 
                                   ? "bg-red-100 border-red-300 text-red-700" 
                                   : "bg-background"
                               }`}
+                              title="เรียงตามเชิงลบ"
                             >
-                              <ArrowUpDown className="w-3 h-3 mr-1" />
-                              ลบ
-                              {sortBy === "negative" && (
-                                sortOrder === "desc" ? <ArrowDown className="w-3 h-3 ml-1" /> : <ArrowUp className="w-3 h-3 ml-1" />
-                              )}
+                              <ArrowDown className="w-3 h-3" />
                             </Button>
                           </div>
                           
-                          {/* Multi-select dropdown */}
-                          <div className="w-32">
-                            <MultiSelectDropdown
-                              options={mainTopics.map(topic => ({ value: topic, label: topic }))}
-                              selectedValues={selectedMainTopics}
-                              onValueChange={handleMainTopicChange}
-                              placeholder="หัวข้อหลัก"
-                              searchPlaceholder="ค้นหา..."
-                              title=""
-                            />
-                          </div>
+                          {/* Filter dropdown as icon button */}
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-6 w-6 p-0"
+                                title="เลือกหัวข้อหลัก"
+                              >
+                                <Filter className="w-3 h-3" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-56 p-3" align="end">
+                              <div className="space-y-2">
+                                <h4 className="text-sm font-medium">หัวข้อหลัก</h4>
+                                <div className="space-y-2 max-h-40 overflow-y-auto">
+                                  {mainTopics.map((topic) => (
+                                    <div key={topic} className="flex items-center space-x-2">
+                                      <Checkbox
+                                        id={topic}
+                                        checked={selectedMainTopics.includes(topic)}
+                                        onCheckedChange={(checked) => {
+                                          if (checked) {
+                                            setSelectedMainTopics([...selectedMainTopics, topic]);
+                                          } else {
+                                            setSelectedMainTopics(selectedMainTopics.filter(t => t !== topic));
+                                          }
+                                        }}
+                                      />
+                                      <label
+                                        htmlFor={topic}
+                                        className="text-xs leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                      >
+                                        {topic}
+                                      </label>
+                                    </div>
+                                  ))}
+                                </div>
+                                <div className="pt-2 border-t">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setSelectedMainTopics(mainTopics)}
+                                    className="w-full text-xs h-6"
+                                  >
+                                    เลือกทั้งหมด
+                                  </Button>
+                                </div>
+                              </div>
+                            </PopoverContent>
+                          </Popover>
                         </div>
                       </div>
                     </div>
