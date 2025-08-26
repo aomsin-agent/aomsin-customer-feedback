@@ -17,33 +17,80 @@ export default function MonthlyOverview() {
   const [mainTopics, setMainTopics] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<"positive" | "negative" | null>("positive");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [butterflyData, setButterflyData] = useState<{topic: string, positive: number, negative: number, mainTopic: string}[]>([]);
   
   const leftContainerRef = useRef<HTMLDivElement>(null);
   const [leftContainerHeight, setLeftContainerHeight] = useState<number>(0);
 
-  // Fetch main topics from Supabase
+  // Fetch main topics and butterfly data from Supabase
   useEffect(() => {
-    const fetchMainTopics = async () => {
+    const fetchData = async () => {
       try {
         const { data, error } = await supabase
           .from('category_ref')
-          .select('main_topic')
+          .select('main_topic, sub_topic')
           .order('main_topic');
         
         if (error) {
-          console.error('Error fetching main topics:', error);
+          console.error('Error fetching category data:', error);
+          // Fallback to mock data if Supabase fails
+          const mockData = [
+            { topic: "ความรวดเร็วในการให้บริการ", positive: 345, negative: 123, mainTopic: "การให้บริการ" },
+            { topic: "ระยะเวลารอคอย", positive: 298, negative: 156, mainTopic: "การให้บริการ" },
+            { topic: "การปรับปรุงระบบ", positive: 267, negative: 89, mainTopic: "เทคโนโลยี" },
+            { topic: "ความสะดวกของระบบออนไลน์", positive: 234, negative: 67, mainTopic: "เทคโนโลยี" },
+            { topic: "ทักษะและความรู้ของเจ้าหน้าที่", positive: 198, negative: 134, mainTopic: "บุคลากร" },
+            { topic: "การดูแลเอาใจใส่", positive: 134, negative: 67, mainTopic: "บุคลากร" },
+            { topic: "ความถูกต้องของธุรกรรม", positive: 128, negative: 45, mainTopic: "การให้บริการ" },
+            { topic: "สภาพแวดล้อมสาขา", positive: 112, negative: 78, mainTopic: "สิ่งแวดล้อม" },
+            { topic: "ความพร้อมของเครื่องมือ", positive: 98, negative: 92, mainTopic: "เทคโนโลยี" },
+            { topic: "ความน่าเชื่อถือ", positive: 87, negative: 43, mainTopic: "บุคลากร" },
+            { topic: "การตอบคำถามและแนะนำ", positive: 76, negative: 56, mainTopic: "บุคลากร" },
+            { topic: "ช่วงเวลาให้บริการ", positive: 68, negative: 71, mainTopic: "การให้บริการ" },
+            { topic: "ความสะดวกในการเข้าถึง", positive: 59, negative: 38, mainTopic: "สิ่งแวดล้อม" },
+            { topic: "ระบบจองคิว", positive: 54, negative: 47, mainTopic: "เทคโนโลยี" }
+          ];
+          setButterflyData(mockData);
+          setMainTopics(["การให้บริการ", "เทคโนโลยี", "บุคลากร", "สิ่งแวดล้อม"]);
+          setSelectedMainTopics(["การให้บริการ", "เทคโนโลยี", "บุคลากร", "สิ่งแวดล้อม"]);
           return;
         }
         
-        const uniqueTopics = [...new Set(data?.map(item => item.main_topic) || [])];
-        setMainTopics(uniqueTopics);
-        setSelectedMainTopics(uniqueTopics); // Default to all selected
+        // Get unique main topics
+        const uniqueMainTopics = [...new Set(data?.map(item => item.main_topic) || [])];
+        setMainTopics(uniqueMainTopics);
+        setSelectedMainTopics(uniqueMainTopics); // Default to all selected
+        
+        // Create butterfly data based on sub_topics with mock counts
+        const topicCounts: Record<string, {positive: number, negative: number, mainTopic: string}> = {};
+        
+        data?.forEach(item => {
+          if (item.sub_topic && item.main_topic) {
+            if (!topicCounts[item.sub_topic]) {
+              topicCounts[item.sub_topic] = {
+                positive: Math.floor(Math.random() * 300) + 50,
+                negative: Math.floor(Math.random() * 150) + 20,
+                mainTopic: item.main_topic
+              };
+            }
+          }
+        });
+        
+        const butterflyChartData = Object.entries(topicCounts).map(([topic, counts]) => ({
+          topic,
+          positive: counts.positive,
+          negative: counts.negative,
+          mainTopic: counts.mainTopic
+        }));
+        
+        setButterflyData(butterflyChartData);
+        
       } catch (error) {
-        console.error('Error fetching main topics:', error);
+        console.error('Error fetching data:', error);
       }
     };
 
-    fetchMainTopics();
+    fetchData();
   }, []);
 
   // Monitor left container height for dynamic height matching
@@ -195,27 +242,9 @@ export default function MonthlyOverview() {
     { name: "เชิงลบ", value: 27.7, count: 342, fill: "hsl(0, 84%, 60%)" }     // Red
   ];
 
-  // Top 10 topics mentioned (butterfly chart data)
-  const allTopicsData = [
-    { topic: "ความรวดเร็วในการให้บริการ", positive: 345, negative: 123, mainTopic: "การให้บริการ" },
-    { topic: "ระยะเวลารอคอย", positive: 298, negative: 156, mainTopic: "การให้บริการ" },
-    { topic: "การปรับปรุงระบบ", positive: 267, negative: 89, mainTopic: "เทคโนโลยี" },
-    { topic: "ความสะดวกของระบบออนไลน์", positive: 234, negative: 67, mainTopic: "เทคโนโลยี" },
-    { topic: "ทักษะและความรู้ของเจ้าหน้าที่", positive: 198, negative: 134, mainTopic: "บุคลากร" },
-    { topic: "การดูแลเอาใจใส่", positive: 134, negative: 67, mainTopic: "บุคลากร" },
-    { topic: "ความถูกต้องของธุรกรรม", positive: 128, negative: 45, mainTopic: "การให้บริการ" },
-    { topic: "สภาพแวดล้อมสาขา", positive: 112, negative: 78, mainTopic: "สิ่งแวดล้อม" },
-    { topic: "ความพร้อมของเครื่องมือ", positive: 98, negative: 92, mainTopic: "เทคโนโลยี" },
-    { topic: "ความน่าเชื่อถือ", positive: 87, negative: 43, mainTopic: "บุคลากร" },
-    { topic: "การตอบคำถามและแนะนำ", positive: 76, negative: 56, mainTopic: "บุคลากร" },
-    { topic: "ช่วงเวลาให้บริการ", positive: 68, negative: 71, mainTopic: "การให้บริการ" },
-    { topic: "ความสะดวกในการเข้าถึง", positive: 59, negative: 38, mainTopic: "สิ่งแวดล้อม" },
-    { topic: "ระบบจองคิว", positive: 54, negative: 47, mainTopic: "เทคโนโลยี" }
-  ];
-
   // Filter topics based on selected main topics
-  const filteredTopicsData = allTopicsData.filter(topic => 
-    selectedMainTopics.includes(topic.mainTopic)
+  const filteredTopicsData = butterflyData.filter(topic => 
+    selectedMainTopics.length > 0 && selectedMainTopics.includes(topic.mainTopic)
   );
 
   // Sort topics based on selected sort criteria
@@ -909,13 +938,19 @@ export default function MonthlyOverview() {
               <div className="lg:col-span-2">
                 <Card className="bg-card border" style={{ minHeight: leftContainerHeight > 0 ? `${leftContainerHeight}px` : 'auto' }}>
                   <CardContent className="p-4 h-full flex flex-col">
-                    {/* Header with centered title and right-aligned controls */}
-                    <div className="relative mb-4">
-                      <h3 className="font-medium text-foreground text-center absolute inset-0 flex items-center justify-center text-sm">
-                        ประเด็นที่ถูกกล่าวถึง
-                      </h3>
+                    {/* Header with 3-column grid layout */}
+                    <div className="grid grid-cols-3 items-center mb-4">
+                      {/* Empty left column for balance */}
+                      <div></div>
                       
-                      {/* Controls positioned absolutely to the right */}
+                      {/* Centered title */}
+                      <div className="flex justify-center">
+                        <h3 className="font-medium text-foreground text-sm pointer-events-none">
+                          ประเด็นที่ถูกกล่าวถึง
+                        </h3>
+                      </div>
+                      
+                      {/* Right column with controls */}
                       <div className="flex justify-end">
                         <div className="flex gap-2 items-center">
                           {/* Sort buttons */}
@@ -954,8 +989,8 @@ export default function MonthlyOverview() {
                             </Button>
                           </div>
                           
-                          {/* Smaller Multi-select dropdown */}
-                          <div className="w-28">
+                          {/* Multi-select dropdown */}
+                          <div className="w-32">
                             <MultiSelectDropdown
                               options={mainTopics.map(topic => ({ value: topic, label: topic }))}
                               selectedValues={selectedMainTopics}
@@ -977,7 +1012,7 @@ export default function MonthlyOverview() {
                             <div className="w-full max-w-[120px] sm:max-w-[150px] h-5 sm:h-6 bg-gray-100 relative">
                               <div 
                                 className="h-full bg-red-500 flex items-center justify-start pl-1 absolute right-0"
-                                style={{ width: `${Math.min(100, (item.negative / Math.max(...allTopicsData.map(d => Math.max(d.positive, d.negative)))) * 100)}%` }}
+                                style={{ width: `${Math.min(100, (item.negative / Math.max(...butterflyData.map(d => Math.max(d.positive, d.negative)))) * 100)}%` }}
                               >
                                 <span className="text-xs text-white font-medium">{item.negative}</span>
                               </div>
@@ -996,7 +1031,7 @@ export default function MonthlyOverview() {
                             <div className="w-full max-w-[120px] sm:max-w-[150px] h-5 sm:h-6 bg-gray-100 relative">
                               <div 
                                 className="h-full bg-green-500 flex items-center justify-end pr-1"
-                                style={{ width: `${Math.min(100, (item.positive / Math.max(...allTopicsData.map(d => Math.max(d.positive, d.negative)))) * 100)}%` }}
+                                style={{ width: `${Math.min(100, (item.positive / Math.max(...butterflyData.map(d => Math.max(d.positive, d.negative)))) * 100)}%` }}
                               >
                                 <span className="text-xs text-white font-medium">{item.positive}</span>
                               </div>
