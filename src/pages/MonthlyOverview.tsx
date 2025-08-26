@@ -945,12 +945,12 @@ export default function MonthlyOverview() {
                       {/* Empty left column for balance */}
                       <div></div>
                       
-                      {/* Centered title */}
-                      <div className="flex justify-center">
-                        <h3 className="font-medium text-foreground text-sm pointer-events-none">
-                          ประเด็นที่ถูกกล่าวถึง
-                        </h3>
-                      </div>
+                       {/* Centered title */}
+                       <div className="flex justify-center">
+                         <h3 className="font-medium text-foreground text-xs pointer-events-none">
+                           ประเด็นที่ถูกกล่าวถึง
+                         </h3>
+                       </div>
                       
                       {/* Right column with controls */}
                       <div className="flex justify-end">
@@ -1042,38 +1042,38 @@ export default function MonthlyOverview() {
                     
                     <div className="flex-1 space-y-1 sm:space-y-2">
                       {topicsData.length > 0 ? topicsData.map((item, index) => (
-                        <div key={index} className="flex items-center justify-between">
-                          {/* Negative bar (left) - now starts from center and extends left */}
-                          <div className="flex-1 flex justify-end">
-                            <div className="w-full max-w-[120px] sm:max-w-[150px] h-5 sm:h-6 bg-gray-100 relative">
-                              <div 
-                                className="h-full bg-red-500 flex items-center justify-start pl-1 absolute right-0"
-                                style={{ width: `${Math.min(100, (item.negative / Math.max(...butterflyData.map(d => Math.max(d.positive, d.negative)))) * 100)}%` }}
-                              >
-                                <span className="text-xs text-white font-medium">{item.negative}</span>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* Topic name (center) */}
-                          <div className="px-2 sm:px-4 min-w-0 flex-shrink-0 w-32 sm:w-48">
-                            <p className="text-xs text-center text-foreground truncate" title={item.topic}>
-                              {item.topic}
-                            </p>
-                          </div>
-                          
-                          {/* Positive bar (right) - extended */}
-                          <div className="flex-1">
-                            <div className="w-full max-w-[120px] sm:max-w-[150px] h-5 sm:h-6 bg-gray-100 relative">
-                              <div 
-                                className="h-full bg-green-500 flex items-center justify-end pr-1"
-                                style={{ width: `${Math.min(100, (item.positive / Math.max(...butterflyData.map(d => Math.max(d.positive, d.negative)))) * 100)}%` }}
-                              >
-                                <span className="text-xs text-white font-medium">{item.positive}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+                         <div key={index} className="flex items-center justify-between">
+                           {/* Negative bar (left) - now starts from center and extends left */}
+                           <div className="flex-1 flex justify-end">
+                             <div className="w-full max-w-[100px] sm:max-w-[120px] h-4 sm:h-5 bg-gray-100 relative">
+                               <div 
+                                 className="h-full bg-red-500 flex items-center justify-start pl-1 absolute right-0"
+                                 style={{ width: `${Math.min(100, (item.negative / Math.max(...butterflyData.map(d => Math.max(d.positive, d.negative)))) * 100)}%` }}
+                               >
+                                 <span className="text-[10px] text-white font-medium">{item.negative}</span>
+                               </div>
+                             </div>
+                           </div>
+                           
+                           {/* Topic name (center) */}
+                           <div className="px-2 sm:px-3 min-w-0 flex-shrink-0 w-32 sm:w-44">
+                             <p className="text-[10px] text-center text-foreground truncate" title={item.topic}>
+                               {item.topic}
+                             </p>
+                           </div>
+                           
+                           {/* Positive bar (right) - extended */}
+                           <div className="flex-1">
+                             <div className="w-full max-w-[100px] sm:max-w-[120px] h-4 sm:h-5 bg-gray-100 relative">
+                               <div 
+                                 className="h-full bg-green-500 flex items-center justify-end pr-1"
+                                 style={{ width: `${Math.min(100, (item.positive / Math.max(...butterflyData.map(d => Math.max(d.positive, d.negative)))) * 100)}%` }}
+                               >
+                                 <span className="text-[10px] text-white font-medium">{item.positive}</span>
+                               </div>
+                             </div>
+                           </div>
+                         </div>
                       )) : (
                         <div className="flex items-center justify-center h-32">
                           <p className="text-sm text-muted-foreground">ไม่มีข้อมูลที่ตรงกับเงื่อนไข</p>
@@ -1081,17 +1081,17 @@ export default function MonthlyOverview() {
                       )}
                     </div>
                     
-                    {/* Legend */}
-                    <div className="flex justify-center space-x-4 sm:space-x-8 mt-4">
-                      <div className="flex items-center">
-                        <div className="w-3 h-3 bg-red-500 rounded mr-2"></div>
-                        <span className="text-xs text-muted-foreground">เชิงลบ (ครั้ง)</span>
-                      </div>
-                      <div className="flex items-center">
-                        <div className="w-3 h-3 bg-green-500 rounded mr-2"></div>
-                        <span className="text-xs text-muted-foreground">เชิงบวก (ครั้ง)</span>
-                      </div>
-                    </div>
+                     {/* Legend */}
+                     <div className="flex justify-center space-x-3 sm:space-x-6 mt-3">
+                       <div className="flex items-center">
+                         <div className="w-2 h-2 bg-red-500 rounded mr-1"></div>
+                         <span className="text-[10px] text-muted-foreground">เชิงลบ (ครั้ง)</span>
+                       </div>
+                       <div className="flex items-center">
+                         <div className="w-2 h-2 bg-green-500 rounded mr-1"></div>
+                         <span className="text-[10px] text-muted-foreground">เชิงบวก (ครั้ง)</span>
+                       </div>
+                     </div>
                   </CardContent>
                 </Card>
               </div>
