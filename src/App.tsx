@@ -18,7 +18,7 @@ import CustomerFeedback from "./pages/CustomerFeedback";
 import SevereComplaints from "./pages/SevereComplaints";
 import AiChat from "./pages/AiChat";
 import Documents from "./pages/Documents";
-import NotFound from "./pages/NotFound";
+
 
 const queryClient = new QueryClient();
 
@@ -51,7 +51,7 @@ const App = () => (
                 <Route path="/severe-complaints" element={<SevereComplaints />} />
                 <Route path="/ai-chat" element={<AiChat />} />
                 <Route path="/documents" element={<Documents />} />
-                <Route path="*" element={<NotFound />} />
+                <Route path="*" element={<div className="text-center p-8"><h1 className="text-2xl font-bold">หน้าที่คุณค้นหาไม่พบ</h1></div>} />
                 </Routes>
               </div>
             </main>

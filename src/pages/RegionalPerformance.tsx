@@ -68,36 +68,34 @@ export default function RegionalPerformance() {
             <CardTitle className="text-lg">การกรองข้อมูล</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="grid gap-4 lg:grid-cols-2">
               <CascadingAreaFilter
                 selectedArea={selectedArea}
                 onAreaChange={setSelectedArea}
               />
               
-              <div className="grid gap-4 md:grid-cols-2">
-                {/* ช่วงเวลาและความคิดเห็น */}
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-base">ช่วงเวลาและความคิดเห็น</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <h4 className="text-sm font-medium mb-2">ช่วงเวลา</h4>
-                      <TimeFilter
-                        value={timeFilter}
-                        onChange={setTimeFilter}
-                      />
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-medium mb-2">ความคิดเห็น</h4>
-                      <CategoryFilter
-                        selectedCategories={selectedCategories}
-                        onCategoryChange={setSelectedCategories}
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+              {/* ช่วงเวลาและความคิดเห็น */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">ช่วงเวลาและความคิดเห็น</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <h4 className="text-sm font-medium mb-2">ช่วงเวลา</h4>
+                    <TimeFilter
+                      value={timeFilter}
+                      onChange={setTimeFilter}
+                    />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium mb-2">ความคิดเห็น</h4>
+                    <CategoryFilter
+                      selectedCategories={selectedCategories}
+                      onCategoryChange={setSelectedCategories}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </CardContent>
         </Card>
