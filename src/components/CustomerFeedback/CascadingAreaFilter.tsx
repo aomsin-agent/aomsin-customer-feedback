@@ -141,7 +141,7 @@ export function CascadingAreaFilter({ selectedArea, onAreaChange }: CascadingAre
       <CardHeader className="pb-3">
         <CardTitle className="text-base">พื้นที่ดูแล</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6 flex-1 py-6">
+      <CardContent className="flex flex-col h-full gap-4 md:gap-6 py-6">
         {/* Region Selection */}
         <div className="flex items-center gap-4">
           <label className="text-sm font-medium min-w-[60px]">ภาค:</label>
@@ -208,7 +208,7 @@ export function CascadingAreaFilter({ selectedArea, onAreaChange }: CascadingAre
         </div>
 
         {/* Selected Summary - Simple format like other filters */}
-        <div className="mt-8 pt-4 border-t">
+        <div className="mt-auto pt-4 border-t">
           <p className="text-sm text-muted-foreground">
             เลือกแล้ว: <span className="font-medium text-foreground">{getSelectedText()}</span>
           </p>

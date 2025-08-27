@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -68,12 +68,13 @@ export function RegionalSentimentChart({ selectedArea }: RegionalSentimentChartP
     return regions.map(region => generateMockValues(`ภาค ${region}`));
   };
 
-  const data = getDataBasedOnSelection();
+  const data = useMemo(() => getDataBasedOnSelection(), [selectedArea, branches]);
 
   return (
-    <div className="w-full h-96">
+    <div className="w-full h-96 min-w-0">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
+          key={`${JSON.stringify(selectedArea)}-${data.length}`}
           data={data}
           margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
         >
