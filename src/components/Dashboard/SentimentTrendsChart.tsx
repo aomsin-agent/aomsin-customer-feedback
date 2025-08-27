@@ -52,11 +52,13 @@ export function SentimentTrendsChart() {
     
     setMockData(data);
     
-    // Convert positive values to negative for the chart display
+    // Create different negative values for chart display
     const processed = data.map(item => {
       const newItem = { ...item };
       categories.forEach(category => {
-        newItem[`${category}Neg`] = -item[category];
+        // Generate different random values for negative data
+        const negativeValue = Math.floor(Math.random() * 40) + 15;
+        newItem[`${category}Neg`] = -negativeValue;
       });
       return newItem;
     });
@@ -141,7 +143,6 @@ export function SentimentTrendsChart() {
                     dataKey={`${category}Neg`}
                     stroke={colors[index]}
                     strokeWidth={2}
-                    strokeDasharray="5 5"
                     dot={{ r: 4 }}
                   />
                 </React.Fragment>
