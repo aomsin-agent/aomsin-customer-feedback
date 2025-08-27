@@ -12,14 +12,16 @@ interface BranchData {
 
 interface CascadingAreaFilterProps {
   selectedArea: {
-    division?: number;
-    region?: number;
-    branch?: string;
+    division?: number | 'all';
+    region?: number | 'all';
+    zone?: string | 'all';
+    branch?: string | 'all';
   };
   onAreaChange: (area: {
-    division?: number;
-    region?: number;
-    branch?: string;
+    division?: number | 'all';
+    region?: number | 'all';
+    zone?: string | 'all';
+    branch?: string | 'all';
   }) => void;
 }
 
@@ -27,6 +29,7 @@ export function CascadingAreaFilter({ selectedArea, onAreaChange }: CascadingAre
   const [branches, setBranches] = useState<BranchData[]>([]);
   const [divisions, setDivisions] = useState<number[]>([]);
   const [regions, setRegions] = useState<number[]>([]);
+  const [zones, setZones] = useState<string[]>([]);
   const [branchNames, setBranchNames] = useState<string[]>([]);
 
   // Fetch all branch data
@@ -56,7 +59,7 @@ export function CascadingAreaFilter({ selectedArea, onAreaChange }: CascadingAre
 
   // Update available regions when division changes
   useEffect(() => {
-    if (selectedArea.division) {
+    if (selectedArea.division && selectedArea.division !== 'all') {
       const availableRegions = [...new Set(
         branches
           .filter(b => b.division === selectedArea.division)
@@ -69,69 +72,131 @@ export function CascadingAreaFilter({ selectedArea, onAreaChange }: CascadingAre
     }
   }, [selectedArea.division, branches]);
 
-  // Update available branches when region changes
+  // Update available zones when region changes
   useEffect(() => {
-    if (selectedArea.division && selectedArea.region) {
+    if (selectedArea.division && selectedArea.division !== 'all' && 
+        selectedArea.region && selectedArea.region !== 'all') {
+      const availableZones = [...new Set(
+        branches
+          .filter(b => b.division === selectedArea.division && b.region === selectedArea.region)
+          .map(b => b.resdesc)
+          .filter(z => z !== null)
+      )].sort();
+      setZones(availableZones);
+    } else {
+      setZones([]);
+    }
+  }, [selectedArea.division, selectedArea.region, branches]);
+
+  // Update available branches when zone changes
+  useEffect(() => {
+    if (selectedArea.division && selectedArea.division !== 'all' &&
+        selectedArea.region && selectedArea.region !== 'all' &&
+        selectedArea.zone && selectedArea.zone !== 'all') {
       const availableBranches = branches
-        .filter(b => b.division === selectedArea.division && b.region === selectedArea.region)
+        .filter(b => 
+          b.division === selectedArea.division && 
+          b.region === selectedArea.region &&
+          b.resdesc === selectedArea.zone
+        )
         .map(b => b.branch_name)
         .sort();
       setBranchNames(availableBranches);
     } else {
       setBranchNames([]);
     }
-  }, [selectedArea.division, selectedArea.region, branches]);
+  }, [selectedArea.division, selectedArea.region, selectedArea.zone, branches]);
 
   const handleDivisionChange = (value: string) => {
-    const division = parseInt(value);
-    onAreaChange({
-      division,
-      region: undefined,
-      branch: undefined
-    });
+    if (value === 'all') {
+      onAreaChange({ division: 'all' });
+    } else {
+      const division = parseInt(value);
+      onAreaChange({
+        division,
+        region: undefined,
+        zone: undefined,
+        branch: undefined
+      });
+    }
   };
 
   const handleRegionChange = (value: string) => {
-    const region = parseInt(value);
-    onAreaChange({
-      ...selectedArea,
-      region,
-      branch: undefined
-    });
+    if (value === 'all') {
+      onAreaChange({
+        ...selectedArea,
+        region: 'all',
+        zone: undefined,
+        branch: undefined
+      });
+    } else {
+      const region = parseInt(value);
+      onAreaChange({
+        ...selectedArea,
+        region,
+        zone: undefined,
+        branch: undefined
+      });
+    }
+  };
+
+  const handleZoneChange = (value: string) => {
+    if (value === 'all') {
+      onAreaChange({
+        ...selectedArea,
+        zone: 'all',
+        branch: undefined
+      });
+    } else {
+      onAreaChange({
+        ...selectedArea,
+        zone: value,
+        branch: undefined
+      });
+    }
   };
 
   const handleBranchChange = (value: string) => {
-    onAreaChange({
-      ...selectedArea,
-      branch: value
-    });
+    if (value === 'all') {
+      onAreaChange({
+        ...selectedArea,
+        branch: 'all'
+      });
+    } else {
+      onAreaChange({
+        ...selectedArea,
+        branch: value
+      });
+    }
   };
 
   const getSelectedText = () => {
     const parts = [];
-    if (selectedArea.division) parts.push(`สายกิจ: ${selectedArea.division}`);
-    if (selectedArea.region) parts.push(`ภาค: ${selectedArea.region}`);
-    if (selectedArea.branch) parts.push(`สาขา: ${selectedArea.branch}`);
-    return parts.length > 0 ? parts.join(', ') : 'ยังไม่ได้เลือกพื้นที่';
+    if (selectedArea.division && selectedArea.division !== 'all') parts.push(`สายกิจ: ${selectedArea.division}`);
+    if (selectedArea.region && selectedArea.region !== 'all') parts.push(`ภาค: ${selectedArea.region}`);
+    if (selectedArea.zone && selectedArea.zone !== 'all') parts.push(`เขต: ${selectedArea.zone}`);
+    if (selectedArea.branch && selectedArea.branch !== 'all') parts.push(`สาขา: ${selectedArea.branch}`);
+    return parts.length > 0 ? parts.join(', ') : 'เลือกทั้งหมด';
   };
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="text-lg">พื้นที่ดูแล</CardTitle>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base">พื้นที่ดูแล</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3">
         {/* Division Selection */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium">สายกิจ</label>
+        <div className="flex items-center gap-3">
+          <label className="text-sm font-medium min-w-[50px]">สายกิจ:</label>
           <Select
-            value={selectedArea.division?.toString() || ""}
+            value={selectedArea.division === 'all' ? 'all' : selectedArea.division?.toString() || 'all'}
             onValueChange={handleDivisionChange}
           >
-            <SelectTrigger>
+            <SelectTrigger className="h-8">
               <SelectValue placeholder="เลือกสายกิจ" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="all">เลือกทั้งหมด</SelectItem>
               {divisions.map((division) => (
                 <SelectItem key={division} value={division.toString()}>
                   สายกิจ {division}
@@ -142,17 +207,18 @@ export function CascadingAreaFilter({ selectedArea, onAreaChange }: CascadingAre
         </div>
 
         {/* Region Selection */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium">ภาค</label>
+        <div className="flex items-center gap-3">
+          <label className="text-sm font-medium min-w-[50px]">ภาค:</label>
           <Select
-            value={selectedArea.region?.toString() || ""}
+            value={selectedArea.region === 'all' ? 'all' : selectedArea.region?.toString() || 'all'}
             onValueChange={handleRegionChange}
-            disabled={!selectedArea.division}
+            disabled={!selectedArea.division || selectedArea.division === 'all'}
           >
-            <SelectTrigger>
+            <SelectTrigger className="h-8">
               <SelectValue placeholder="เลือกภาค" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="all">เลือกทั้งหมด</SelectItem>
               {regions.map((region) => (
                 <SelectItem key={region} value={region.toString()}>
                   ภาค {region}
@@ -162,18 +228,41 @@ export function CascadingAreaFilter({ selectedArea, onAreaChange }: CascadingAre
           </Select>
         </div>
 
-        {/* Branch Selection */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium">สาขา</label>
+        {/* Zone Selection */}
+        <div className="flex items-center gap-3">
+          <label className="text-sm font-medium min-w-[50px]">เขต:</label>
           <Select
-            value={selectedArea.branch || ""}
-            onValueChange={handleBranchChange}
-            disabled={!selectedArea.region}
+            value={selectedArea.zone === 'all' ? 'all' : selectedArea.zone || 'all'}
+            onValueChange={handleZoneChange}
+            disabled={!selectedArea.region || selectedArea.region === 'all'}
           >
-            <SelectTrigger>
+            <SelectTrigger className="h-8">
+              <SelectValue placeholder="เลือกเขต" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">เลือกทั้งหมด</SelectItem>
+              {zones.map((zone) => (
+                <SelectItem key={zone} value={zone}>
+                  {zone}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Branch Selection */}
+        <div className="flex items-center gap-3">
+          <label className="text-sm font-medium min-w-[50px]">สาขา:</label>
+          <Select
+            value={selectedArea.branch === 'all' ? 'all' : selectedArea.branch || 'all'}
+            onValueChange={handleBranchChange}
+            disabled={!selectedArea.zone || selectedArea.zone === 'all'}
+          >
+            <SelectTrigger className="h-8">
               <SelectValue placeholder="เลือกสาขา" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="all">เลือกทั้งหมด</SelectItem>
               {branchNames.map((branch) => (
                 <SelectItem key={branch} value={branch}>
                   {branch}
@@ -184,9 +273,9 @@ export function CascadingAreaFilter({ selectedArea, onAreaChange }: CascadingAre
         </div>
 
         {/* Selected Summary */}
-        <div className="mt-4 p-3 bg-muted rounded-lg">
-          <p className="text-sm text-muted-foreground">พื้นที่ที่เลือก:</p>
-          <p className="text-sm font-medium">{getSelectedText()}</p>
+        <div className="mt-3 p-2 bg-muted rounded-lg">
+          <p className="text-xs text-muted-foreground">พื้นที่ที่เลือก:</p>
+          <p className="text-xs font-medium">{getSelectedText()}</p>
         </div>
       </CardContent>
     </Card>
