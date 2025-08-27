@@ -141,15 +141,15 @@ export function CascadingAreaFilter({ selectedArea, onAreaChange }: CascadingAre
       <CardHeader className="pb-3">
         <CardTitle className="text-base">พื้นที่ดูแล</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4 flex-1">
+      <CardContent className="space-y-6 flex-1 py-6">
         {/* Region Selection */}
-        <div className="flex items-center gap-3">
-          <label className="text-sm font-medium min-w-[50px]">ภาค:</label>
+        <div className="flex items-center gap-4">
+          <label className="text-sm font-medium min-w-[60px]">ภาค:</label>
           <Select
             value={selectedArea.region === 'all' ? 'all' : selectedArea.region?.toString() || 'all'}
             onValueChange={handleRegionChange}
           >
-            <SelectTrigger className="h-8">
+            <SelectTrigger className="h-10">
               <SelectValue placeholder="เลือกภาค" />
             </SelectTrigger>
             <SelectContent>
@@ -164,14 +164,14 @@ export function CascadingAreaFilter({ selectedArea, onAreaChange }: CascadingAre
         </div>
 
         {/* Zone Selection */}
-        <div className="flex items-center gap-3">
-          <label className="text-sm font-medium min-w-[50px]">เขต:</label>
+        <div className="flex items-center gap-4">
+          <label className="text-sm font-medium min-w-[60px]">เขต:</label>
           <Select
             value={selectedArea.zone === 'all' ? 'all' : selectedArea.zone || 'all'}
             onValueChange={handleZoneChange}
             disabled={!selectedArea.region || selectedArea.region === 'all'}
           >
-            <SelectTrigger className="h-8">
+            <SelectTrigger className="h-10">
               <SelectValue placeholder="เลือกเขต" />
             </SelectTrigger>
             <SelectContent>
@@ -186,14 +186,14 @@ export function CascadingAreaFilter({ selectedArea, onAreaChange }: CascadingAre
         </div>
 
         {/* Branch Selection */}
-        <div className="flex items-center gap-3">
-          <label className="text-sm font-medium min-w-[50px]">สาขา:</label>
+        <div className="flex items-center gap-4">
+          <label className="text-sm font-medium min-w-[60px]">สาขา:</label>
           <Select
             value={selectedArea.branch === 'all' ? 'all' : selectedArea.branch || 'all'}
             onValueChange={handleBranchChange}
             disabled={!selectedArea.zone || selectedArea.zone === 'all'}
           >
-            <SelectTrigger className="h-8">
+            <SelectTrigger className="h-10">
               <SelectValue placeholder="เลือกสาขา" />
             </SelectTrigger>
             <SelectContent>
@@ -208,7 +208,7 @@ export function CascadingAreaFilter({ selectedArea, onAreaChange }: CascadingAre
         </div>
 
         {/* Selected Summary - Simple format like other filters */}
-        <div className="mt-4 pt-3 border-t">
+        <div className="mt-8 pt-4 border-t">
           <p className="text-sm text-muted-foreground">
             เลือกแล้ว: <span className="font-medium text-foreground">{getSelectedText()}</span>
           </p>
