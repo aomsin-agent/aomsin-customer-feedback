@@ -13,8 +13,7 @@ import { MobileNavigation } from "@/components/MobileNavigation";
 
 // Page Components
 import MonthlyOverview from "./pages/MonthlyOverview";
-import TrendTracking from "./pages/TrendTracking";
-import RegionalPotential from "./pages/RegionalPotential";
+import RegionalPerformance from "./pages/RegionalPerformance";
 import CustomerFeedback from "./pages/CustomerFeedback";
 import SevereComplaints from "./pages/SevereComplaints";
 import AiChat from "./pages/AiChat";
@@ -47,8 +46,7 @@ const App = () => (
               <div className="p-2 md:p-6 lg:p-8">
                 <Routes>
                 <Route path="/" element={<MonthlyOverview />} />
-                <Route path="/trends" element={<TrendTracking />} />
-                <Route path="/regional" element={<RegionalPotential />} />
+                <Route path="/regional-performance" element={<RegionalPerformance />} />
                 <Route path="/feedback" element={<CustomerFeedback />} />
                 <Route path="/severe-complaints" element={<SevereComplaints />} />
                 <Route path="/ai-chat" element={<AiChat />} />

@@ -17,15 +17,9 @@ const navigationItems = [
     icon: BarChart3,
   },
   {
-    title: "แนวโน้ม",
-    shortTitle: "แนวโน้ม",
-    url: "/trends",
-    icon: TrendingUp,
-  },
-  {
-    title: "พื้นที่",
-    shortTitle: "พื้นที่",
-    url: "/regional",
+    title: "ผลการดำเนินงานรายพื้นที่",
+    shortTitle: "รายพื้นที่",
+    url: "/regional-performance",
     icon: MapPin,
   },
   {
