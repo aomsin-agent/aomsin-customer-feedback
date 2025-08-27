@@ -1,47 +1,125 @@
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CascadingAreaFilter } from '@/components/CustomerFeedback/CascadingAreaFilter';
+import { TimeFilter, TimeFilterValue } from '@/components/CustomerFeedback/TimeFilter';
+import { CategoryFilter } from '@/components/CustomerFeedback/CategoryFilter';
+
 export default function RegionalPerformance() {
+  const [selectedArea, setSelectedArea] = useState<{
+    division?: number;
+    region?: number;
+    branch?: string;
+  }>({});
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [timeFilter, setTimeFilter] = useState<TimeFilterValue>({
+    type: 'all'
+  });
+
+  const handleClearAllFilters = () => {
+    setSelectedArea({});
+    setSelectedCategories([]);
+    setTimeFilter({ type: 'all' });
+  };
+
+  const hasAnyFilters = Object.keys(selectedArea).length > 0 || selectedCategories.length > 0 || timeFilter.type !== 'all';
+
   return (
     <div className="w-full p-4 md:p-6 lg:pl-2 lg:pr-4 xl:pl-3 xl:pr-6">
       <div className="mb-4 md:mb-6">
-        <h1 className="text-3xl font-bold text-foreground mb-2">
-          ผลการดำเนินงานรายพื้นที่
-        </h1>
-        <p className="text-muted-foreground">
-          วิเคราะห์แนวโน้มการให้บริการ ศักยภาพ และความต้องการของลูกค้าในแต่ละพื้นที่
-        </p>
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+              ผลการดำเนินงานรายพื้นที่
+            </h1>
+            <p className="text-sm md:text-base text-muted-foreground">
+              วิเคราะห์แนวโน้มการให้บริการ ศักยภาพ และความต้องการของลูกค้าในแต่ละพื้นที่
+            </p>
+          </div>
+          {hasAnyFilters && (
+            <Button variant="outline" onClick={handleClearAllFilters}>
+              ล้างตัวกรองทั้งหมด
+            </Button>
+          )}
+        </div>
       </div>
       
-      <div className="grid gap-6">
-        {/* การติดตามแนวโน้ม Section */}
-        <div className="bg-card rounded-lg shadow-soft p-8">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="text-4xl">📈</div>
-            <div>
-              <h2 className="text-2xl font-bold text-foreground">การติดตามแนวโน้ม</h2>
-              <p className="text-muted-foreground">วิเคราะห์แนวโน้มการให้บริการและข้อร้องเรียนตามช่วงเวลา</p>
+      <div className="space-y-6">
+        {/* การกรองข้อมูล Container */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl">การกรองข้อมูล</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-6 md:grid-cols-3">
+              <CascadingAreaFilter
+                selectedArea={selectedArea}
+                onAreaChange={setSelectedArea}
+              />
+              
+              <TimeFilter
+                value={timeFilter}
+                onChange={setTimeFilter}
+              />
+              
+              <CategoryFilter
+                selectedCategories={selectedCategories}
+                onCategoryChange={setSelectedCategories}
+              />
             </div>
-          </div>
-          <div className="text-center">
-            <p className="text-muted-foreground">
-              ส่วนนี้จะแสดงกราฟแนวโน้ม การเปรียบเทียบข้อมูลย้อนหลัง และการพยากรณ์
-            </p>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
-        {/* ศักยภาพรายพื้นที่ Section */}
-        <div className="bg-card rounded-lg shadow-soft p-8">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="text-4xl">🗺️</div>
-            <div>
-              <h2 className="text-2xl font-bold text-foreground">ศักยภาพรายพื้นที่</h2>
-              <p className="text-muted-foreground">วิเคราะห์ศักยภาพและความต้องการของลูกค้าในแต่ละพื้นที่</p>
+        {/* ทัศนคติรายพื้นที่ Container */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl flex items-center gap-3">
+              <span className="text-3xl">🗺️</span>
+              ทัศนคติรายพื้นที่
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center">
+              <p className="text-muted-foreground">
+                ส่วนนี้จะแสดงแผนที่ความรู้สึกและทัศนคติของลูกค้าในแต่ละพื้นที่
+              </p>
             </div>
-          </div>
-          <div className="text-center">
-            <p className="text-muted-foreground">
-              ส่วนนี้จะแสดงแผนที่ข้อมูลการให้บริการ การวิเคราะห์ศักยภาพตามภูมิภาค
-            </p>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
+
+        {/* แนวโน้มทัศนคติ Container */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl flex items-center gap-3">
+              <span className="text-3xl">📈</span>
+              แนวโน้มทัศนคติ
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center">
+              <p className="text-muted-foreground">
+                ส่วนนี้จะแสดงกราฟแนวโน้มทัศนคติและการเปลี่ยนแปลงตามช่วงเวลา
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* หมวดหมู่ที่ถูกกล่าวถึง Container */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl flex items-center gap-3">
+              <span className="text-3xl">📊</span>
+              หมวดหมู่ที่ถูกกล่าวถึง
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center">
+              <p className="text-muted-foreground">
+                ส่วนนี้จะแสดงสถิติหมวดหมู่ที่ลูกค้ากล่าวถึงมากที่สุดในพื้นที่ที่เลือก
+              </p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
