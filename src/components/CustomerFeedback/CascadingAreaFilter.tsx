@@ -180,11 +180,11 @@ export function CascadingAreaFilter({ selectedArea, onAreaChange }: CascadingAre
   };
 
   return (
-    <Card>
+    <Card className="h-full">
       <CardHeader className="pb-3">
         <CardTitle className="text-base">พื้นที่ดูแล</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-3 flex-1">
         {/* Division Selection */}
         <div className="flex items-center gap-3">
           <label className="text-sm font-medium min-w-[50px]">สายกิจ:</label>

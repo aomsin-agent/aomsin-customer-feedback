@@ -57,16 +57,23 @@ export default function RegionalPerformance() {
             <CardTitle className="text-lg">การกรองข้อมูล</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2 items-stretch">
               <div>
                 <CascadingAreaFilter selectedArea={selectedArea} onAreaChange={setSelectedArea} />
               </div>
               
               <div className="mt-4 md:mt-0">
-                <div className="mt-2">
-                  <TimeFilter value={timeFilter} onChange={setTimeFilter} />
-                </div>
-                <CategoryFilter selectedCategories={selectedCategories} onCategoryChange={setSelectedCategories} />
+                <Card className="h-full">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base">ช่วงเวลาและความคิดเห็น</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4 flex-1">
+                    <div className="mt-2">
+                      <TimeFilter value={timeFilter} onChange={setTimeFilter} />
+                    </div>
+                    <CategoryFilter selectedCategories={selectedCategories} onCategoryChange={setSelectedCategories} />
+                  </CardContent>
+                </Card>
               </div>
             </div>
           </CardContent>
