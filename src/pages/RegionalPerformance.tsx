@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CascadingAreaFilter } from '@/components/CustomerFeedback/CascadingAreaFilter';
 import { TimeFilter, TimeFilterValue } from '@/components/CustomerFeedback/TimeFilter';
 import { CategoryFilter } from '@/components/CustomerFeedback/CategoryFilter';
-
 export default function RegionalPerformance() {
   const [selectedArea, setSelectedArea] = useState<{
     division?: number | 'all';
@@ -21,7 +20,6 @@ export default function RegionalPerformance() {
   const [timeFilter, setTimeFilter] = useState<TimeFilterValue>({
     type: 'all'
   });
-
   const handleClearAllFilters = () => {
     setSelectedArea({
       division: 'all',
@@ -30,19 +28,12 @@ export default function RegionalPerformance() {
       branch: 'all'
     });
     setSelectedCategories([]);
-    setTimeFilter({ type: 'all' });
+    setTimeFilter({
+      type: 'all'
+    });
   };
-
-  const hasAnyFilters = 
-    (selectedArea.division && selectedArea.division !== 'all') ||
-    (selectedArea.region && selectedArea.region !== 'all') ||
-    (selectedArea.zone && selectedArea.zone !== 'all') ||
-    (selectedArea.branch && selectedArea.branch !== 'all') ||
-    selectedCategories.length > 0 || 
-    timeFilter.type !== 'all';
-
-  return (
-    <div className="w-full p-4 md:p-6 lg:pl-2 lg:pr-4 xl:pl-3 xl:pr-6">
+  const hasAnyFilters = selectedArea.division && selectedArea.division !== 'all' || selectedArea.region && selectedArea.region !== 'all' || selectedArea.zone && selectedArea.zone !== 'all' || selectedArea.branch && selectedArea.branch !== 'all' || selectedCategories.length > 0 || timeFilter.type !== 'all';
+  return <div className="w-full p-4 md:p-6 lg:pl-2 lg:pr-4 xl:pl-3 xl:pr-6">
       <div className="mb-4 md:mb-6">
         <div className="flex justify-between items-start">
           <div>
@@ -53,11 +44,9 @@ export default function RegionalPerformance() {
               วิเคราะห์แนวโน้มการให้บริการ ศักยภาพ และความต้องการของลูกค้าในแต่ละพื้นที่
             </p>
           </div>
-          {hasAnyFilters && (
-            <Button variant="outline" onClick={handleClearAllFilters}>
+          {hasAnyFilters && <Button variant="outline" onClick={handleClearAllFilters}>
               ล้างตัวกรองทั้งหมด
-            </Button>
-          )}
+            </Button>}
         </div>
       </div>
       
@@ -68,34 +57,25 @@ export default function RegionalPerformance() {
             <CardTitle className="text-lg">การกรองข้อมูล</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-4 lg:grid-cols-2">
-              <CascadingAreaFilter
-                selectedArea={selectedArea}
-                onAreaChange={setSelectedArea}
-              />
+            <div className="space-y-4">
+              <CascadingAreaFilter selectedArea={selectedArea} onAreaChange={setSelectedArea} />
               
-              {/* ช่วงเวลาและความคิดเห็น */}
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base">ช่วงเวลาและความคิดเห็น</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <h4 className="text-sm font-medium mb-2">ช่วงเวลา</h4>
-                    <TimeFilter
-                      value={timeFilter}
-                      onChange={setTimeFilter}
-                    />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-medium mb-2">ความคิดเห็น</h4>
-                    <CategoryFilter
-                      selectedCategories={selectedCategories}
-                      onCategoryChange={setSelectedCategories}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="grid gap-4 md:grid-cols-2">
+                {/* ช่วงเวลาและความคิดเห็น */}
+                <Card>
+                  
+                  <CardContent className="space-y-4">
+                    <div>
+                      <h4 className="text-sm font-medium mb-2"> </h4>
+                      <TimeFilter value={timeFilter} onChange={setTimeFilter} />
+                    </div>
+                    <div>
+                      
+                      <CategoryFilter selectedCategories={selectedCategories} onCategoryChange={setSelectedCategories} />
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -117,6 +97,5 @@ export default function RegionalPerformance() {
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>;
 }
