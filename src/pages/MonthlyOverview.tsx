@@ -561,7 +561,7 @@ export default function MonthlyOverview() {
             </div>
 
             {/* Charts Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Branch Type Donut Chart */}
               <Card className="bg-card border">
                 <CardContent className="p-4">
