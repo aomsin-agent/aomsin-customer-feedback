@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { AreaFilter } from '@/components/CustomerFeedback/AreaFilter';
 import { TimeFilter, TimeFilterValue } from '@/components/CustomerFeedback/TimeFilter';
 import { CategoryFilter } from '@/components/CustomerFeedback/CategoryFilter';
-import { CommentsList, SentimentFilter } from '@/components/CustomerFeedback/CommentsList';
+import { SevereCommentsList, SevereSentimentFilter } from '@/components/CustomerFeedback/SevereCommentsList';
 
 export default function SevereComplaints() {
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
@@ -11,16 +11,16 @@ export default function SevereComplaints() {
   const [timeFilter, setTimeFilter] = useState<TimeFilterValue>({
     type: 'all'
   });
-  const [sentimentFilter, setSentimentFilter] = useState<SentimentFilter>('all');
+  const [severeSentimentFilter, setSevereSentimentFilter] = useState<SevereSentimentFilter>('all');
 
   const handleClearAllFilters = () => {
     setSelectedAreas([]);
     setSelectedCategories([]);
     setTimeFilter({ type: 'all' });
-    setSentimentFilter('all');
+    setSevereSentimentFilter('all');
   };
 
-  const hasAnyFilters = selectedAreas.length > 0 || selectedCategories.length > 0 || sentimentFilter !== 'all';
+  const hasAnyFilters = selectedAreas.length > 0 || selectedCategories.length > 0 || severeSentimentFilter !== 'all';
 
   return (
     <div className="w-full p-4 md:p-6 lg:pl-2 lg:pr-4 xl:pl-3 xl:pr-6">
@@ -64,12 +64,12 @@ export default function SevereComplaints() {
 
         {/* Comments section - bottom on mobile, right on desktop */}
         <div className="md:col-span-8 flex-1 order-2 md:order-none">
-          <CommentsList
+          <SevereCommentsList
             selectedAreas={selectedAreas}
             selectedCategories={selectedCategories}
             timeFilter={timeFilter}
-            sentimentFilter={sentimentFilter}
-            onSentimentFilterChange={setSentimentFilter}
+            sentimentFilter={severeSentimentFilter}
+            onSentimentFilterChange={setSevereSentimentFilter}
           />
         </div>
       </div>
