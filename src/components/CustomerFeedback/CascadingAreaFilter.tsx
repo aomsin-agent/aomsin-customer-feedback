@@ -45,8 +45,8 @@ export function CascadingAreaFilter({ selectedArea, onAreaChange }: CascadingAre
 
       setBranches(data || []);
       
-      // Extract unique regions
-      const uniqueRegions = [...new Set(data?.map(b => b.region).filter(r => r !== null))].sort();
+      // Extract unique regions and sort numerically
+      const uniqueRegions = [...new Set(data?.map(b => b.region).filter(r => r !== null))].sort((a, b) => a - b);
       setRegions(uniqueRegions);
     };
 
