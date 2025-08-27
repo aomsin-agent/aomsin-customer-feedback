@@ -31,7 +31,7 @@ export function RegionalSentimentChart({ selectedArea }: RegionalSentimentChartP
     }
 
     setBranches(data || []);
-    const uniqueRegions = [...new Set(data?.map(b => b.region).filter(r => r !== null))].sort();
+    const uniqueRegions = [...new Set(data?.map(b => b.region).filter(r => r !== null))].sort((a, b) => a - b);
     setRegions(uniqueRegions);
   };
 
