@@ -6,12 +6,10 @@ import { TimeFilter, TimeFilterValue } from '@/components/CustomerFeedback/TimeF
 import { CategoryFilter } from '@/components/CustomerFeedback/CategoryFilter';
 export default function RegionalPerformance() {
   const [selectedArea, setSelectedArea] = useState<{
-    division?: number | 'all';
     region?: number | 'all';
     zone?: string | 'all';
     branch?: string | 'all';
   }>({
-    division: 'all',
     region: 'all',
     zone: 'all',
     branch: 'all'
@@ -22,7 +20,6 @@ export default function RegionalPerformance() {
   });
   const handleClearAllFilters = () => {
     setSelectedArea({
-      division: 'all',
       region: 'all',
       zone: 'all',
       branch: 'all'
@@ -32,7 +29,7 @@ export default function RegionalPerformance() {
       type: 'all'
     });
   };
-  const hasAnyFilters = selectedArea.division && selectedArea.division !== 'all' || selectedArea.region && selectedArea.region !== 'all' || selectedArea.zone && selectedArea.zone !== 'all' || selectedArea.branch && selectedArea.branch !== 'all' || selectedCategories.length > 0 || timeFilter.type !== 'all';
+  const hasAnyFilters = selectedArea.region && selectedArea.region !== 'all' || selectedArea.zone && selectedArea.zone !== 'all' || selectedArea.branch && selectedArea.branch !== 'all' || selectedCategories.length > 0 || timeFilter.type !== 'all';
   return <div className="w-full p-4 md:p-6 lg:pl-2 lg:pr-4 xl:pl-3 xl:pr-6">
       <div className="mb-4 md:mb-6">
         <div className="flex justify-between items-start">
