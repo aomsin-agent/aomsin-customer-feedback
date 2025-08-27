@@ -57,17 +57,17 @@ export default function RegionalPerformance() {
             <CardTitle className="text-lg">การกรองข้อมูล</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-4 md:grid-cols-2 items-stretch h-full">
+            <div className="grid gap-4 md:grid-cols-2 items-stretch md:min-h-[320px]">
               <div className="h-full">
                 <CascadingAreaFilter selectedArea={selectedArea} onAreaChange={setSelectedArea} />
               </div>
               
               <div className="mt-4 md:mt-0 h-full">
-                <Card className="h-full">
+                <Card className="h-full flex flex-col">
                   <CardHeader className="pb-3">
                     <CardTitle className="text-base">ช่วงเวลาและความคิดเห็น</CardTitle>
                   </CardHeader>
-                  <CardContent className="flex flex-col h-full gap-4">
+                  <CardContent className="flex-1 flex flex-col gap-4">
                     <div className="mt-2">
                       <TimeFilter value={timeFilter} onChange={setTimeFilter} />
                     </div>

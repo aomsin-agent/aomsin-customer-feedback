@@ -12,7 +12,15 @@ export function SentimentTrendsChart() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [mockData, setMockData] = useState<any[]>([]);
   const processedData = useMemo(() => {
-    if (!mockData.length) return [];
+    if (!mockData.length || !categories.length) {
+      // Fallback data
+      const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.'];
+      return months.map(month => ({
+        month,
+        'บริการ': Math.floor(Math.random() * 50) + 20,
+        'บริการNeg': -(Math.floor(Math.random() * 40) + 15)
+      }));
+    }
     
     return mockData.map(item => {
       const newItem = { ...item };

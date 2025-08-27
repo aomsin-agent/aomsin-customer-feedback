@@ -12,7 +12,6 @@ interface RegionalSentimentChartProps {
 
 export function RegionalSentimentChart({ selectedArea }: RegionalSentimentChartProps) {
   const [branches, setBranches] = useState<any[]>([]);
-  const [regions, setRegions] = useState<number[]>([]);
 
   useEffect(() => {
     fetchBranchData();
@@ -31,17 +30,28 @@ export function RegionalSentimentChart({ selectedArea }: RegionalSentimentChartP
     }
 
     setBranches(data || []);
-    const uniqueRegions = [...new Set(data?.map(b => b.region).filter(r => r !== null))].sort((a, b) => a - b);
-    setRegions(uniqueRegions);
   };
 
-  const getDataBasedOnSelection = () => {
+  const regions = useMemo(() => {
+    return [...new Set(branches?.map(b => b.region).filter(r => r !== null))].sort((a, b) => a - b);
+  }, [branches]);
+
+  const data = useMemo(() => {
     // Generate mock values but use real names
     const generateMockValues = (name: string) => ({
       name,
       positive: Math.floor(Math.random() * 100) + 50,
-      negative: Math.floor(Math.random() * 50) + 20  // Changed to positive value
+      negative: Math.floor(Math.random() * 50) + 20
     });
+
+    // Fallback data if no branches loaded yet
+    if (!branches.length) {
+      return [
+        generateMockValues('ภาค 1'),
+        generateMockValues('ภาค 2'),
+        generateMockValues('ภาค 3')
+      ];
+    }
 
     if (selectedArea.branch && selectedArea.branch !== 'all') {
       return [generateMockValues(selectedArea.branch)];
@@ -51,7 +61,7 @@ export function RegionalSentimentChart({ selectedArea }: RegionalSentimentChartP
       const branchesInZone = branches
         .filter(b => b.region === selectedArea.region && b.resdesc === selectedArea.zone)
         .map(b => b.branch_name);
-      return branchesInZone.map(generateMockValues);
+      return branchesInZone.length ? branchesInZone.map(generateMockValues) : [generateMockValues('ไม่มีข้อมูล')];
     }
     
     if (selectedArea.region && selectedArea.region !== 'all') {
@@ -61,14 +71,16 @@ export function RegionalSentimentChart({ selectedArea }: RegionalSentimentChartP
           .map(b => b.resdesc)
           .filter(z => z !== null)
       )];
-      return zonesInRegion.map(generateMockValues);
+      return zonesInRegion.length ? zonesInRegion.map(generateMockValues) : [generateMockValues('ไม่มีข้อมูล')];
     }
     
     // Show all regions
-    return regions.map(region => generateMockValues(`ภาค ${region}`));
-  };
-
-  const data = useMemo(() => getDataBasedOnSelection(), [selectedArea, branches]);
+    return regions.length ? regions.map(region => generateMockValues(`ภาค ${region}`)) : [
+      generateMockValues('ภาค 1'),
+      generateMockValues('ภาค 2'),
+      generateMockValues('ภาค 3')
+    ];
+  }, [selectedArea, branches, regions]);
 
   return (
     <div className="w-full h-96 min-w-0">

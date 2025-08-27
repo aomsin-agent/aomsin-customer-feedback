@@ -137,11 +137,11 @@ export function CascadingAreaFilter({ selectedArea, onAreaChange }: CascadingAre
   };
 
   return (
-    <Card className="h-full">
+    <Card className="h-full flex flex-col">
       <CardHeader className="pb-3">
         <CardTitle className="text-base">พื้นที่ดูแล</CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-col h-full gap-4 md:gap-6 py-6">
+      <CardContent className="flex-1 flex flex-col gap-6 py-6">
         {/* Region Selection */}
         <div className="flex items-center gap-4">
           <label className="text-sm font-medium min-w-[60px]">ภาค:</label>
