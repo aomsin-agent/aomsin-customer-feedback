@@ -4,6 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CascadingAreaFilter } from '@/components/CustomerFeedback/CascadingAreaFilter';
 import { TimeFilter, TimeFilterValue } from '@/components/CustomerFeedback/TimeFilter';
 import { CategoryFilter } from '@/components/CustomerFeedback/CategoryFilter';
+import { RegionalSentimentChart } from '@/components/Dashboard/RegionalSentimentChart';
+import { SentimentTrendsChart } from '@/components/Dashboard/SentimentTrendsChart';
+import { MentionedCategoriesTable } from '@/components/Dashboard/MentionedCategoriesTable';
 export default function RegionalPerformance() {
   const [selectedArea, setSelectedArea] = useState<{
     region?: number | 'all';
@@ -76,6 +79,19 @@ export default function RegionalPerformance() {
           </CardContent>
         </Card>
 
+        {/* ทัศนคติรายพื้นที่ Container */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-3">
+              <span className="text-2xl">📊</span>
+              ทัศนคติรายพื้นที่
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <RegionalSentimentChart selectedArea={selectedArea} />
+          </CardContent>
+        </Card>
+
         {/* แนวโน้มทัศนคติ Container */}
         <Card>
           <CardHeader>
@@ -85,13 +101,12 @@ export default function RegionalPerformance() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-center">
-              <p className="text-muted-foreground">
-                ส่วนนี้จะแสดงกราฟแนวโน้มทัศนคติและการเปลี่ยนแปลงตามช่วงเวลา
-              </p>
-            </div>
+            <SentimentTrendsChart />
           </CardContent>
         </Card>
+
+        {/* หมวดหมู่ที่ถูกกล่าวถึง Container */}
+        <MentionedCategoriesTable />
       </div>
     </div>;
 }
