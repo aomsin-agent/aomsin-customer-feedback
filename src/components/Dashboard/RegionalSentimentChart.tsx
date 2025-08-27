@@ -40,7 +40,7 @@ export function RegionalSentimentChart({ selectedArea }: RegionalSentimentChartP
     const generateMockValues = (name: string) => ({
       name,
       positive: Math.floor(Math.random() * 100) + 50,
-      negative: -(Math.floor(Math.random() * 50) + 20)
+      negative: Math.floor(Math.random() * 50) + 20  // Changed to positive value
     });
 
     if (selectedArea.branch && selectedArea.branch !== 'all') {
@@ -95,7 +95,7 @@ export function RegionalSentimentChart({ selectedArea }: RegionalSentimentChartP
               color: 'hsl(var(--foreground))'
             }}
             formatter={(value: number, name: string) => [
-              Math.abs(value),
+              value,
               name === 'positive' ? 'ความคิดเห็นเชิงบวก' : 'ความคิดเห็นเชิงลบ'
             ]}
           />
