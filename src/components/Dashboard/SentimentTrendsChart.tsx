@@ -1,34 +1,68 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
+import { supabase } from '@/integrations/supabase/client';
 
-const mockData = [
-  { month: 'ม.ค.', บริการ: 45, สถานที่: 30, เจ้าหน้าที่: 25, ข้อมูล: 20, ระบบ: 15, ราคา: 35, อื่นๆ: 40 },
-  { month: 'ก.พ.', บริการ: 50, สถานที่: 35, เจ้าหน้าที่: 30, ข้อมูล: 25, ระบบ: 20, ราคา: 40, อื่นๆ: 45 },
-  { month: 'มี.ค.', บริการ: 55, สถานที่: 40, เจ้าหน้าที่: 35, ข้อมูล: 30, ระบบ: 25, ราคา: 45, อื่นๆ: 50 },
-  { month: 'เม.ย.', บริการ: 60, สถานที่: 45, เจ้าหน้าที่: 40, ข้อมูล: 35, ระบบ: 30, ราคา: 50, อื่นๆ: 55 },
-  { month: 'พ.ค.', บริการ: 65, สถานที่: 50, เจ้าหน้าที่: 45, ข้อมูล: 40, ระบบ: 35, ราคา: 55, อื่นๆ: 60 },
-  { month: 'มิ.ย.', บริการ: 70, สถานที่: 55, เจ้าหน้าที่: 50, ข้อมูล: 45, ระบบ: 40, ราคา: 60, อื่นๆ: 65 }
-];
 
-// Convert positive values to negative for the chart display
-const processedData = mockData.map(item => ({
-  ...item,
-  บริการNeg: -item.บริการ,
-  สถานที่Neg: -item.สถานที่,
-  เจ้าหน้าที่Neg: -item.เจ้าหน้าที่,
-  ข้อมูลNeg: -item.ข้อมูล,
-  ระบบNeg: -item.ระบบ,
-  ราคาNeg: -item.ราคา,
-  อื่นๆNeg: -item.อื่นๆ
-}));
-
-const categories = ['บริการ', 'สถานที่', 'เจ้าหน้าที่', 'ข้อมูล', 'ระบบ', 'ราคา', 'อื่นๆ'];
 const colors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899'];
 
 export function SentimentTrendsChart() {
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(categories);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [mockData, setMockData] = useState<any[]>([]);
+  const [processedData, setProcessedData] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    if (categories.length > 0) {
+      setSelectedCategories(categories);
+      generateMockData();
+    }
+  }, [categories]);
+
+  const fetchCategories = async () => {
+    const { data, error } = await supabase
+      .from('category_ref')
+      .select('main_topic')
+      .eq('allow', 'yes')
+      .order('main_topic');
+
+    if (error) {
+      console.error('Error fetching categories:', error);
+      return;
+    }
+
+    const uniqueCategories = [...new Set(data?.map(c => c.main_topic))];
+    setCategories(uniqueCategories);
+  };
+
+  const generateMockData = () => {
+    const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.'];
+    const data = months.map(month => {
+      const item: any = { month };
+      categories.forEach(category => {
+        item[category] = Math.floor(Math.random() * 50) + 20;
+      });
+      return item;
+    });
+    
+    setMockData(data);
+    
+    // Convert positive values to negative for the chart display
+    const processed = data.map(item => {
+      const newItem = { ...item };
+      categories.forEach(category => {
+        newItem[`${category}Neg`] = -item[category];
+      });
+      return newItem;
+    });
+    
+    setProcessedData(processed);
+  };
 
   const handleCategoryToggle = (category: string) => {
     setSelectedCategories(prev => 

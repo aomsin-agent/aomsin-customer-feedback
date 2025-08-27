@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { supabase } from '@/integrations/supabase/client';
 
 interface RegionalSentimentChartProps {
   selectedArea: {
@@ -10,35 +11,61 @@ interface RegionalSentimentChartProps {
 }
 
 export function RegionalSentimentChart({ selectedArea }: RegionalSentimentChartProps) {
-  // Mock data - will be replaced with real data later
-  const mockData = [
-    { name: 'ภาคเหนือ', positive: 120, negative: -45 },
-    { name: 'ภาคกลาง', positive: 150, negative: -30 },
-    { name: 'ภาคตะวันออกเฉียงเหนือ', positive: 100, negative: -60 },
-    { name: 'ภาคใต้', positive: 130, negative: -40 },
-    { name: 'ภาคตะวันออก', positive: 110, negative: -35 },
-    { name: 'ภาคตะวันตก', positive: 140, negative: -25 }
-  ];
+  const [branches, setBranches] = useState<any[]>([]);
+  const [regions, setRegions] = useState<number[]>([]);
+
+  useEffect(() => {
+    fetchBranchData();
+  }, []);
+
+  const fetchBranchData = async () => {
+    const { data, error } = await supabase
+      .from('branch_ref')
+      .select('region, division, branch_name, resdesc')
+      .order('region')
+      .order('branch_name');
+
+    if (error) {
+      console.error('Error fetching branches:', error);
+      return;
+    }
+
+    setBranches(data || []);
+    const uniqueRegions = [...new Set(data?.map(b => b.region).filter(r => r !== null))].sort();
+    setRegions(uniqueRegions);
+  };
 
   const getDataBasedOnSelection = () => {
+    // Generate mock values but use real names
+    const generateMockValues = (name: string) => ({
+      name,
+      positive: Math.floor(Math.random() * 100) + 50,
+      negative: -(Math.floor(Math.random() * 50) + 20)
+    });
+
     if (selectedArea.branch && selectedArea.branch !== 'all') {
-      return [{ name: selectedArea.branch, positive: 85, negative: -25 }];
+      return [generateMockValues(selectedArea.branch)];
     }
+    
     if (selectedArea.zone && selectedArea.zone !== 'all') {
-      return [
-        { name: 'สาขา A', positive: 45, negative: -15 },
-        { name: 'สาขา B', positive: 60, negative: -20 },
-        { name: 'สาขา C', positive: 55, negative: -18 }
-      ];
+      const branchesInZone = branches
+        .filter(b => b.region === selectedArea.region && b.resdesc === selectedArea.zone)
+        .map(b => b.branch_name);
+      return branchesInZone.map(generateMockValues);
     }
+    
     if (selectedArea.region && selectedArea.region !== 'all') {
-      return [
-        { name: 'เขต 1', positive: 80, negative: -25 },
-        { name: 'เขต 2', positive: 70, negative: -20 },
-        { name: 'เขต 3', positive: 90, negative: -30 }
-      ];
+      const zonesInRegion = [...new Set(
+        branches
+          .filter(b => b.region === selectedArea.region)
+          .map(b => b.resdesc)
+          .filter(z => z !== null)
+      )];
+      return zonesInRegion.map(generateMockValues);
     }
-    return mockData;
+    
+    // Show all regions
+    return regions.map(region => generateMockValues(`ภาค ${region}`));
   };
 
   const data = getDataBasedOnSelection();

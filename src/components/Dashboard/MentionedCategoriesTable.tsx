@@ -1,68 +1,50 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { supabase } from '@/integrations/supabase/client';
 
-const mockTableData = [
-  {
-    subTopic: 'ความรวดเร็วในการให้บริการ',
-    mainTopic: 'บริการ',
-    positiveCount: 45,
-    negativeCount: 12,
-    totalCount: 57
-  },
-  {
-    subTopic: 'ทำเลที่ตั้งสาขา',
-    mainTopic: 'สถานที่',
-    positiveCount: 38,
-    negativeCount: 8,
-    totalCount: 46
-  },
-  {
-    subTopic: 'ความสุภาพของเจ้าหน้าที่',
-    mainTopic: 'เจ้าหน้าที่',
-    positiveCount: 52,
-    negativeCount: 5,
-    totalCount: 57
-  },
-  {
-    subTopic: 'ความถูกต้องของข้อมูล',
-    mainTopic: 'ข้อมูล',
-    positiveCount: 30,
-    negativeCount: 15,
-    totalCount: 45
-  },
-  {
-    subTopic: 'ระบบออนไลน์',
-    mainTopic: 'ระบบ',
-    positiveCount: 25,
-    negativeCount: 20,
-    totalCount: 45
-  },
-  {
-    subTopic: 'ค่าธรรมเนียม',
-    mainTopic: 'ราคา',
-    positiveCount: 18,
-    negativeCount: 28,
-    totalCount: 46
-  },
-  {
-    subTopic: 'เวลาทำการ',
-    mainTopic: 'อื่นๆ',
-    positiveCount: 35,
-    negativeCount: 10,
-    totalCount: 45
-  },
-  {
-    subTopic: 'ความชัดเจนของป้ายบอกทาง',
-    mainTopic: 'สถานที่',
-    positiveCount: 22,
-    negativeCount: 18,
-    totalCount: 40
-  }
-];
+interface CategoryData {
+  no: number;
+  main_topic: string;
+  sub_topic: string;
+  definition?: string;
+}
 
 export function MentionedCategoriesTable() {
+  const [categories, setCategories] = useState<CategoryData[]>([]);
+  const [tableData, setTableData] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    const { data, error } = await supabase
+      .from('category_ref')
+      .select('no, main_topic, sub_topic, definition')
+      .eq('allow', 'yes')
+      .order('main_topic')
+      .order('sub_topic');
+
+    if (error) {
+      console.error('Error fetching categories:', error);
+      return;
+    }
+
+    setCategories(data || []);
+    
+    // Generate mock data for each category
+    const mockTableData = (data || []).map(category => ({
+      subTopic: category.sub_topic,
+      mainTopic: category.main_topic,
+      positiveCount: Math.floor(Math.random() * 50) + 10,
+      negativeCount: Math.floor(Math.random() * 30) + 5,
+      get totalCount() { return this.positiveCount + this.negativeCount; }
+    }));
+
+    setTableData(mockTableData);
+  };
   return (
     <Card>
       <CardHeader>
@@ -86,7 +68,7 @@ export function MentionedCategoriesTable() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {mockTableData.map((row, index) => (
+              {tableData.map((row, index) => (
                 <TableRow key={index}>
                   <TableCell className="font-medium">{row.subTopic}</TableCell>
                   <TableCell>{row.mainTopic}</TableCell>
