@@ -48,7 +48,7 @@ export default function RegionalPerformance() {
             </p>
           </div>
           {hasAnyFilters && <Button type="button" variant="outline" onClick={handleClearAllFilters}>
-              ล้างตัวกรองทั้งหมด
+              รีเซ็ตตัวกรอง
             </Button>}
         </div>
       </div>

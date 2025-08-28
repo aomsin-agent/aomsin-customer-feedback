@@ -36,7 +36,7 @@ export default function SevereComplaints() {
           </div>
           {hasAnyFilters && (
             <Button variant="outline" onClick={handleClearAllFilters}>
-              ล้างตัวกรองทั้งหมด
+              รีเซ็ตตัวกรอง
             </Button>
           )}
         </div>
