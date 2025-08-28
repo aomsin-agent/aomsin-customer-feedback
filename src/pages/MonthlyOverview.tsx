@@ -935,7 +935,7 @@ export default function MonthlyOverview() {
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Container บน - ทัศนคติข้อคิดเห็น และ ประเด็นที่ถูกกล่าวถึง */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-6">
               {/* ทัศนคติข้อคิดเห็น - Donut Chart */}
               <div className="lg:col-span-1" ref={leftContainerRef}>
                 <Card className="bg-card border">
