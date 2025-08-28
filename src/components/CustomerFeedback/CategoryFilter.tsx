@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MultiSelectDropdown, type DropdownOption } from '@/components/ui/multi-select-dropdown';
@@ -17,7 +17,11 @@ interface CategoryFilterProps {
   onCategoryChange: (categories: string[]) => void;
 }
 
-export function CategoryFilter({ selectedCategories, onCategoryChange }: CategoryFilterProps) {
+export interface CategoryFilterRef {
+  selectAll: () => void;
+}
+
+export const CategoryFilter = forwardRef<CategoryFilterRef, CategoryFilterProps>(({ selectedCategories, onCategoryChange }, ref) => {
   const [categories, setCategories] = useState<CategoryData[]>([]);
   const [selectedMainCategories, setSelectedMainCategories] = useState<string[]>([]);
   const [initialized, setInitialized] = useState(false);
@@ -132,6 +136,19 @@ export function CategoryFilter({ selectedCategories, onCategoryChange }: Categor
     onCategoryChange([]);
   };
 
+  const handleSelectAll = () => {
+    const allMainCategories = [...new Set(categories.map(c => c.main_topic))];
+    const allSubCategories = categories.map(c => c.sub_topic);
+    
+    setSelectedMainCategories(allMainCategories);
+    onCategoryChange(allSubCategories);
+  };
+
+  // Expose selectAll method to parent component via ref
+  useImperativeHandle(ref, () => ({
+    selectAll: handleSelectAll
+  }));
+
   // Calculate summary counts
   const selectedMainCategoriesCount = selectedMainCategories.length;
   const selectedSubCategoriesCount = selectedCategories.length;
@@ -184,4 +201,6 @@ export function CategoryFilter({ selectedCategories, onCategoryChange }: Categor
       </CardContent>
     </Card>
   );
-}
+});
+
+CategoryFilter.displayName = 'CategoryFilter';

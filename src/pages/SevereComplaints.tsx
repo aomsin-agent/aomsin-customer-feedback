@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { AreaFilter } from '@/components/CustomerFeedback/AreaFilter';
 import { TimeFilter, TimeFilterValue } from '@/components/CustomerFeedback/TimeFilter';
-import { CategoryFilter } from '@/components/CustomerFeedback/CategoryFilter';
+import { CategoryFilter, CategoryFilterRef } from '@/components/CustomerFeedback/CategoryFilter';
 import { SevereCommentsList, SevereSentimentFilter } from '@/components/CustomerFeedback/SevereCommentsList';
 
 export default function SevereComplaints() {
@@ -12,12 +12,13 @@ export default function SevereComplaints() {
     type: 'all'
   });
   const [severeSentimentFilter, setSevereSentimentFilter] = useState<SevereSentimentFilter>('all');
+  const categoryFilterRef = useRef<CategoryFilterRef>(null);
 
   const handleClearAllFilters = () => {
     setSelectedAreas([]);
-    setSelectedCategories([]);
     setTimeFilter({ type: 'all' });
     setSevereSentimentFilter('all');
+    categoryFilterRef.current?.selectAll();
   };
 
   const hasAnyFilters = selectedAreas.length > 0 || selectedCategories.length > 0 || severeSentimentFilter !== 'all';
@@ -57,6 +58,7 @@ export default function SevereComplaints() {
           />
           
           <CategoryFilter
+            ref={categoryFilterRef}
             selectedCategories={selectedCategories}
             onCategoryChange={setSelectedCategories}
           />

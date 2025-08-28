@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CascadingAreaFilter } from '@/components/CustomerFeedback/CascadingAreaFilter';
 import { TimeFilter, TimeFilterValue } from '@/components/CustomerFeedback/TimeFilter';
-import { CategoryFilter } from '@/components/CustomerFeedback/CategoryFilter';
+import { CategoryFilter, CategoryFilterRef } from '@/components/CustomerFeedback/CategoryFilter';
 import { RegionalSentimentChart } from '@/components/Dashboard/RegionalSentimentChart';
 import { SentimentTrendsChart } from '@/components/Dashboard/SentimentTrendsChart';
 import { MentionedCategoriesTable } from '@/components/Dashboard/MentionedCategoriesTable';
@@ -23,6 +23,8 @@ export default function RegionalPerformance() {
   const [timeFilter, setTimeFilter] = useState<TimeFilterValue>({
     type: 'all'
   });
+  const categoryFilterRef = useRef<CategoryFilterRef>(null);
+
   const handleClearAllFilters = () => {
     setSelectedArea({
       division: 'all',
@@ -30,10 +32,10 @@ export default function RegionalPerformance() {
       zone: 'all',
       branch: 'all'
     });
-    setSelectedCategories([]);
     setTimeFilter({
       type: 'all'
     });
+    categoryFilterRef.current?.selectAll();
   };
   const hasAnyFilters = selectedArea.division && selectedArea.division !== 'all' || selectedArea.region && selectedArea.region !== 'all' || selectedArea.zone && selectedArea.zone !== 'all' || selectedArea.branch && selectedArea.branch !== 'all' || selectedCategories.length > 0 || timeFilter.type !== 'all';
   return <div className="w-full p-4 md:p-6 lg:pl-2 lg:pr-4 xl:pl-3 xl:pr-6">
@@ -74,7 +76,7 @@ export default function RegionalPerformance() {
                     <div className="mt-2">
                       <TimeFilter value={timeFilter} onChange={setTimeFilter} />
                     </div>
-                    <CategoryFilter selectedCategories={selectedCategories} onCategoryChange={setSelectedCategories} />
+                    <CategoryFilter ref={categoryFilterRef} selectedCategories={selectedCategories} onCategoryChange={setSelectedCategories} />
                   </CardContent>
                 </Card>
               </div>

@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { AreaFilter } from '@/components/CustomerFeedback/AreaFilter';
 import { TimeFilter, TimeFilterValue } from '@/components/CustomerFeedback/TimeFilter';
-import { CategoryFilter } from '@/components/CustomerFeedback/CategoryFilter';
+import { CategoryFilter, CategoryFilterRef } from '@/components/CustomerFeedback/CategoryFilter';
 import { CommentsList, SentimentFilter } from '@/components/CustomerFeedback/CommentsList';
 
 export default function CustomerFeedback() {
@@ -12,12 +12,13 @@ export default function CustomerFeedback() {
     type: 'all'
   });
   const [sentimentFilter, setSentimentFilter] = useState<SentimentFilter>('all');
+  const categoryFilterRef = useRef<CategoryFilterRef>(null);
 
   const handleClearAllFilters = () => {
     setSelectedAreas([]);
-    setSelectedCategories([]);
     setTimeFilter({ type: 'all' });
     setSentimentFilter('all');
+    categoryFilterRef.current?.selectAll();
   };
 
   const hasAnyFilters = selectedAreas.length > 0 || selectedCategories.length > 0 || sentimentFilter !== 'all';
@@ -57,6 +58,7 @@ export default function CustomerFeedback() {
           />
           
           <CategoryFilter
+            ref={categoryFilterRef}
             selectedCategories={selectedCategories}
             onCategoryChange={setSelectedCategories}
           />
