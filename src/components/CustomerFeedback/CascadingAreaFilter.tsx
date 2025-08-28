@@ -233,7 +233,7 @@ export function CascadingAreaFilter({ selectedArea, onAreaChange }: CascadingAre
           <Select
             value={selectedArea.region === 'all' ? 'all' : selectedArea.region?.toString() || 'all'}
             onValueChange={handleRegionChange}
-            disabled={selectedArea.division && selectedArea.division !== 'all' && regions.length === 0}
+            disabled={!selectedArea.division || selectedArea.division === 'all'}
           >
             <SelectTrigger className="h-10 bg-background border-input">
               <SelectValue placeholder="เลือกภาค" />
