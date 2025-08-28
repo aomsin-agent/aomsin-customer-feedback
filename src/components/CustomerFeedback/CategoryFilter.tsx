@@ -21,7 +21,7 @@ export interface CategoryFilterRef {
   selectAll: () => void;
 }
 
-export const CategoryFilter = forwardRef<CategoryFilterRef, CategoryFilterProps>(({ selectedCategories, onCategoryChange }, ref) => {
+const CategoryFilterComponent = forwardRef<CategoryFilterRef, CategoryFilterProps>(({ selectedCategories, onCategoryChange }, ref) => {
   const [categories, setCategories] = useState<CategoryData[]>([]);
   const [selectedMainCategories, setSelectedMainCategories] = useState<string[]>([]);
   const [initialized, setInitialized] = useState(false);
@@ -203,4 +203,6 @@ export const CategoryFilter = forwardRef<CategoryFilterRef, CategoryFilterProps>
   );
 });
 
-CategoryFilter.displayName = 'CategoryFilter';
+CategoryFilterComponent.displayName = 'CategoryFilter';
+
+export const CategoryFilter = CategoryFilterComponent;
