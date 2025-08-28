@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 interface RegionalSentimentChartProps {
   selectedArea: {
+    division?: number | 'all';
     region?: number | 'all';
     zone?: string | 'all';
     branch?: string | 'all';
@@ -53,12 +54,18 @@ export function RegionalSentimentChart({ selectedArea }: RegionalSentimentChartP
       ];
     }
 
+    // Apply division filter first
+    let filteredBranches = branches;
+    if (selectedArea.division && selectedArea.division !== 'all') {
+      filteredBranches = branches.filter(b => b.division === selectedArea.division);
+    }
+
     if (selectedArea.branch && selectedArea.branch !== 'all') {
       return [generateMockValues(selectedArea.branch)];
     }
     
     if (selectedArea.zone && selectedArea.zone !== 'all') {
-      const branchesInZone = branches
+      const branchesInZone = filteredBranches
         .filter(b => b.region === selectedArea.region && b.resdesc === selectedArea.zone)
         .map(b => b.branch_name);
       return branchesInZone.length ? branchesInZone.map(generateMockValues) : [generateMockValues('ไม่มีข้อมูล')];
@@ -66,12 +73,22 @@ export function RegionalSentimentChart({ selectedArea }: RegionalSentimentChartP
     
     if (selectedArea.region && selectedArea.region !== 'all') {
       const zonesInRegion = [...new Set(
-        branches
+        filteredBranches
           .filter(b => b.region === selectedArea.region)
           .map(b => b.resdesc)
           .filter(z => z !== null)
       )];
       return zonesInRegion.length ? zonesInRegion.map(generateMockValues) : [generateMockValues('ไม่มีข้อมูล')];
+    }
+    
+    if (selectedArea.division && selectedArea.division !== 'all') {
+      // Show regions within the selected division
+      const regionsInDivision = [...new Set(
+        filteredBranches
+          .map(b => b.region)
+          .filter(r => r !== null)
+      )].sort((a, b) => a - b);
+      return regionsInDivision.length ? regionsInDivision.map(region => generateMockValues(`ภาค ${region}`)) : [generateMockValues('ไม่มีข้อมูล')];
     }
     
     // Show all regions

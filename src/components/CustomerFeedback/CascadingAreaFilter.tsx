@@ -12,11 +12,13 @@ interface BranchData {
 
 interface CascadingAreaFilterProps {
   selectedArea: {
+    division?: number | 'all';
     region?: number | 'all';
     zone?: string | 'all';
     branch?: string | 'all';
   };
   onAreaChange: (area: {
+    division?: number | 'all';
     region?: number | 'all';
     zone?: string | 'all';
     branch?: string | 'all';
@@ -25,6 +27,7 @@ interface CascadingAreaFilterProps {
 
 export function CascadingAreaFilter({ selectedArea, onAreaChange }: CascadingAreaFilterProps) {
   const [branches, setBranches] = useState<BranchData[]>([]);
+  const [divisions, setDivisions] = useState<number[]>([]);
   const [regions, setRegions] = useState<number[]>([]);
   const [zones, setZones] = useState<string[]>([]);
   const [branchNames, setBranchNames] = useState<string[]>([]);
@@ -35,6 +38,7 @@ export function CascadingAreaFilter({ selectedArea, onAreaChange }: CascadingAre
       const { data, error } = await supabase
         .from('branch_ref')
         .select('region, division, branch_name, resdesc')
+        .order('division')
         .order('region')
         .order('branch_name');
 
@@ -45,6 +49,10 @@ export function CascadingAreaFilter({ selectedArea, onAreaChange }: CascadingAre
 
       setBranches(data || []);
       
+      // Extract unique divisions and sort numerically
+      const uniqueDivisions = [...new Set(data?.map(b => b.division).filter(d => d !== null))].sort((a, b) => a - b);
+      setDivisions(uniqueDivisions);
+      
       // Extract unique regions and sort numerically
       const uniqueRegions = [...new Set(data?.map(b => b.region).filter(r => r !== null))].sort((a, b) => a - b);
       setRegions(uniqueRegions);
@@ -53,12 +61,35 @@ export function CascadingAreaFilter({ selectedArea, onAreaChange }: CascadingAre
     fetchBranches();
   }, []);
 
+  // Update available regions when division changes
+  useEffect(() => {
+    if (selectedArea.division && selectedArea.division !== 'all') {
+      const availableRegions = [...new Set(
+        branches
+          .filter(b => b.division === selectedArea.division)
+          .map(b => b.region)
+          .filter(r => r !== null)
+      )].sort((a, b) => a - b);
+      setRegions(availableRegions);
+    } else {
+      // Show all regions when no division is selected
+      const allRegions = [...new Set(branches.map(b => b.region).filter(r => r !== null))].sort((a, b) => a - b);
+      setRegions(allRegions);
+    }
+  }, [selectedArea.division, branches]);
+
   // Update available zones when region changes
   useEffect(() => {
     if (selectedArea.region && selectedArea.region !== 'all') {
+      let filteredBranches = branches.filter(b => b.region === selectedArea.region);
+      
+      // Apply division filter if selected
+      if (selectedArea.division && selectedArea.division !== 'all') {
+        filteredBranches = filteredBranches.filter(b => b.division === selectedArea.division);
+      }
+      
       const availableZones = [...new Set(
-        branches
-          .filter(b => b.region === selectedArea.region)
+        filteredBranches
           .map(b => b.resdesc)
           .filter(z => z !== null)
       )].sort();
@@ -66,31 +97,63 @@ export function CascadingAreaFilter({ selectedArea, onAreaChange }: CascadingAre
     } else {
       setZones([]);
     }
-  }, [selectedArea.region, branches]);
+  }, [selectedArea.division, selectedArea.region, branches]);
 
   // Update available branches when zone changes
   useEffect(() => {
     if (selectedArea.region && selectedArea.region !== 'all' &&
         selectedArea.zone && selectedArea.zone !== 'all') {
-      const availableBranches = branches
-        .filter(b => 
-          b.region === selectedArea.region &&
-          b.resdesc === selectedArea.zone
-        )
+      let filteredBranches = branches.filter(b => 
+        b.region === selectedArea.region &&
+        b.resdesc === selectedArea.zone
+      );
+      
+      // Apply division filter if selected
+      if (selectedArea.division && selectedArea.division !== 'all') {
+        filteredBranches = filteredBranches.filter(b => b.division === selectedArea.division);
+      }
+      
+      const availableBranches = filteredBranches
         .map(b => b.branch_name)
         .sort();
       setBranchNames(availableBranches);
     } else {
       setBranchNames([]);
     }
-  }, [selectedArea.region, selectedArea.zone, branches]);
+  }, [selectedArea.division, selectedArea.region, selectedArea.zone, branches]);
+
+  const handleDivisionChange = (value: string) => {
+    if (value === 'all') {
+      onAreaChange({ 
+        ...selectedArea,
+        division: 'all',
+        region: undefined,
+        zone: undefined,
+        branch: undefined
+      });
+    } else {
+      const division = parseInt(value);
+      onAreaChange({
+        division,
+        region: undefined,
+        zone: undefined,
+        branch: undefined
+      });
+    }
+  };
 
   const handleRegionChange = (value: string) => {
     if (value === 'all') {
-      onAreaChange({ region: 'all' });
+      onAreaChange({ 
+        ...selectedArea,
+        region: 'all',
+        zone: undefined,
+        branch: undefined
+      });
     } else {
       const region = parseInt(value);
       onAreaChange({
+        ...selectedArea,
         region,
         zone: undefined,
         branch: undefined
@@ -130,6 +193,7 @@ export function CascadingAreaFilter({ selectedArea, onAreaChange }: CascadingAre
 
   const getSelectedText = () => {
     const parts = [];
+    if (selectedArea.division && selectedArea.division !== 'all') parts.push(`สายกิจ ${selectedArea.division}`);
     if (selectedArea.region && selectedArea.region !== 'all') parts.push(`ภาค ${selectedArea.region}`);
     if (selectedArea.zone && selectedArea.zone !== 'all') parts.push(`เขต ${selectedArea.zone}`);
     if (selectedArea.branch && selectedArea.branch !== 'all') parts.push(`สาขา ${selectedArea.branch}`);
@@ -142,20 +206,42 @@ export function CascadingAreaFilter({ selectedArea, onAreaChange }: CascadingAre
         <CardTitle className="text-base">พื้นที่ดูแล</CardTitle>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col gap-6 py-6">
+        {/* Division Selection */}
+        <div className="flex items-center gap-4">
+          <label className="text-sm font-medium min-w-[60px]">สายกิจ:</label>
+          <Select
+            value={selectedArea.division === 'all' ? 'all' : selectedArea.division?.toString() || 'all'}
+            onValueChange={handleDivisionChange}
+          >
+            <SelectTrigger className="h-10 bg-background border-input">
+              <SelectValue placeholder="เลือกสายกิจ" />
+            </SelectTrigger>
+            <SelectContent className="bg-background border-border shadow-lg z-50">
+              <SelectItem value="all" className="hover:bg-accent">เลือกทั้งหมด</SelectItem>
+              {divisions.map((division) => (
+                <SelectItem key={division} value={division.toString()} className="hover:bg-accent">
+                  สายกิจ {division}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
         {/* Region Selection */}
         <div className="flex items-center gap-4">
           <label className="text-sm font-medium min-w-[60px]">ภาค:</label>
           <Select
             value={selectedArea.region === 'all' ? 'all' : selectedArea.region?.toString() || 'all'}
             onValueChange={handleRegionChange}
+            disabled={selectedArea.division && selectedArea.division !== 'all' && regions.length === 0}
           >
-            <SelectTrigger className="h-10">
+            <SelectTrigger className="h-10 bg-background border-input">
               <SelectValue placeholder="เลือกภาค" />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">เลือกทั้งหมด</SelectItem>
+            <SelectContent className="bg-background border-border shadow-lg z-50">
+              <SelectItem value="all" className="hover:bg-accent">เลือกทั้งหมด</SelectItem>
               {regions.map((region) => (
-                <SelectItem key={region} value={region.toString()}>
+                <SelectItem key={region} value={region.toString()} className="hover:bg-accent">
                   ภาค {region}
                 </SelectItem>
               ))}
@@ -171,13 +257,13 @@ export function CascadingAreaFilter({ selectedArea, onAreaChange }: CascadingAre
             onValueChange={handleZoneChange}
             disabled={!selectedArea.region || selectedArea.region === 'all'}
           >
-            <SelectTrigger className="h-10">
+            <SelectTrigger className="h-10 bg-background border-input">
               <SelectValue placeholder="เลือกเขต" />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">เลือกทั้งหมด</SelectItem>
+            <SelectContent className="bg-background border-border shadow-lg z-50">
+              <SelectItem value="all" className="hover:bg-accent">เลือกทั้งหมด</SelectItem>
               {zones.map((zone) => (
-                <SelectItem key={zone} value={zone}>
+                <SelectItem key={zone} value={zone} className="hover:bg-accent">
                   {zone}
                 </SelectItem>
               ))}
@@ -193,13 +279,13 @@ export function CascadingAreaFilter({ selectedArea, onAreaChange }: CascadingAre
             onValueChange={handleBranchChange}
             disabled={!selectedArea.zone || selectedArea.zone === 'all'}
           >
-            <SelectTrigger className="h-10">
+            <SelectTrigger className="h-10 bg-background border-input">
               <SelectValue placeholder="เลือกสาขา" />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">เลือกทั้งหมด</SelectItem>
+            <SelectContent className="bg-background border-border shadow-lg z-50">
+              <SelectItem value="all" className="hover:bg-accent">เลือกทั้งหมด</SelectItem>
               {branchNames.map((branch) => (
-                <SelectItem key={branch} value={branch}>
+                <SelectItem key={branch} value={branch} className="hover:bg-accent">
                   {branch}
                 </SelectItem>
               ))}
