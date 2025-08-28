@@ -937,7 +937,7 @@ export default function MonthlyOverview() {
             {/* Container บน - ทัศนคติข้อคิดเห็น และ ประเด็นที่ถูกกล่าวถึง */}
             <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-6">
               {/* ทัศนคติข้อคิดเห็น - Donut Chart */}
-              <div className="lg:col-span-1" ref={leftContainerRef}>
+              <div className="lg:col-span-1 min-w-0" ref={leftContainerRef}>
                 <Card className="bg-card border">
                   <CardContent className="p-4">
                     <h3 className="font-medium text-foreground mb-4 text-center">
@@ -988,7 +988,7 @@ export default function MonthlyOverview() {
               </div>
 
               {/* ประเด็นที่ถูกกล่าวถึง - Butterfly Chart */}
-              <div className="lg:col-span-2">
+              <div className="lg:col-span-1 min-w-0">
                 <Card className="bg-card border" style={{
                 minHeight: leftContainerHeight > 0 ? `${leftContainerHeight}px` : 'auto'
               }}>
