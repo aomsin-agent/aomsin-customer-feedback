@@ -17,10 +17,10 @@ export default function SevereComplaints() {
   const timeFilterRef = useRef<TimeFilterRef>(null);
 
   const handleClearAllFilters = () => {
-    setSelectedAreas([]);
-    setTimeFilter({ type: 'all' });
-    setSevereSentimentFilter('all');
+    areaFilterRef.current?.selectAll();
+    timeFilterRef.current?.selectAll();
     categoryFilterRef.current?.selectAll();
+    setSevereSentimentFilter('all');
   };
 
   const hasAnyFilters = selectedAreas.length > 0 || selectedCategories.length > 0 || severeSentimentFilter !== 'all';

@@ -17,10 +17,10 @@ export default function CustomerFeedback() {
   const timeFilterRef = useRef<TimeFilterRef>(null);
 
   const handleClearAllFilters = () => {
-    setSelectedAreas([]);
-    setTimeFilter({ type: 'all' });
-    setSentimentFilter('all');
+    areaFilterRef.current?.selectAll();
+    timeFilterRef.current?.selectAll();
     categoryFilterRef.current?.selectAll();
+    setSentimentFilter('all');
   };
 
   const hasAnyFilters = selectedAreas.length > 0 || selectedCategories.length > 0 || sentimentFilter !== 'all';
