@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CascadingAreaFilter, CascadingAreaFilterRef } from '@/components/CustomerFeedback/CascadingAreaFilter';
 import { TimeFilter, TimeFilterValue, TimeFilterRef } from '@/components/CustomerFeedback/TimeFilter';
 import { CategoryFilter, CategoryFilterRef } from '@/components/CustomerFeedback/CategoryFilter';
+import { ServiceTypeFilter, ServiceTypeFilterRef } from '@/components/CustomerFeedback/ServiceTypeFilter';
 import { RegionalSentimentChart } from '@/components/Dashboard/RegionalSentimentChart';
 import { SentimentTrendsChart } from '@/components/Dashboard/SentimentTrendsChart';
 import { MentionedCategoriesTable } from '@/components/Dashboard/MentionedCategoriesTable';
@@ -20,12 +21,14 @@ export default function RegionalPerformance() {
     branch: 'all'
   });
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedServiceTypes, setSelectedServiceTypes] = useState<string[]>([]);
   const [timeFilter, setTimeFilter] = useState<TimeFilterValue>({
     type: 'all'
   });
   const categoryFilterRef = useRef<CategoryFilterRef>(null);
   const cascadingAreaFilterRef = useRef<CascadingAreaFilterRef>(null);
   const timeFilterRef = useRef<TimeFilterRef>(null);
+  const serviceTypeFilterRef = useRef<ServiceTypeFilterRef>(null);
 
   const handleClearAllFilters = () => {
     if (categoryFilterRef.current) {
@@ -37,8 +40,11 @@ export default function RegionalPerformance() {
     if (timeFilterRef.current) {
       timeFilterRef.current.selectAll();
     }
+    if (serviceTypeFilterRef.current) {
+      serviceTypeFilterRef.current.selectAll();
+    }
   };
-  const hasAnyFilters = selectedArea.division && selectedArea.division !== 'all' || selectedArea.region && selectedArea.region !== 'all' || selectedArea.zone && selectedArea.zone !== 'all' || selectedArea.branch && selectedArea.branch !== 'all' || selectedCategories.length > 0 || timeFilter.type !== 'all';
+  const hasAnyFilters = selectedArea.division && selectedArea.division !== 'all' || selectedArea.region && selectedArea.region !== 'all' || selectedArea.zone && selectedArea.zone !== 'all' || selectedArea.branch && selectedArea.branch !== 'all' || selectedCategories.length > 0 || selectedServiceTypes.length > 0 || timeFilter.type !== 'all';
   return <div className="w-full p-4 md:p-6 lg:pl-2 lg:pr-4 xl:pl-3 xl:pr-6">
       <div className="mb-4 md:mb-6">
         <div className="flex justify-between items-start">
@@ -63,20 +69,36 @@ export default function RegionalPerformance() {
             <CardTitle className="text-lg">การกรองข้อมูล</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-4 md:grid-cols-2 items-stretch md:min-h-[320px]">
+            <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 items-stretch">
+              {/* พื้นที่ */}
               <div className="h-full">
                 <CascadingAreaFilter ref={cascadingAreaFilterRef} selectedArea={selectedArea} onAreaChange={setSelectedArea} />
               </div>
               
-              <div className="mt-4 md:mt-0 h-full">
-                <Card className="h-full flex flex-col">
+              {/* ประเภทการใช้บริการ */}
+              <div className="h-full">
+                <ServiceTypeFilter ref={serviceTypeFilterRef} selectedServiceTypes={selectedServiceTypes} onServiceTypeChange={setSelectedServiceTypes} />
+              </div>
+              
+              {/* ช่วงเวลา */}
+              <div className="h-full">
+                <Card className="h-full">
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-base">ช่วงเวลาและความคิดเห็น</CardTitle>
+                    <CardTitle className="text-base">ช่วงเวลา</CardTitle>
                   </CardHeader>
-                  <CardContent className="flex-1 flex flex-col gap-4">
-                    <div className="mt-2">
-                      <TimeFilter ref={timeFilterRef} value={timeFilter} onChange={setTimeFilter} />
-                    </div>
+                  <CardContent>
+                    <TimeFilter ref={timeFilterRef} value={timeFilter} onChange={setTimeFilter} />
+                  </CardContent>
+                </Card>
+              </div>
+              
+              {/* ความคิดเห็น */}
+              <div className="h-full">
+                <Card className="h-full">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base">ความคิดเห็น</CardTitle>
+                  </CardHeader>
+                  <CardContent>
                     <CategoryFilter ref={categoryFilterRef} selectedCategories={selectedCategories} onCategoryChange={setSelectedCategories} />
                   </CardContent>
                 </Card>
