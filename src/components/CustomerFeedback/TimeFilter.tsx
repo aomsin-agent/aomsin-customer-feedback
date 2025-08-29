@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useImperativeHandle, forwardRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
@@ -24,7 +24,11 @@ interface TimeFilterProps {
   onChange: (value: TimeFilterValue) => void;
 }
 
-export function TimeFilter({ value, onChange }: TimeFilterProps) {
+export interface TimeFilterRef {
+  selectAll: () => void;
+}
+
+const TimeFilterComponent = forwardRef<TimeFilterRef, TimeFilterProps>(({ value, onChange }, ref) => {
   const [tempStartDate, setTempStartDate] = useState<Date | undefined>(value.startDate);
   const [tempEndDate, setTempEndDate] = useState<Date | undefined>(value.endDate);
 
@@ -114,6 +118,17 @@ export function TimeFilter({ value, onChange }: TimeFilterProps) {
     setTempStartDate(undefined);
     setTempEndDate(undefined);
   };
+
+  const handleSelectAll = () => {
+    onChange({ type: 'all' });
+    setTempStartDate(undefined);
+    setTempEndDate(undefined);
+  };
+
+  // Expose selectAll method to parent component via ref
+  useImperativeHandle(ref, () => ({
+    selectAll: handleSelectAll
+  }));
 
   const getSelectedDisplay = () => {
     const typeLabels = {
@@ -270,4 +285,8 @@ export function TimeFilter({ value, onChange }: TimeFilterProps) {
       </CardContent>
     </Card>
   );
-}
+});
+
+TimeFilterComponent.displayName = 'TimeFilter';
+
+export const TimeFilter = TimeFilterComponent;

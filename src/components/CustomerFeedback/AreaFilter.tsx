@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useImperativeHandle, forwardRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MultiSelectDropdown, type DropdownOption } from '@/components/ui/multi-select-dropdown';
@@ -17,6 +17,10 @@ interface AreaFilterProps {
   onAreaChange: (areas: string[]) => void;
 }
 
+export interface AreaFilterRef {
+  selectAll: () => void;
+}
+
 interface HierarchyState {
   selectedDivisions: string[];
   selectedRegions: string[];
@@ -24,7 +28,7 @@ interface HierarchyState {
   selectedBranches: string[];
 }
 
-export function AreaFilter({ selectedAreas, onAreaChange }: AreaFilterProps) {
+const AreaFilterComponent = forwardRef<AreaFilterRef, AreaFilterProps>(({ selectedAreas, onAreaChange }, ref) => {
   const [branches, setBranches] = useState<BranchData[]>([]);
   const [hierarchyState, setHierarchyState] = useState<HierarchyState>({
     selectedDivisions: [],
@@ -394,6 +398,28 @@ export function AreaFilter({ selectedAreas, onAreaChange }: AreaFilterProps) {
     onAreaChange([]);
   };
 
+  const handleSelectAll = () => {
+    if (branches.length > 0) {
+      const allDivisions = Array.from(new Set(branches.map(b => b.division?.toString()).filter(Boolean)));
+      const allRegions = Array.from(new Set(branches.map(b => b.region?.toString()).filter(Boolean)));
+      const allZones = Array.from(new Set(branches.map(b => b.resdesc).filter(Boolean)));
+      const allBranches = branches.map(b => b.branch_name);
+      
+      setHierarchyState({
+        selectedDivisions: allDivisions,
+        selectedRegions: allRegions,
+        selectedZones: allZones,
+        selectedBranches: allBranches
+      });
+      onAreaChange(allBranches);
+    }
+  };
+
+  // Expose selectAll method to parent component via ref
+  useImperativeHandle(ref, () => ({
+    selectAll: handleSelectAll
+  }));
+
   // Calculate summary counts
   const selectedDivisionsCount = hierarchyState.selectedDivisions.length;
   const selectedRegionsCount = hierarchyState.selectedRegions.length;
@@ -468,4 +494,8 @@ export function AreaFilter({ selectedAreas, onAreaChange }: AreaFilterProps) {
       </CardContent>
     </Card>
   );
-}
+});
+
+AreaFilterComponent.displayName = 'AreaFilter';
+
+export const AreaFilter = AreaFilterComponent;

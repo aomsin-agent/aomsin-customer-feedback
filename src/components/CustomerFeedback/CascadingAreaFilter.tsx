@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
@@ -25,7 +25,11 @@ interface CascadingAreaFilterProps {
   }) => void;
 }
 
-export function CascadingAreaFilter({ selectedArea, onAreaChange }: CascadingAreaFilterProps) {
+export interface CascadingAreaFilterRef {
+  selectAll: () => void;
+}
+
+const CascadingAreaFilterComponent = forwardRef<CascadingAreaFilterRef, CascadingAreaFilterProps>(({ selectedArea, onAreaChange }, ref) => {
   const [branches, setBranches] = useState<BranchData[]>([]);
   const [divisions, setDivisions] = useState<number[]>([]);
   const [regions, setRegions] = useState<number[]>([]);
@@ -200,6 +204,20 @@ export function CascadingAreaFilter({ selectedArea, onAreaChange }: CascadingAre
     return parts.length > 0 ? parts.join(', ') : 'เลือกทั้งหมด';
   };
 
+  const handleSelectAll = () => {
+    onAreaChange({
+      division: 'all',
+      region: 'all',
+      zone: 'all',
+      branch: 'all'
+    });
+  };
+
+  // Expose selectAll method to parent component via ref
+  useImperativeHandle(ref, () => ({
+    selectAll: handleSelectAll
+  }));
+
   return (
     <Card className="h-full flex flex-col">
       <CardHeader className="pb-3">
@@ -302,4 +320,8 @@ export function CascadingAreaFilter({ selectedArea, onAreaChange }: CascadingAre
       </CardContent>
     </Card>
   );
-}
+});
+
+CascadingAreaFilterComponent.displayName = 'CascadingAreaFilter';
+
+export const CascadingAreaFilter = CascadingAreaFilterComponent;

@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { AreaFilter } from '@/components/CustomerFeedback/AreaFilter';
-import { TimeFilter, TimeFilterValue } from '@/components/CustomerFeedback/TimeFilter';
+import { AreaFilter, AreaFilterRef } from '@/components/CustomerFeedback/AreaFilter';
+import { TimeFilter, TimeFilterValue, TimeFilterRef } from '@/components/CustomerFeedback/TimeFilter';
 import { CategoryFilter, CategoryFilterRef } from '@/components/CustomerFeedback/CategoryFilter';
 import { SevereCommentsList, SevereSentimentFilter } from '@/components/CustomerFeedback/SevereCommentsList';
 
@@ -13,6 +13,8 @@ export default function SevereComplaints() {
   });
   const [severeSentimentFilter, setSevereSentimentFilter] = useState<SevereSentimentFilter>('all');
   const categoryFilterRef = useRef<CategoryFilterRef>(null);
+  const areaFilterRef = useRef<AreaFilterRef>(null);
+  const timeFilterRef = useRef<TimeFilterRef>(null);
 
   const handleClearAllFilters = () => {
     setSelectedAreas([]);
@@ -48,11 +50,13 @@ export default function SevereComplaints() {
         {/* Filters section - top on mobile, left on desktop */}
         <div className="md:col-span-4 space-y-4 md:h-full md:overflow-y-auto order-1 md:order-none">
           <AreaFilter
+            ref={areaFilterRef}
             selectedAreas={selectedAreas}
             onAreaChange={setSelectedAreas}
           />
           
           <TimeFilter
+            ref={timeFilterRef}
             value={timeFilter}
             onChange={setTimeFilter}
           />
