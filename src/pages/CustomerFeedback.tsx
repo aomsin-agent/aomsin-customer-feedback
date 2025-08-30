@@ -88,27 +88,27 @@ export default function CustomerFeedback() {
               <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-6">
                 {/* ทัศนคติข้อคิดเห็น - Donut Chart */}
                 <div className="lg:col-span-1 min-w-0">
-                  <Card className="bg-card border">
-                    <CardContent className="p-4">
+                  <Card className="bg-card border h-full">
+                    <CardContent className="p-4 h-full flex flex-col">
                       <h3 className="font-medium text-foreground mb-4 text-center">
                         ทัศนคติข้อคิดเห็น
                       </h3>
-                      <div className="flex justify-center">
+                      <div className="flex justify-center flex-1">
                         <ChartContainer config={{
                           positive: { label: "เชิงบวก", color: "hsl(142, 76%, 36%)" },
                           negative: { label: "เชิงลบ", color: "hsl(0, 84%, 60%)" }
-                        }} className="h-[280px] w-full">
+                        }} className="h-full w-full min-h-[200px] max-h-[400px]">
                           <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
-                              <Pie 
+                               <Pie 
                                 data={[
                                   { name: "เชิงบวก", value: 72.3, count: 892, fill: "hsl(142, 76%, 36%)" },
                                   { name: "เชิงลบ", value: 27.7, count: 342, fill: "hsl(0, 84%, 60%)" }
                                 ]} 
                                 cx="50%" 
                                 cy="45%" 
-                                innerRadius={60} 
-                                outerRadius={90} 
+                                innerRadius="30%" 
+                                outerRadius="45%" 
                                 paddingAngle={5} 
                                 dataKey="value"
                                 label={({ name, value, count }) => `${value.toFixed(1)}% (จาก ${count.toLocaleString()} ความคิดเห็น)`}
@@ -155,7 +155,7 @@ export default function CustomerFeedback() {
 
                 {/* ประเด็นที่ถูกกล่าวถึง - Butterfly Chart */}
                 <div className="lg:col-span-1 min-w-0">
-                  <Card className="bg-card border">
+                  <Card className="bg-card border h-full">
                     <CardContent className="p-4 h-full flex flex-col">
                       <div className="grid grid-cols-3 items-center mb-4">
                         <div></div>
@@ -167,7 +167,7 @@ export default function CustomerFeedback() {
                         <div></div>
                       </div>
                       
-                      <div className="flex-1 space-y-1 sm:space-y-2">
+                      <div className="flex-1 space-y-1 sm:space-y-2 min-h-[200px]">
                         {[
                           { topic: "ความรวดเร็วในการให้บริการ", positive: 345, negative: 123 },
                           { topic: "ระยะเวลารอคอย", positive: 298, negative: 156 },
