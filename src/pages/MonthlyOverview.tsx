@@ -12,6 +12,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 export default function MonthlyOverview() {
   const [selectedYear, setSelectedYear] = useState("2567");
   const [selectedMonthOnly, setSelectedMonthOnly] = useState("มกราคม");
+  
+  // Compatibility function for setSelectedMonth
+  const setSelectedMonth = (monthYear: string) => {
+    const [month, year] = monthYear.split(" ");
+    setSelectedMonthOnly(month);
+    setSelectedYear(year);
+  };
   const [selectedRegion, setSelectedRegion] = useState("เลือกทั้งหมด");
   const [selectedCriteria, setSelectedCriteria] = useState("เลือกทั้งหมด");
   const [selectedSentiment, setSelectedSentiment] = useState<"positive" | "negative" | null>(null);
