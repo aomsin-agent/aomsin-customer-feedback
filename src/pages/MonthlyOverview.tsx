@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 export default function MonthlyOverview() {
-  const [selectedMonth, setSelectedMonth] = useState("มกราคม 2567");
+  const [selectedYear, setSelectedYear] = useState("2567");
+  const [selectedMonthOnly, setSelectedMonthOnly] = useState("มกราคม");
   const [selectedRegion, setSelectedRegion] = useState("เลือกทั้งหมด");
   const [selectedCriteria, setSelectedCriteria] = useState("เลือกทั้งหมด");
   const [selectedSentiment, setSelectedSentiment] = useState<"positive" | "negative" | null>(null);
@@ -174,7 +175,14 @@ export default function MonthlyOverview() {
     }
   };
 
-  // Generate months from January 2024 to June 2025
+  // Years and months for dropdown
+  const years = ["2567", "2568"];
+  const monthsOnly = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+  
+  // Computed selected month for compatibility
+  const selectedMonth = `${selectedMonthOnly} ${selectedYear}`;
+
+  // Generate months from January 2024 to June 2025 (keeping for compatibility)
   const months = ["มกราคม 2567", "กุมภาพันธ์ 2567", "มีนาคม 2567", "เมษายน 2567", "พฤษภาคม 2567", "มิถุนายน 2567", "กรกฎาคม 2567", "สิงหาคม 2567", "กันยายน 2567", "ตุลาคม 2567", "พฤศจิกายน 2567", "ธันวาคม 2567", "มกราคม 2568", "กุมภาพันธ์ 2568", "มีนาคม 2568", "เมษายน 2568", "พฤษภาคม 2568", "มิถุนายน 2568"];
 
   // Regions for satisfaction score dropdown
@@ -481,15 +489,30 @@ export default function MonthlyOverview() {
             </p>
           </div>
           
-          <div className="flex-shrink-0">
-            <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-              <SelectTrigger className="w-48 bg-card">
-                <SelectValue placeholder="เลือกเดือน" />
+          <div className="flex-shrink-0 flex gap-3">
+            <Select value={selectedYear} onValueChange={setSelectedYear}>
+              <SelectTrigger className="w-24 bg-card">
+                <SelectValue placeholder="ปี" />
               </SelectTrigger>
               <SelectContent>
-                {months.map(month => <SelectItem key={month} value={month}>
+                {years.map(year => (
+                  <SelectItem key={year} value={year}>
+                    {year}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            
+            <Select value={selectedMonthOnly} onValueChange={setSelectedMonthOnly}>
+              <SelectTrigger className="w-32 bg-card">
+                <SelectValue placeholder="เดือน" />
+              </SelectTrigger>
+              <SelectContent>
+                {monthsOnly.map(month => (
+                  <SelectItem key={month} value={month}>
                     {month}
-                  </SelectItem>)}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
