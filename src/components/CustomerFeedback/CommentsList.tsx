@@ -32,6 +32,7 @@ interface CommentData {
 interface CommentsListProps {
   selectedAreas: string[];
   selectedCategories: string[];
+  selectedServiceTypes: string[];
   timeFilter: any;
   sentimentFilter: SentimentFilter;
   onSentimentFilterChange: (filter: SentimentFilter) => void;
@@ -40,6 +41,7 @@ interface CommentsListProps {
 export function CommentsList({
   selectedAreas,
   selectedCategories,
+  selectedServiceTypes,
   timeFilter,
   sentimentFilter,
   onSentimentFilterChange
@@ -50,7 +52,7 @@ export function CommentsList({
 
   useEffect(() => {
     fetchComments();
-  }, [selectedAreas, selectedCategories, timeFilter, sentimentFilter]);
+  }, [selectedAreas, selectedCategories, selectedServiceTypes, timeFilter, sentimentFilter]);
 
   const fetchComments = async () => {
     setLoading(true);
@@ -178,8 +180,24 @@ export function CommentsList({
         ? mapped.filter(cm => cm.categories.some(cat => selectedCategories.includes(cat.sub_category)))
         : mapped;
 
+      // Apply service type filter
+      const byServiceType = selectedServiceTypes.length > 0
+        ? byCategory.filter(comment => {
+            return selectedServiceTypes.some(serviceType => {
+              switch (serviceType) {
+                case 'service_1': return comment.service_1 === 'Y';
+                case 'service_2': return comment.service_2 === 'Y';
+                case 'service_3': return comment.service_3 === 'Y';
+                case 'service_4': return comment.service_4 === 'Y';
+                case 'service_5': return comment.service_5 === 'Y';
+                default: return false;
+              }
+            });
+          })
+        : byCategory;
+
       // Apply sentiment filter
-      const filtered = byCategory.filter(comment => {
+      const filtered = byServiceType.filter(comment => {
         if (sentimentFilter === 'all') return true;
         const hasPositive = comment.categories.some(cat => normalizeSentiment(cat.sentiment) === 'positive');
         const hasNegative = comment.categories.some(cat => normalizeSentiment(cat.sentiment) === 'negative');

@@ -17,6 +17,12 @@ interface SevereCommentData {
   region: string;
   district: string;
   branch_name: string;
+  division: string;
+  service_1: string;
+  service_2: string;
+  service_3: string;
+  service_4: string;
+  service_5: string;
   categories: {
     sub_category: string;
     sentiment: string;
@@ -26,6 +32,7 @@ interface SevereCommentData {
 interface SevereCommentsListProps {
   selectedAreas: string[];
   selectedCategories: string[];
+  selectedServiceTypes: string[];
   timeFilter: any;
   sentimentFilter: SevereSentimentFilter;
   onSentimentFilterChange: (filter: SevereSentimentFilter) => void;
@@ -34,6 +41,7 @@ interface SevereCommentsListProps {
 export function SevereCommentsList({
   selectedAreas,
   selectedCategories,
+  selectedServiceTypes,
   timeFilter,
   sentimentFilter,
   onSentimentFilterChange
@@ -44,7 +52,7 @@ export function SevereCommentsList({
 
   useEffect(() => {
     fetchSevereComments();
-  }, [selectedAreas, selectedCategories, timeFilter, sentimentFilter]);
+  }, [selectedAreas, selectedCategories, selectedServiceTypes, timeFilter, sentimentFilter]);
 
   const fetchSevereComments = async () => {
     setSevereLoading(true);
@@ -67,7 +75,13 @@ export function SevereCommentsList({
           comment_date,
           region,
           district,
-          branch_name
+          branch_name,
+          division,
+          service_1,
+          service_2,
+          service_3,
+          service_4,
+          service_5
         `);
 
       // Apply time filter first (more selective)
@@ -166,8 +180,24 @@ export function SevereCommentsList({
         ? severeMapped.filter(cm => cm.categories.some(cat => selectedCategories.includes(cat.sub_category)))
         : severeMapped;
 
+      // Apply service type filter
+      const severeByServiceType = selectedServiceTypes.length > 0
+        ? severeByCategory.filter(comment => {
+            return selectedServiceTypes.some(serviceType => {
+              switch (serviceType) {
+                case 'service_1': return comment.service_1 === 'Y';
+                case 'service_2': return comment.service_2 === 'Y';
+                case 'service_3': return comment.service_3 === 'Y';
+                case 'service_4': return comment.service_4 === 'Y';
+                case 'service_5': return comment.service_5 === 'Y';
+                default: return false;
+              }
+            });
+          })
+        : severeByCategory;
+
       // Apply sentiment filter
-      const severeFiltered = severeByCategory.filter(comment => {
+      const severeFiltered = severeByServiceType.filter(comment => {
         if (sentimentFilter === 'all') return true;
         const hasPositive = comment.categories.some(cat => normalizeSevereSentiment(cat.sentiment) === 'positive');
         const hasNegative = comment.categories.some(cat => normalizeSevereSentiment(cat.sentiment) === 'negative');
@@ -221,6 +251,16 @@ export function SevereCommentsList({
       default:
         return 'bg-gray-600 text-white hover:bg-gray-700';
     }
+  };
+
+  const getUsedServices = (comment: SevereCommentData) => {
+    const services = [];
+    if (comment.service_1 === 'Y') services.push('เงินฝาก');
+    if (comment.service_2 === 'Y') services.push('ชำระเงิน');
+    if (comment.service_3 === 'Y') services.push('สมัครบริการ');
+    if (comment.service_4 === 'Y') services.push('สอบถาม');
+    if (comment.service_5 === 'Y') services.push('อื่นๆ');
+    return services;
   };
 
   return (
@@ -303,11 +343,23 @@ export function SevereCommentsList({
                   )}
                 >
                   {/* Header with location and date */}
-                  <div className="flex justify-between items-start text-sm text-muted-foreground">
-                    <div>
-                      ภาค{comment.region} • เขต {comment.district} • {comment.branch_name}
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 text-sm text-muted-foreground">
+                    <div className="space-y-1">
+                      <div>
+                        สายกิจ {comment.division} • ภาค {comment.region} • เขต {comment.district} • {comment.branch_name}
+                      </div>
+                      {getUsedServices(comment).length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          <span className="text-xs">บริการที่ใช้:</span>
+                          {getUsedServices(comment).map((service, index) => (
+                            <Badge key={index} variant="outline" className="text-xs px-2 py-0">
+                              {service}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                    <div>
+                    <div className="text-xs sm:text-sm whitespace-nowrap">
                       {format(new Date(comment.comment_date), 'dd MMM yyyy HH:mm', { locale: th })}
                     </div>
                   </div>

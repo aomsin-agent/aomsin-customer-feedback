@@ -3,11 +3,13 @@ import { Button } from '@/components/ui/button';
 import { AreaFilter, AreaFilterRef } from '@/components/CustomerFeedback/AreaFilter';
 import { TimeFilter, TimeFilterValue, TimeFilterRef } from '@/components/CustomerFeedback/TimeFilter';
 import { CategoryFilter, CategoryFilterRef } from '@/components/CustomerFeedback/CategoryFilter';
+import { ServiceTypeFilter, ServiceTypeFilterRef } from '@/components/CustomerFeedback/ServiceTypeFilter';
 import { SevereCommentsList, SevereSentimentFilter } from '@/components/CustomerFeedback/SevereCommentsList';
 
 export default function SevereComplaints() {
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedServiceTypes, setSelectedServiceTypes] = useState<string[]>([]);
   const [timeFilter, setTimeFilter] = useState<TimeFilterValue>({
     type: 'all'
   });
@@ -15,15 +17,17 @@ export default function SevereComplaints() {
   const categoryFilterRef = useRef<CategoryFilterRef>(null);
   const areaFilterRef = useRef<AreaFilterRef>(null);
   const timeFilterRef = useRef<TimeFilterRef>(null);
+  const serviceTypeFilterRef = useRef<ServiceTypeFilterRef>(null);
 
   const handleClearAllFilters = () => {
     areaFilterRef.current?.selectAll();
     timeFilterRef.current?.selectAll();
     categoryFilterRef.current?.selectAll();
+    serviceTypeFilterRef.current?.selectAll();
     setSevereSentimentFilter('all');
   };
 
-  const hasAnyFilters = selectedAreas.length > 0 || selectedCategories.length > 0 || severeSentimentFilter !== 'all';
+  const hasAnyFilters = selectedAreas.length > 0 || selectedCategories.length > 0 || selectedServiceTypes.length > 0 || severeSentimentFilter !== 'all';
 
   return (
     <div className="w-full p-4 md:p-6 lg:pl-2 lg:pr-4 xl:pl-3 xl:pr-6">
@@ -66,6 +70,12 @@ export default function SevereComplaints() {
             selectedCategories={selectedCategories}
             onCategoryChange={setSelectedCategories}
           />
+          
+          <ServiceTypeFilter
+            ref={serviceTypeFilterRef}
+            selectedServiceTypes={selectedServiceTypes}
+            onServiceTypeChange={setSelectedServiceTypes}
+          />
         </div>
 
         {/* Comments section - bottom on mobile, right on desktop */}
@@ -73,6 +83,7 @@ export default function SevereComplaints() {
           <SevereCommentsList
             selectedAreas={selectedAreas}
             selectedCategories={selectedCategories}
+            selectedServiceTypes={selectedServiceTypes}
             timeFilter={timeFilter}
             sentimentFilter={severeSentimentFilter}
             onSentimentFilterChange={setSevereSentimentFilter}

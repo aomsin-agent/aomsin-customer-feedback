@@ -6,11 +6,13 @@ import { PieChart, Pie, ResponsiveContainer, Cell } from 'recharts';
 import { AreaFilter, AreaFilterRef } from '@/components/CustomerFeedback/AreaFilter';
 import { TimeFilter, TimeFilterValue, TimeFilterRef } from '@/components/CustomerFeedback/TimeFilter';
 import { CategoryFilter, CategoryFilterRef } from '@/components/CustomerFeedback/CategoryFilter';
+import { ServiceTypeFilter, ServiceTypeFilterRef } from '@/components/CustomerFeedback/ServiceTypeFilter';
 import { CommentsList, SentimentFilter } from '@/components/CustomerFeedback/CommentsList';
 
 export default function CustomerFeedback() {
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedServiceTypes, setSelectedServiceTypes] = useState<string[]>([]);
   const [timeFilter, setTimeFilter] = useState<TimeFilterValue>({
     type: 'all'
   });
@@ -18,15 +20,17 @@ export default function CustomerFeedback() {
   const categoryFilterRef = useRef<CategoryFilterRef>(null);
   const areaFilterRef = useRef<AreaFilterRef>(null);
   const timeFilterRef = useRef<TimeFilterRef>(null);
+  const serviceTypeFilterRef = useRef<ServiceTypeFilterRef>(null);
 
   const handleClearAllFilters = () => {
     areaFilterRef.current?.selectAll();
-    timeFilterRef.current?.selectAll();
+    timeFilterRef.current?.selectAll(); 
     categoryFilterRef.current?.selectAll();
+    serviceTypeFilterRef.current?.selectAll();
     setSentimentFilter('all');
   };
 
-  const hasAnyFilters = selectedAreas.length > 0 || selectedCategories.length > 0 || sentimentFilter !== 'all';
+  const hasAnyFilters = selectedAreas.length > 0 || selectedCategories.length > 0 || selectedServiceTypes.length > 0 || sentimentFilter !== 'all';
 
   return (
     <div className="w-full p-4 md:p-6 lg:pl-2 lg:pr-4 xl:pl-3 xl:pr-6">
@@ -68,6 +72,12 @@ export default function CustomerFeedback() {
             ref={categoryFilterRef}
             selectedCategories={selectedCategories}
             onCategoryChange={setSelectedCategories}
+          />
+          
+          <ServiceTypeFilter
+            ref={serviceTypeFilterRef}
+            selectedServiceTypes={selectedServiceTypes}
+            onServiceTypeChange={setSelectedServiceTypes}
           />
         </div>
 
@@ -220,6 +230,7 @@ export default function CustomerFeedback() {
           <CommentsList
             selectedAreas={selectedAreas}
             selectedCategories={selectedCategories}
+            selectedServiceTypes={selectedServiceTypes}
             timeFilter={timeFilter}
             sentimentFilter={sentimentFilter}
             onSentimentFilterChange={setSentimentFilter}

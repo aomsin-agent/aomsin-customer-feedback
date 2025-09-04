@@ -15,11 +15,11 @@ export interface ServiceTypeFilterRef {
 const ServiceTypeFilterComponent = forwardRef<ServiceTypeFilterRef, ServiceTypeFilterProps>(
   ({ selectedServiceTypes, onServiceTypeChange }, ref) => {
     const serviceTypes = [
-      { value: 'service_1', label: 'บริการที่ 1' },
-      { value: 'service_2', label: 'บริการที่ 2' },
-      { value: 'service_3', label: 'บริการที่ 3' },
-      { value: 'service_4', label: 'บริการที่ 4' },
-      { value: 'service_5', label: 'บริการที่ 5' },
+      { value: 'service_1', label: 'เงินฝาก' },
+      { value: 'service_2', label: 'ชำระเงิน' },
+      { value: 'service_3', label: 'สมัครบริการ' },
+      { value: 'service_4', label: 'สอบถาม' },
+      { value: 'service_5', label: 'อื่นๆ' },
     ];
 
     const [initialized, setInitialized] = useState(false);
@@ -49,7 +49,7 @@ const ServiceTypeFilterComponent = forwardRef<ServiceTypeFilterRef, ServiceTypeF
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
             <Settings size={16} />
-            ประเภทการใช้บริการ
+            ประเภทการให้บริการ
           </CardTitle>
         </CardHeader>
         <CardContent>
