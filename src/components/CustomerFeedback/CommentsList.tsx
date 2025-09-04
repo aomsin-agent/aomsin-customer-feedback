@@ -17,6 +17,12 @@ interface CommentData {
   region: string;
   district: string;
   branch_name: string;
+  division: string;
+  service_1: string;
+  service_2: string;
+  service_3: string;
+  service_4: string;
+  service_5: string;
   categories: {
     sub_category: string;
     sentiment: string;
@@ -67,7 +73,13 @@ export function CommentsList({
           comment_date,
           region,
           district,
-          branch_name
+          branch_name,
+          division,
+          service_1,
+          service_2,
+          service_3,
+          service_4,
+          service_5
         `);
 
       // Apply time filter first (more selective)
@@ -222,6 +234,16 @@ export function CommentsList({
         return 'bg-gray-600 text-white hover:bg-gray-700';
     }
   };
+
+  const getUsedServices = (comment: CommentData) => {
+    const services = [];
+    if (comment.service_1 === 'Y') services.push('ฝาก-ถอนเงิน');
+    if (comment.service_2 === 'Y') services.push('สินเชื่อ');
+    if (comment.service_3 === 'Y') services.push('เงินฝาก');
+    if (comment.service_4 === 'Y') services.push('บริการอื่นๆ');
+    if (comment.service_5 === 'Y') services.push('การชำระเงิน');
+    return services;
+  };
   return (
     <Card className="h-full relative overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-2 bg-gradient-primary"></div>
@@ -302,11 +324,23 @@ export function CommentsList({
                   )}
                 >
                   {/* Header with location and date */}
-                  <div className="flex justify-between items-start text-sm text-muted-foreground">
-                    <div>
-                      ภาค{comment.region} • เขต {comment.district} • {comment.branch_name}
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 text-sm text-muted-foreground">
+                    <div className="space-y-1">
+                      <div>
+                        สายกิจ {comment.division} • ภาค{comment.region} • เขต {comment.district} • {comment.branch_name}
+                      </div>
+                      {getUsedServices(comment).length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          <span className="text-xs">บริการที่ใช้:</span>
+                          {getUsedServices(comment).map((service, index) => (
+                            <Badge key={index} variant="outline" className="text-xs px-2 py-0">
+                              {service}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                    <div>
+                    <div className="text-xs sm:text-sm whitespace-nowrap">
                       {format(new Date(comment.comment_date), 'dd MMM yyyy HH:mm', { locale: th })}
                     </div>
                   </div>
