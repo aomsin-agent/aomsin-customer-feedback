@@ -237,11 +237,11 @@ export function CommentsList({
 
   const getUsedServices = (comment: CommentData) => {
     const services = [];
-    if (comment.service_1 === 'Y') services.push('ฝาก-ถอนเงิน');
-    if (comment.service_2 === 'Y') services.push('สินเชื่อ');
-    if (comment.service_3 === 'Y') services.push('เงินฝาก');
-    if (comment.service_4 === 'Y') services.push('บริการอื่นๆ');
-    if (comment.service_5 === 'Y') services.push('การชำระเงิน');
+    if (comment.service_1 === 'Y') services.push('เงินฝาก');
+    if (comment.service_2 === 'Y') services.push('ชำระเงิน');
+    if (comment.service_3 === 'Y') services.push('สมัครบริการ');
+    if (comment.service_4 === 'Y') services.push('สอบถาม');
+    if (comment.service_5 === 'Y') services.push('อื่นๆ');
     return services;
   };
   return (
@@ -327,7 +327,7 @@ export function CommentsList({
                   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 text-sm text-muted-foreground">
                     <div className="space-y-1">
                       <div>
-                        สายกิจ {comment.division} • ภาค{comment.region} • เขต {comment.district} • {comment.branch_name}
+                        สายกิจ {comment.division} • ภาค {comment.region} • เขต {comment.district} • {comment.branch_name}
                       </div>
                       {getUsedServices(comment).length > 0 && (
                         <div className="flex flex-wrap gap-1">
