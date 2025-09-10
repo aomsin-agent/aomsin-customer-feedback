@@ -264,7 +264,7 @@ export function SevereCommentsList({
   };
 
   return (
-    <Card className="h-full relative overflow-hidden">
+    <Card className="relative overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-red-500 to-red-700"></div>
       <CardHeader className="pb-3">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -316,7 +316,7 @@ export function SevereCommentsList({
         </div>
       </CardHeader>
       <CardContent className="p-0">
-        <ScrollArea className="h-[calc(100vh-300px)]">
+        <ScrollArea className="max-h-[calc(100vh-300px)]">
           {severeLoading ? (
             <div className="p-6 text-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto"></div>

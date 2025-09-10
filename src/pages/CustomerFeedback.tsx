@@ -53,7 +53,7 @@ export default function CustomerFeedback() {
       </div>
 
       {/* Responsive layout: Filters on top for mobile, left side for desktop */}
-      <div className="flex flex-col md:grid md:grid-cols-12 gap-6 min-h-[calc(100vh-200px)]">
+      <div className="flex flex-col md:grid md:grid-cols-12 gap-6">
         {/* Filters section - top on mobile, left on desktop */}
         <div className="md:col-span-4 space-y-4 md:h-full md:overflow-y-auto order-1 md:order-none">
           <AreaFilter
