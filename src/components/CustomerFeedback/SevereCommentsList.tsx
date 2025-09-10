@@ -316,7 +316,8 @@ export function SevereCommentsList({
         </div>
       </CardHeader>
       <CardContent className="p-0">
-        <ScrollArea className="max-h-[calc(100vh-300px)]">
+        <ScrollArea className="h-[55vh] sm:h-[60vh] md:h-[calc(100vh-300px)] supports-[height:100dvh]:h-[calc(100dvh-300px)] touch-pan-y overscroll-contain">
+          <div className="pr-3">
           {severeLoading ? (
             <div className="p-6 text-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto"></div>
@@ -385,7 +386,8 @@ export function SevereCommentsList({
                 </div>
               ))}
             </div>
-          )}
+           )}
+          </div>
         </ScrollArea>
       </CardContent>
     </Card>

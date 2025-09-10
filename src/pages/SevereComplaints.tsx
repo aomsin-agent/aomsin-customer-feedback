@@ -79,7 +79,7 @@ export default function SevereComplaints() {
         </div>
 
         {/* Comments section - bottom on mobile, right on desktop */}
-        <div className="md:col-span-8 flex-1 order-2 md:order-none">
+        <div className="md:col-span-8 flex-1 order-2 md:order-none min-h-0">
           <SevereCommentsList
             selectedAreas={selectedAreas}
             selectedCategories={selectedCategories}

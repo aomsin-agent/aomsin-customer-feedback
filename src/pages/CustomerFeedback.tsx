@@ -82,7 +82,7 @@ export default function CustomerFeedback() {
         </div>
 
         {/* Comments section - bottom on mobile, right on desktop */}
-        <div className="md:col-span-8 flex-1 order-2 md:order-none space-y-6">
+        <div className="md:col-span-8 flex-1 order-2 md:order-none space-y-6 min-h-0">
           {/* ข้อคิดเห็น/ข้อเสนอแนะ Section */}
           <Card className="relative overflow-hidden bg-card shadow-soft">
             <div className="absolute top-0 left-0 w-full h-2 bg-gradient-primary"></div>
